@@ -1,17 +1,17 @@
 {
   "expo": {
-    "name": "MyPet",
-    "slug": "mypet",
+    "name": "Petsona",
+    "slug": "petsona",
     "version": "0.0.1",
     "orientation": "portrait",
-    "scheme": "mypet",
+    "scheme": "petsona",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "com.antonglance.mypet",
+      "bundleIdentifier": "com.antonglance.petsona",
       "supportsTablet": true
     },
     "android": {
-      "package": "com.antonglance.mypet",
+      "package": "com.antonglance.petsona",
       "predictiveBackGestureEnabled": false
     },
     "web": {
