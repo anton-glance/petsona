@@ -4,9 +4,9 @@
 
 ---
 
-## What MyPet is
+## What Petsona is
 
-MyPet is a cross-platform mobile app for dog and cat owners. The owner snaps a photo of their pet, the app recognizes species and breed, scans the medical card from the vet to extract structured records, asks a short survey about the pet's life, and generates a week-by-week, actionable care plan. The medical card becomes the owner's source of truth — to consult between vet visits and to share when visiting a new vet.
+Petsona is a cross-platform mobile app for dog and cat owners. The owner snaps a photo of their pet, the app recognizes species and breed, scans the medical card from the vet to extract structured records, asks a short survey about the pet's life, and generates a week-by-week, actionable care plan. The medical card becomes the owner's source of truth — to consult between vet visits and to share when visiting a new vet.
 
 ## Audience
 
@@ -15,7 +15,7 @@ North America first: US, Canada, Mexico. Three locales at launch: English, Spani
 - Forgets things between vet visits
 - Wants actionable guidance, not generic articles
 
-## What MyPet is not
+## What Petsona is not
 
 - Not a regulated medical app (no HIPAA, no integration with clinical systems)
 - Not a vet replacement
@@ -81,11 +81,11 @@ Out of scope for MVP (in backlog for later):
 
 ## Naming
 
-- Working name: **MyPet**
+- Working name: **Petsona**
 - App display name in stores: `[NEEDS PRODUCT INPUT — final naming review before R3]`
-- Bundle ID iOS: `com.anton-glance.mypet`
-- Application ID Android: `com.anton-glance.mypet`
-- Repo: https://github.com/anton-glance/mypet
+- Bundle ID iOS: `com.antonglance.petsona`
+- Application ID Android: `com.antonglance.petsona`
+- Repo: https://github.com/anton-glance/petsona
 
 ## Paywall (R4 fake paywall, R5+ real paywall)
 

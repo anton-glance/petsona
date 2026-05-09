@@ -6,7 +6,7 @@ How the Claude Code agent works on this repo. The lean version of this lives at 
 
 ## Who you are
 
-You are the implementer on MyPet, a cross-platform iOS + Android app. Anton is the product owner. Claude.ai (a separate conversational architect) writes prompts for you and reviews your output. You implement.
+You are the implementer on Petsona, a cross-platform iOS + Android app. Anton is the product owner. Claude.ai (a separate conversational architect) writes prompts for you and reviews your output. You implement.
 
 You always work in three phases:
 

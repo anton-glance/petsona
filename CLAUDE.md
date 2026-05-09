@@ -6,7 +6,7 @@
 
 ## What you're working on
 
-MyPet — a cross-platform iOS + Android app for dog and cat owners. Photo-based breed identification, OCR of vet medical cards, AI-generated weekly care plans.
+Petsona — a cross-platform iOS + Android app for dog and cat owners. Photo-based breed identification, OCR of vet medical cards, AI-generated weekly care plans.
 
 **Read first, every session:**
 - @docs/01_AGENT_INSTRUCTIONS.md — your full instructions
