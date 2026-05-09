@@ -1,1 +1,49 @@
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+.expo-shared/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native build outputs (we don't run prebuild; EAS owns native dirs)
+ios/
+android/
+
+# EAS
+.eas/
+
+# Metro
+.metro-health-check*
+
+# Tests / coverage
+coverage/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
 .DS_Store
+
+# Native key/credential material
+*-key.json
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+.kotlin/
+*.orig.*
+
+# Local env files (committed: .env.example only)
+.env
+.env.*
+!.env.example

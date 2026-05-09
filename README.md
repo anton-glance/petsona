@@ -73,3 +73,27 @@ Per-release journals (`docs/JOURNAL_R0.md`, `JOURNAL_R1.md`, …) are added as e
 ## Local setup
 
 Repo lives at `~/coding/mypet/`. Tooling and full setup steps in `docs/04_BACKLOG.md` under R0.
+
+### Quickstart (after R0-M1 lands)
+
+```sh
+# Auto-pick Node 20 from .node-version
+fnm use   # or: nvm use
+
+# Install dependencies
+pnpm install
+
+# Run the dev server
+pnpm start          # press i for iOS, a for Android
+```
+
+### Verification (run after every meaningful change)
+
+```sh
+pnpm typecheck       # tsc --noEmit
+pnpm test            # jest (jest-expo preset)
+pnpm lint            # eslint .
+npx expo-doctor      # Expo dependency / config sanity
+```
+
+CI runs the first three on every PR; see `.github/workflows/ci.yml`.
