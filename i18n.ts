@@ -17,21 +17,21 @@ export interface InitI18nOptions {
   lng?: SupportedLocale;
 }
 
-// Stub: initializes i18next with EMPTY resources so t('app.name') returns the
-// key 'app.name' rather than 'MyPet'. Tests in commit 2 will assert the real
-// translations and fail for the right reason; commit 3 wires real resources.
-export async function initI18n(_opts: InitI18nOptions = {}): Promise<I18n> {
+export async function initI18n(opts: InitI18nOptions = {}): Promise<I18n> {
   if (!i18next.isInitialized) {
     // eslint-disable-next-line import/no-named-as-default-member -- i18next default export is the singleton; .use() returns it for chaining
     await i18next.use(initReactI18next).init({
-      lng: 'en',
+      lng: opts.lng ?? 'en',
       fallbackLng: 'en',
       defaultNS: 'common',
       ns: ['common'],
-      resources: { en: { common: {} } },
+      resources,
       interpolation: { escapeValue: false },
       compatibilityJSON: 'v4',
     });
+  } else if (opts.lng !== undefined) {
+    // eslint-disable-next-line import/no-named-as-default-member -- see above
+    await i18next.changeLanguage(opts.lng);
   }
   return i18next;
 }
