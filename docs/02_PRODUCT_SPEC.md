@@ -83,8 +83,8 @@ Out of scope for MVP (in backlog for later):
 
 - Working name: **MyPet**
 - App display name in stores: `[NEEDS PRODUCT INPUT — final naming review before R3]`
-- Bundle ID iOS: `com.anton-glance.mypet`
-- Application ID Android: `com.anton-glance.mypet`
+- Bundle ID iOS: `com.antonglance.mypet`
+- Application ID Android: `com.antonglance.mypet`
 - Repo: https://github.com/anton-glance/mypet
 
 ## Paywall (R4 fake paywall, R5+ real paywall)

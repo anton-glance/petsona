@@ -23,8 +23,16 @@ Time ledger initialized in `08_TIME_LEDGER.md`.
 
 ---
 
-## R0 — `[pending]`
+## R0 — `[in progress]`
 
-Verdict to be recorded here when R0 closes. Detailed record will be in `JOURNAL_R0.md`.
+R0 verdict pending. Detailed record will be in `JOURNAL_R0.md` when all R0 milestones close.
+
+### Milestone checkpoints
+
+**R0-M0 — Local environment** ✅ shipped 2026-05-09. Anton's machine has Node 20 LTS via fnm, pnpm, EAS CLI, Deno, Supabase CLI (2.72.7 — upgrade pending CLT update). One follow-up logged: macOS Command Line Tools out of date, blocks Supabase CLI upgrade until R0-M3.
+
+**R0-M1 — Repo and tooling** ✅ shipped 2026-05-09 via PR #1, squash-merged as `39a3133`. Expo SDK 55 + TypeScript strict + NativeWind v4 + Expo Router + i18next + Zustand + Jest scaffold at the repo root. CI (typecheck + test + lint) green at 28s on the PR. 12/12 tests pass across 4 suites. `expo-doctor` 18/18. `expo export` produced 3.9 MB Hermes bundle, 1410 modules, 0 errors. Two ADRs surfaced during plan review: D-012 (repo root as Expo project root, replacing the originally-documented `/app/` wrapper) and D-013 (Jest, replacing Vitest). One ADR surfaced during implementation: D-014 (bundle ID collapsed to `com.antonglance.mypet`).
+
+**R0-M2 onward — pending.**
 
 ---

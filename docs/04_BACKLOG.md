@@ -29,36 +29,40 @@
 
 ### Milestones
 
-#### R0-M0 — Local environment (Anton)
-- [ ] Install Node 20 LTS (use `fnm` or `nvm`)
-- [ ] Install pnpm: `npm install -g pnpm`
-- [ ] Install Expo CLI: `npm install -g expo`
-- [ ] Install EAS CLI: `npm install -g eas-cli`
-- [ ] Install Supabase CLI: `brew install supabase/tap/supabase`
-- [ ] Install Deno: `brew install deno`
-- [ ] Verify Xcode 16+ is installed (`xcode-select -p`)
-- [ ] Install Android Studio (only for emulator; we won't use the IDE for daily work)
-- [ ] Confirm `~/coding/` directory exists (project will live at `~/coding/mypet/`)
+#### R0-M0 — Local environment (Anton) ✅ shipped 2026-05-09
+- [x] Install Node 20 LTS via `fnm` (`.node-version` pins it per-project)
+- [x] pnpm 10.x installed
+- [x] Expo CLI not installed globally (modern Expo uses `npx`; `npx expo` and `npx create-expo-app` are the canonical entry points)
+- [x] EAS CLI 18.11.0 installed globally
+- [x] Supabase CLI installed (currently 2.72.7; upgrade to 2.98.x deferred — see "Known issues" below)
+- [x] Deno 2.7.14 installed
+- [x] Xcode 16+ verified (`xcode-select -p`)
+- [x] Android Studio installed (emulator only; not used for daily work per D-001)
+- [x] `~/coding/mypet/` exists
 
-**Estimate:** 1h (mostly downloads).
+**Known issues from R0-M0** (track for later):
+- macOS Command Line Tools out of date (CLT for Xcode 26.3 needed). Blocks `brew upgrade supabase`. Not blocking until R0-M3 (Supabase project setup). Fix before R0-M3: `sudo rm -rf /Library/Developer/CommandLineTools && sudo xcode-select --install`.
+- `~/.local/state` was owned by `root` from a prior gem install; reclaimed via `sudo chown`. Captured here in case fnm or another tool surfaces a similar permission issue.
 
-#### R0-M1 — Repo and tooling
-- [ ] Confirm GitHub repo `anton-glance/mypet` exists and is empty (public)
-- [ ] Clone to `~/coding/mypet/`
-- [ ] Run `npx create-expo-app@latest --template default-typescript`
-- [ ] Initialize: NativeWind v4, Expo Router, i18next, Zustand, ESLint, Prettier, Jest with `jest-expo` preset
-- [ ] Add a `.gitignore` that excludes `.env*`, `node_modules`, `.expo`, `dist`, build artifacts, and any local `*-key.json` files
-- [ ] Add the doc set to `docs/` (this conversation's outputs)
-- [ ] Add `CLAUDE.md` to repo root
-- [ ] Add `.github/workflows/ci.yml` running typecheck + test + lint on PR
-- [ ] First commit on `main`; protect `main` (require PR + passing CI)
+**Estimate:** 1h. **Actual: ~1.5h** (toolchain debug for fnm/state-dir permissions + Node-25-vs-Node-20 cleanup).
 
-**Estimate:** 2h.
+#### R0-M1 — Repo and tooling ✅ shipped 2026-05-09 (PR #1, squash `39a3133`)
+- [x] Confirm GitHub repo `anton-glance/mypet` exists and is empty (public)
+- [x] Clone to `~/coding/mypet/`
+- [x] Run `npx create-expo-app@latest --template default-typescript` *(skipped — agent scaffolded directly with the correct deps; equivalent outcome)*
+- [x] Initialize: NativeWind v4, Expo Router, i18next, Zustand, ESLint, Prettier, Jest with `jest-expo` preset
+- [x] Add a `.gitignore` that excludes `.env*`, `node_modules`, `.expo`, `dist`, build artifacts, and any local `*-key.json` files
+- [x] Add the doc set to `docs/` (already on `main` from the project-start session)
+- [x] Add `CLAUDE.md` to repo root (already present)
+- [x] Add `.github/workflows/ci.yml` running typecheck + test + lint on PR
+- [x] First commit on `main`; protect `main` (require PR + passing CI)
+
+**Estimate:** 2h. **Actual: ~3h** (agent implementation + plan-review round-trip + CI fix commit + disk-pressure recovery).
 
 #### R0-M2 — Store identifiers and EAS
-- [ ] Apple Developer: register App ID `com.anton-glance.mypet`
-- [ ] App Store Connect: create the iOS app entry with bundle ID `com.anton-glance.mypet`
-- [ ] Google Play Console: create the Android app entry with application ID `com.anton-glance.mypet` (placeholder icon and screenshots are fine)
+- [ ] Apple Developer: register App ID `com.antonglance.mypet`
+- [ ] App Store Connect: create the iOS app entry with bundle ID `com.antonglance.mypet`
+- [ ] Google Play Console: create the Android app entry with application ID `com.antonglance.mypet` (placeholder icon and screenshots are fine)
 - [ ] `eas init` to link the repo to EAS
 - [ ] `eas build:configure` (creates `eas.json`)
 - [ ] `eas build --profile development --platform ios` and install on Anton's iPhone

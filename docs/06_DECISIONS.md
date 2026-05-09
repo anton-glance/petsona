@@ -183,3 +183,18 @@
 **Consequences.** Slightly slower test execution vs Vitest. Battle-tested RN compatibility. Avoid the technical debt that would have surfaced at R1-M4. Switched before any test was written, so no migration cost.
 
 ---
+
+## D-014 — Bundle ID / applicationId is `com.antonglance.mypet` (collapsed, no dash)
+
+**Date:** 2026-05-09
+**Status:** Accepted (during R0-M1 implementation)
+
+**Context.** Original docs specified `com.anton-glance.mypet` (dashed, matching the GitHub username). `expo-doctor` rejects this for the Android `applicationId` because Android's applicationId must be a valid Java package name — letters, digits, underscores only, no dashes. iOS bundle IDs do allow dashes but matching iOS to Android keeps store registration symmetric.
+
+**Decision.** Use `com.antonglance.mypet` (collapsed, no separator) for both `ios.bundleIdentifier` and `android.package`. The GitHub repo URL stays at `anton-glance/mypet` (URLs allow dashes).
+
+**Consequences.** App Store Connect (iOS) and Google Play Console (Android) both register under the same identifier `com.antonglance.mypet`. No retroactive impact since R0-M2 (App Store Connect / Play Console registration) hasn't happened yet — this decision lands before the IDs are reserved. If we ever change the GitHub org to one without a dash (e.g., `antonglance`), bundle ID and repo can re-converge naturally.
+
+**Reversal cost.** High after R0-M2 (would require unregistering the App ID from Apple and the application from Google Play and starting over). Lock now; never change.
+
+---
