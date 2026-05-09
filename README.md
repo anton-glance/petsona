@@ -19,18 +19,26 @@ For the full product description, see `docs/02_PRODUCT_SPEC.md`.
 
 ## How this repo is organized
 
+The Expo project lives at the **repo root**. There is no `/app/` wrapper — the `app/` directory at the root contains expo-router screens.
+
 ```
-/app                   Expo (React Native) app — iOS + Android
-/supabase              Backend: Postgres migrations + edge functions
-  /functions
-    /breed-identify    Vision AI for breed recognition
-    /medcard-ocr       OCR for medical cards
-    /plan-generate     Streaming weekly plan generation
-    /_shared           Shared AI client adapters (claude, mistral, …)
-  /migrations
-/shared                TypeScript types shared client ↔ functions
-/docs                  Project documentation (read these first)
-CLAUDE.md              Root-level instructions for the Claude Code agent
+package.json, app.json, etc.   Expo project root
+app/                           expo-router screens (file-based routing)
+components/                    shared UI components
+features/                      feature folders (onboarding/, plan/, medcard/, …)
+lib/                           supabase, logger, env, store
+locales/                       en.json, es.json, ru.json
+i18n.ts                        i18next setup
+supabase/                      Backend: Deno-based edge functions + Postgres migrations
+  functions/
+    breed-identify/            Vision AI for breed recognition
+    medcard-ocr/               OCR for medical cards
+    plan-generate/             Streaming weekly plan generation
+    _shared/                   Provider adapters (claude, mistral, …) + logging + auth
+  migrations/
+shared/                        TypeScript types shared client ↔ functions
+docs/                          Project documentation (read these first)
+CLAUDE.md                      Root-level instructions for the Claude Code agent
 ```
 
 ---

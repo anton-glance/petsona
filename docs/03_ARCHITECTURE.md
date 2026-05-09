@@ -228,7 +228,7 @@ This is the cleanest path for "do everything, then paywall, then sign in." Docum
 
 ## Localization
 
-- **UI strings:** i18next with three resource files: `app/locales/en.json`, `es.json`, `ru.json`. Every user-facing string goes through `t('namespace.key')`. R5 is a localization-only release; the discipline of putting all strings in `en.json` from R0 is what makes that release fast.
+- **UI strings:** i18next with three resource files: `locales/en.json`, `es.json`, `ru.json` (at repo root, per D-012). Every user-facing string goes through `t('namespace.key')`. R5 is a localization-only release; the discipline of putting all strings in `en.json` from R0 is what makes that release fast.
 - **AI-generated content:** Locale is passed as a prompt parameter. The model writes in the target language directly. We do not translate after generation.
 - **Date / number formatting:** Native `Intl.DateTimeFormat` and `Intl.NumberFormat` with the active locale.
 - **Plurals and gender:** Handled by i18next's pluralization (Russian has more plural forms than English/Spanish).

@@ -21,7 +21,7 @@ MyPet — a cross-platform iOS + Android app for dog and cat owners. Photo-based
 - **Client:** Expo SDK 55, React Native, TypeScript strict, NativeWind, Expo Router, i18next, Zustand
 - **Backend:** Supabase (Postgres + RLS + Auth + Storage + Edge Functions on Deno)
 - **AI:** Claude API (Sonnet 4.6, Haiku 4.5) and Mistral OCR, called only from edge functions
-- **Tooling:** pnpm, Vitest, RN Testing Library, Deno test, ESLint, Prettier
+- **Tooling:** pnpm, Jest with `jest-expo` preset, `@testing-library/react-native` (added at R1 for component tests), Deno test, ESLint, Prettier
 
 ---
 
@@ -65,25 +65,46 @@ If any fails, fix before continuing.
 
 ## Repo layout
 
+The Expo project lives at the **repo root**. There is no `/app/` wrapper directory; the `app/` you see at the root is the expo-router screens directory.
+
 ```
-app/                  Expo client
-  app/                expo-router screens
-  components/
-  features/
-  lib/                supabase, ai (calls edge functions), logger
-  locales/            en.json, es.json, ru.json
-supabase/
+package.json              Expo project root
+app.json
+tsconfig.json
+babel.config.js
+metro.config.js
+global.css
+tailwind.config.js
+i18n.ts
+app/                      expo-router screens (file-based routing)
+  _layout.tsx
+  index.tsx
+components/               shared UI components
+features/                 feature folders (onboarding/, plan/, medcard/, …)
+lib/
+  supabase.ts             Supabase client (anon key)
+  ai.ts                   Helper that calls edge functions
+  logger.ts
+  store.ts                Zustand
+  env.ts
+locales/
+  en.json
+  es.json
+  ru.json
+supabase/                 Sibling: Deno-based edge functions
   functions/
     _shared/
-      ai/             claude.ts, mistral.ts, types.ts
+      ai/                 claude.ts, mistral.ts, types.ts
       logging.ts
       auth.ts
     breed-identify/
     medcard-ocr/
     plan-generate/
   migrations/
-shared/               Types shared client ↔ functions
+shared/                   Types shared client ↔ functions
 docs/
+CLAUDE.md
+README.md
 ```
 
 ---

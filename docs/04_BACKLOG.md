@@ -46,7 +46,7 @@
 - [ ] Confirm GitHub repo `anton-glance/mypet` exists and is empty (public)
 - [ ] Clone to `~/coding/mypet/`
 - [ ] Run `npx create-expo-app@latest --template default-typescript`
-- [ ] Initialize: NativeWind, Expo Router, i18next, Zustand, ESLint, Prettier, Vitest
+- [ ] Initialize: NativeWind v4, Expo Router, i18next, Zustand, ESLint, Prettier, Jest with `jest-expo` preset
 - [ ] Add a `.gitignore` that excludes `.env*`, `node_modules`, `.expo`, `dist`, build artifacts, and any local `*-key.json` files
 - [ ] Add the doc set to `docs/` (this conversation's outputs)
 - [ ] Add `CLAUDE.md` to repo root

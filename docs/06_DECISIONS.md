@@ -117,7 +117,7 @@
 **Date:** 2026-05-09
 **Status:** Accepted
 
-**Decision.** UI strings via i18next with `app/locales/en.json`, `es.json`, `ru.json`. From R0 onward, every user-facing string goes through `t('...')` even though only English is shipping until R5. AI-generated content (breed narrative, plan content) is generated in the user's locale by passing the locale to the prompt; we do not post-translate.
+**Decision.** UI strings via i18next with `locales/en.json`, `es.json`, `ru.json` (at repo root, per D-012). From R0 onward, every user-facing string goes through `t('...')` even though only English is shipping until R5. AI-generated content (breed narrative, plan content) is generated in the user's locale by passing the locale to the prompt; we do not post-translate.
 
 **Consequences.** R5 becomes a translation pass + native review pass, not a re-engineering of the codebase. Any string added without `t('...')` is a defect that will surface at R5.
 
@@ -153,5 +153,33 @@
 **Decision.** One repo with `/app`, `/supabase`, `/shared`, `/docs` as top-level folders. No npm workspaces, no Turborepo, no Nx.
 
 **Rationale.** Solo developer, MVP timeline, no separate frontend/backend teams. Monorepo overhead unjustified at this scale. Revisit if we add a web app or separate admin dashboard.
+
+**Note (2026-05-09):** Superseded in part by D-012 — the Expo project root is the repo root itself, not a nested `/app/` directory. D-011's no-monorepo intent stands; D-012 is its concrete realization.
+
+---
+
+## D-012 — Repo root IS the Expo project root
+
+**Date:** 2026-05-09
+**Status:** Accepted (during R0-M1 Phase 1 plan review)
+
+**Context.** Initial layout in `03_ARCHITECTURE.md` placed the Expo project at `/app/` with `/app/app/` for expo-router screens. The Claude Code agent flagged this in its R0-M1 plan: it requires `working-directory: app` plumbing in CI, `cd app` before every dev command, and the `/app/app/` path is genuinely confusing.
+
+**Decision.** The Expo project lives at the repo root. `package.json`, `app.json`, `tsconfig.json`, `babel.config.js`, `metro.config.js`, `app/` (expo-router screens), `components/`, `features/`, `lib/`, `locales/`, and `i18n.ts` all live at the repo root. `supabase/` remains a sibling directory (separate Deno ecosystem); `shared/` and `docs/` remain siblings (non-JS). No nested wrapper.
+
+**Consequences.** Cleaner DX, no working-directory plumbing in CI, no `/app/app/` confusion, matches what `npx create-expo-app` produces by default. The doc set was updated in this same session before any code was written. No code refactor cost.
+
+---
+
+## D-013 — Jest with `jest-expo` preset (not Vitest)
+
+**Date:** 2026-05-09
+**Status:** Accepted (during R0-M1 Phase 1 plan review)
+
+**Context.** Initial `03_ARCHITECTURE.md` and `01_AGENT_INSTRUCTIONS.md` specified Vitest for unit tests. The agent's R0-M1 plan correctly flagged that Vitest has no first-class React Native support: at R1-M4 (camera component tests) we'd need either an unmaintained third-party preset (`vitest-react-native`) or extensive `vi.mock('react-native', ...)` boilerplate.
+
+**Decision.** Use Jest with the `jest-expo` preset for both unit and component tests. Use `@testing-library/react-native` (added at R1) for component tests. Edge function tests continue to use `deno test` (separate runtime).
+
+**Consequences.** Slightly slower test execution vs Vitest. Battle-tested RN compatibility. Avoid the technical debt that would have surfaced at R1-M4. Switched before any test was written, so no migration cost.
 
 ---

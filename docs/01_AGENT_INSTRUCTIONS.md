@@ -23,7 +23,7 @@ Stop only when verification passes.
 - **Client:** Expo SDK 55, React Native, TypeScript (strict), NativeWind, Expo Router, i18next
 - **Backend:** Supabase (Postgres + RLS + Auth + Storage + Edge Functions on Deno + TypeScript)
 - **AI providers:** Anthropic Claude API (`@anthropic-ai/sdk`), Mistral API (`@mistralai/mistralai`), abstracted behind `supabase/functions/_shared/ai/`
-- **Tooling:** pnpm, Vitest (unit), React Native Testing Library (component), Deno test (edge functions), ESLint, Prettier, expo-doctor
+- **Tooling:** pnpm, Jest with `jest-expo` preset (unit + component), `@testing-library/react-native` (added at R1 for component tests), Deno test (edge functions), ESLint, Prettier, expo-doctor
 - **CI:** GitHub Actions runs typecheck + test + lint on every PR; EAS Build runs on tagged commits
 
 Never use a different framework, different bundler, different test runner, or a different AI provider unless the prompt explicitly says to and Claude.ai has approved a new ADR.
@@ -59,7 +59,7 @@ If any of these fail, fix before continuing. Do not proceed with red tests.
 3. **Every table has RLS enabled with default-deny.** Every policy is scoped to `auth.uid()`. New tables without RLS fail review.
 4. **Every AI call writes to `ai_jobs`.** With model id, prompt version, input/output token counts, latency in ms, cost in USD, hashed input. This is how we monitor cost and detect prompt regressions.
 5. **Every prompt has a version constant.** Format: `BREED_PROMPT_V = "2026-05-08-1"`. Stored in `ai_jobs.prompt_version` on every call.
-6. **No hardcoded user-facing strings.** Every label, error, button copy goes through `t('namespace.key')`. Locales: `en`, `es`, `ru` from R5 onward; English-only is acceptable through R4 but every string already lives in `app/locales/en.json`.
+6. **No hardcoded user-facing strings.** Every label, error, button copy goes through `t('namespace.key')`. Locales: `en`, `es`, `ru` from R5 onward; English-only is acceptable through R4 but every string already lives in `locales/en.json`.
 7. **No `any` types.** No `// @ts-ignore` without a comment justifying why.
 8. **No `console.log` in production code.** Use the project logger.
 9. **No commented-out code.**
@@ -69,29 +69,41 @@ If any of these fail, fix before continuing. Do not proceed with red tests.
 
 ## Repo layout you must respect
 
+The Expo project lives at the **repo root**. There is no `/app/` wrapper directory; the `app/` at the root is the expo-router screens directory only.
+
 ```
-app/
-  app/                 expo-router screens (file-based routing)
-  components/          shared UI components
-  features/            feature folders (onboarding/, plan/, medcard/, …)
-  lib/
-    supabase.ts        Supabase client (anon key)
-    ai.ts              Client-side helper that calls edge functions
-    logger.ts          Logger
-  locales/
-    en.json
-    es.json
-    ru.json
-  i18n.ts              i18next setup
-supabase/
+package.json              Expo project root
+app.json
+tsconfig.json
+babel.config.js
+metro.config.js
+global.css
+tailwind.config.js
+i18n.ts                   i18next setup
+app/                      expo-router screens (file-based routing)
+  _layout.tsx
+  index.tsx
+components/               shared UI components
+features/                 feature folders (onboarding/, plan/, medcard/, …)
+lib/
+  supabase.ts             Supabase client (anon key)
+  ai.ts                   Client-side helper that calls edge functions
+  logger.ts               Logger (only file allowed to call console.*)
+  store.ts                Zustand store
+  env.ts                  Typed reader for EXPO_PUBLIC_* vars
+locales/
+  en.json
+  es.json
+  ru.json
+supabase/                 Sibling — Deno-based edge functions
   functions/
     _shared/
       ai/
-        claude.ts      Claude adapter
-        mistral.ts     Mistral adapter
-        types.ts       Common interface
-      logging.ts       ai_jobs writer
-      auth.ts          getUser() helper
+        claude.ts         Claude adapter
+        mistral.ts        Mistral adapter
+        types.ts          Common interface
+      logging.ts          ai_jobs writer
+      auth.ts             getUser() helper
     breed-identify/
       index.ts
     medcard-ocr/
@@ -100,8 +112,10 @@ supabase/
       index.ts
   migrations/
 shared/
-  types.ts             Types shared client ↔ functions
+  types.ts                Types shared client ↔ functions
 docs/
+CLAUDE.md
+README.md
 ```
 
 If a prompt asks you to place code somewhere outside this layout, ask before doing it.
@@ -115,7 +129,7 @@ If a prompt asks you to place code somewhere outside this layout, ask before doi
 
 **Files I will create or modify:**
 - `app/features/onboarding/BreedConfirm.tsx` (new)
-- `app/locales/en.json` (modify — add 4 new keys)
+- `locales/en.json` (modify — add 4 new keys)
 - ...
 
 **Public APIs:**
