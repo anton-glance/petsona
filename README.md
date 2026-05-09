@@ -1,11 +1,11 @@
-# MyPet
+# Petsona
 
 Cross-platform mobile app (iOS + Android) for dog and cat owners. The pet's medical card, photo-based breed identification, and an AI-generated weekly care plan, all in one place.
 
 **Status:** Pre-R0. Repo scaffolding only.
 **Project started:** 2026-05-09 03:17 UTC.
-**Working name:** MyPet (subject to product naming review before R3).
-**Repo:** https://github.com/anton-glance/mypet
+**Working name:** Petsona (subject to product naming review before R3).
+**Repo:** https://github.com/anton-glance/petsona
 
 ---
 
@@ -49,7 +49,7 @@ CLAUDE.md                      Root-level instructions for the Claude Code agent
 |---|---|---|
 | 1 | `docs/00_CLAUDE_INSTRUCTIONS.md` | How Claude.ai (architect) and Anton (product) work together |
 | 2 | `docs/01_AGENT_INSTRUCTIONS.md` | How the Claude Code agent works on this repo |
-| 3 | `docs/02_PRODUCT_SPEC.md` | What MyPet is. Single-source product description |
+| 3 | `docs/02_PRODUCT_SPEC.md` | What Petsona is. Single-source product description |
 | 4 | `docs/03_ARCHITECTURE.md` | Stack, tools, infrastructure, AI gateway pattern |
 | 5 | `docs/04_BACKLOG.md` | R0–R5 validation ladder with milestones and quality gates |
 | 6 | `docs/05_HISTORY.md` | Frozen verdicts and lessons learned per release |
@@ -72,28 +72,4 @@ Per-release journals (`docs/JOURNAL_R0.md`, `JOURNAL_R1.md`, …) are added as e
 
 ## Local setup
 
-Repo lives at `~/coding/mypet/`. Tooling and full setup steps in `docs/04_BACKLOG.md` under R0.
-
-### Quickstart (after R0-M1 lands)
-
-```sh
-# Auto-pick Node 20 from .node-version
-fnm use   # or: nvm use
-
-# Install dependencies
-pnpm install
-
-# Run the dev server
-pnpm start          # press i for iOS, a for Android
-```
-
-### Verification (run after every meaningful change)
-
-```sh
-pnpm typecheck       # tsc --noEmit
-pnpm test            # jest (jest-expo preset)
-pnpm lint            # eslint .
-npx expo-doctor      # Expo dependency / config sanity
-```
-
-CI runs the first three on every PR; see `.github/workflows/ci.yml`.
+Repo lives at `~/coding/petsona/`. Tooling and full setup steps in `docs/04_BACKLOG.md` under R0.

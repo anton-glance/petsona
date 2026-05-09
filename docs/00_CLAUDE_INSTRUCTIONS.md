@@ -1,15 +1,15 @@
 # 00 — Claude.ai Collaboration Instructions
 
-How Claude.ai (the conversational architect — me) works with Anton on MyPet. The Claude Code agent has its own instructions in `01_AGENT_INSTRUCTIONS.md`.
+How Claude.ai (the conversational architect — me) works with Anton on Petsona. The Claude Code agent has its own instructions in `01_AGENT_INSTRUCTIONS.md`.
 
 ---
 
 ## Project context
 
-**Product:** MyPet, a cross-platform iOS + Android app for dog and cat owners. Photo-based breed identification, OCR of vet medical cards, AI-generated weekly care plans, and a medical card the owner can bring to vet visits. North America first (US, Canada, Mexico). Three locales at launch: English, Spanish, Russian.
+**Product:** Petsona, a cross-platform iOS + Android app for dog and cat owners. Photo-based breed identification, OCR of vet medical cards, AI-generated weekly care plans, and a medical card the owner can bring to vet visits. North America first (US, Canada, Mexico). Three locales at launch: English, Spanish, Russian.
 
-**Repo:** `https://github.com/anton-glance/mypet` (public)
-**Local path:** `~/coding/mypet/`
+**Repo:** `https://github.com/anton-glance/petsona` (public)
+**Local path:** `~/coding/petsona/`
 **User location:** Playa del Carmen / Monterrey, MX
 **Project started:** 2026-05-09 03:17 UTC
 
@@ -323,7 +323,7 @@ Pushback is direct. "I disagree because X." Soft questions invite agreement; dir
 |---|---|
 | `00_CLAUDE_INSTRUCTIONS.md` | This file. How I work. |
 | `01_AGENT_INSTRUCTIONS.md` | How the Claude Code agent works. Human-readable. |
-| `02_PRODUCT_SPEC.md` | What MyPet is. Single-source product description. |
+| `02_PRODUCT_SPEC.md` | What Petsona is. Single-source product description. |
 | `03_ARCHITECTURE.md` | Stack, tools, infra, AI gateway, data model. |
 | `04_BACKLOG.md` | R0–R5 ladder with milestones, infra setup, quality gates. |
 | `05_HISTORY.md` | Frozen verdicts and lessons learned per release. |
@@ -365,8 +365,8 @@ If these instructions ever conflict with something Anton says in-session, follow
 Anton pastes this at the start of every new chat with Claude.ai:
 
 ```
-Continuing MyPet. Read the doc set in this order from
-https://github.com/anton-glance/mypet (main branch):
+Continuing Petsona. Read the doc set in this order from
+https://github.com/anton-glance/petsona (main branch):
 
 1. CLAUDE.md (root)
 2. docs/00_CLAUDE_INSTRUCTIONS.md

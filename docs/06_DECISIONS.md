@@ -19,7 +19,7 @@
 
 **Decision.** Option 4. Xcode remains available for iOS native debugging; Android Studio installed only for the emulator.
 
-**Consequences.** Speed wins; we accept some performance ceiling vs. native. The performance ceiling is far above what MyPet needs (no real-time audio, no graphics workload).
+**Consequences.** Speed wins; we accept some performance ceiling vs. native. The performance ceiling is far above what Petsona needs (no real-time audio, no graphics workload).
 
 ---
 
@@ -181,5 +181,69 @@
 **Decision.** Use Jest with the `jest-expo` preset for both unit and component tests. Use `@testing-library/react-native` (added at R1) for component tests. Edge function tests continue to use `deno test` (separate runtime).
 
 **Consequences.** Slightly slower test execution vs Vitest. Battle-tested RN compatibility. Avoid the technical debt that would have surfaced at R1-M4. Switched before any test was written, so no migration cost.
+
+---
+
+## D-014 — Bundle ID / applicationId is `com.antonglance.petsona` (collapsed, no dash)
+
+**Date:** 2026-05-09
+**Status:** Accepted (during R0-M1 implementation); amended by D-015 (renamed from `mypet` to `petsona`)
+
+**Context.** Original docs specified `com.anton-glance.mypet` (dashed, matching the GitHub username). `expo-doctor` rejects this for the Android `applicationId` because Android's applicationId must be a valid Java package name — letters, digits, underscores only, no dashes. iOS bundle IDs do allow dashes but matching iOS to Android keeps store registration symmetric.
+
+**Decision.** Use `com.antonglance.<slug>` (collapsed, no separator) for both `ios.bundleIdentifier` and `android.package`. The GitHub repo URL stays at `anton-glance/<slug>` (URLs allow dashes).
+
+**Consequences.** App Store Connect (iOS) and Google Play Console (Android) both register under the same identifier. The slug component (`<slug>`) was originally `mypet`; renamed to `petsona` per D-015 before any store registration occurred.
+
+**Reversal cost.** High after R0-M2 (would require unregistering the App ID from Apple and the application from Google Play and starting over). Lock now; never change.
+
+---
+
+## D-015 — Product renamed from MyPet to Petsona (pre-store-registration)
+
+**Date:** 2026-05-09
+**Status:** Accepted (during R0-M2 prep, before any Apple Developer / App Store Connect / Play Console registration)
+
+**Context.** Working name "MyPet" was unavailable for App Store Connect display name registration. Anton (Chief of Product) selected "Petsona" as the replacement after confirming availability across all three required surfaces:
+- Apple Developer App ID `com.antonglance.petsona` — available
+- App Store Connect display name "Petsona" — available
+- Google Play Console package `com.antonglance.petsona` — available
+
+**Decision.** All product-facing references rename from "MyPet" to "Petsona". Bundle ID / applicationId follow per D-014: `com.antonglance.petsona`. GitHub repo renamed from `anton-glance/mypet` to `anton-glance/petsona` (GitHub auto-redirects the old URL). Local working path renamed from `~/coding/mypet/` to `~/coding/petsona/`. Splash tagline updated from "Loading your pet's plan..." to "Every pet has a Petsona" (brand-tied; ties the name to the product's job of capturing each pet's profile).
+
+**Why now.** Before R0-M2 (store registration) — registering `mypet` and unregistering it later would burn an Apple Developer App ID slot and create a stale entry in Play Console. Renaming pre-registration is free.
+
+**Affected.** All 9 doc files, plus `app.json`, `package.json`, `locales/{en,es,ru}.json`, and `i18n.test.ts` in the codebase. Code-side rename happens in PR #4 (agent work) after this doc PR (#3) merges.
+
+**Reversal cost.** High after R0-M2 (same as D-014). Lock now.
+
+**Amended 2026-05-09:** App Store Connect display-name check on bare "Petsona" returned "not available" despite no shipped app using the name (typical Apple soft-block from a speculative reservation or expired listing). Differentiated display name `Petsona: Your Pet's Profile` was used to register the App Store Connect entry. Brand name (in repo, code, marketing) remains "Petsona". See D-016 for the brand-vs-display-name split.
+
+---
+
+## D-016 — Brand name vs App Store display name split
+
+**Date:** 2026-05-09
+**Status:** Accepted (during R0-M2 store registration)
+
+**Context.** App Store Connect rejected bare "Petsona" as a display name despite no shipped app using it (typical of Apple's soft-block from speculative reservations or expired listings). The display name field is Apple-side metadata, separate from bundle ID and brand. Differentiated longer form `Petsona: Your Pet's Profile` was accepted on first try.
+
+**Decision.** Three names coexist with distinct roles:
+
+| Surface | Value | Where it lives |
+|---|---|---|
+| **Brand** (marketing, in-app, repo, code) | `Petsona` | `app.json` `name`, `package.json` `name`, `locales/*.json` `app.name`, splash screen, all docs |
+| **Apple App Store display name** | `Petsona: Your Pet's Profile` | App Store Connect web UI only — *not* in the repo |
+| **Google Play display name** | TBD at Play Console registration; default to `Petsona` if available, else fall back to `Petsona: Your Pet's Profile` for parity | Play Console web UI only — *not* in the repo |
+| **Bundle ID / applicationId** (technical, never user-visible) | `com.antonglance.petsona` | `app.json` `ios.bundleIdentifier` and `android.package` |
+| **Bundle Display Name** (the label under the icon on the home screen) | `Petsona` | Apple-side: `app.json` `ios.infoPlist.CFBundleDisplayName` if we want it different from the App Store name; otherwise iOS uses the bundle name. Default for now: `Petsona`. |
+
+**Consequences.**
+- The repo never sees "Petsona: Your Pet's Profile". That string is App Store metadata that we type into the App Store Connect web form (and later Play Console) directly.
+- The user who downloads the app sees the display name in the App Store listing, but once installed, the home-screen icon label is the *Bundle Display Name* — which we'll set to `Petsona`. The longer form lives only in the App Store discovery surface.
+- App Store SEO benefits from the longer form (keyword "pet" appears in the discoverable name). Acceptable side effect.
+- If Apple ever frees up the bare "Petsona" name (Apple does periodically reclaim abandoned reservations after 180 days), we can request a name change in App Store Connect. Low priority.
+
+**Reassess at:** Play Console registration (within R0-M2). If `Petsona` is available there, take it; if not, use `Petsona: Your Pet's Profile` for parity.
 
 ---

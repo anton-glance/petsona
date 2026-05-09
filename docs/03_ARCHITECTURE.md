@@ -261,9 +261,9 @@ Anton's existing accounts and tools, mapped to what they're used for:
 
 | Tool / Account | Used for | Required by | Setup in |
 |---|---|---|---|
-| Apple Developer Account | iOS bundle ID `com.anton-glance.mypet`, App Store Connect, TestFlight | R0 | R0-M2 |
-| Google Play Developer Account | Android app `com.anton-glance.mypet`, Play Internal Testing | R0 | R0-M2 |
-| GitHub | Source at `anton-glance/mypet` (public), PRs, Actions CI | R0 | R0-M1 |
+| Apple Developer Account | iOS bundle ID `com.antonglance.petsona`, App Store Connect, TestFlight | R0 | R0-M2 |
+| Google Play Developer Account | Android app `com.antonglance.petsona`, Play Internal Testing | R0 | R0-M2 |
+| GitHub | Source at `anton-glance/petsona` (public), PRs, Actions CI | R0 | R0-M1 |
 | Supabase Account | Backend (DB, auth, storage, functions) | R0 | R0-M3 |
 | Anthropic Console (paid API key) | Claude API | R1 | R1-M1 |
 | Mistral La Plateforme (paid API key) | Mistral OCR API | R2 | R2-M1 |
