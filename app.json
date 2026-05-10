@@ -32,6 +32,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a268d3f9-4f46-4f36-b9ab-46c9ca6e7f3b"
+      }
+    },
+    "owner": "anton-glance"
   }
 }
