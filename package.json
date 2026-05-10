@@ -23,6 +23,7 @@
     "@supabase/supabase-js": "^2.105.4",
     "expo": "~55.0.23",
     "expo-constants": "~55.0.16",
+    "expo-dev-client": "^55.0.32",
     "expo-linking": "~55.0.15",
     "expo-router": "~55.0.14",
     "expo-splash-screen": "~55.0.20",
