@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient, SupportedStorage } from '@supabase/supabase-js';
 import { createClient } from '@supabase/supabase-js';
 
 import { EnvError, readPublicEnv } from './env';
@@ -6,6 +6,17 @@ import { EnvError, readPublicEnv } from './env';
 export interface CreateSupabaseClientOptions {
   url?: string;
   anonKey?: string;
+  storage?: SupportedStorage;
+}
+
+export interface ResolvedClientConfig {
+  url: string;
+  anonKey: string;
+  storage: SupportedStorage;
+}
+
+export function resolveClientConfig(_opts: CreateSupabaseClientOptions = {}): ResolvedClientConfig {
+  throw new Error('resolveClientConfig not implemented');
 }
 
 export function createSupabaseClient(opts: CreateSupabaseClientOptions = {}): SupabaseClient {

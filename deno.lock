@@ -1,0 +1,64 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@std/assert@1": "1.0.19",
+    "jsr:@std/internal@^1.0.12": "1.0.13"
+  },
+  "jsr": {
+    "@std/assert@1.0.19": {
+      "integrity": "eaada96ee120cb980bc47e040f82814d786fe8162ecc53c91d8df60b8755991e",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    },
+    "@std/internal@1.0.13": {
+      "integrity": "2f9546691d4ac2d32859c82dff284aaeac980ddeca38430d07941e7e288725c0"
+    }
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:@expo/metro-runtime@~55.0.11",
+        "npm:@react-native-async-storage/async-storage@2.2.0",
+        "npm:@react-navigation/native@^7.1.8",
+        "npm:@supabase/supabase-js@^2.105.4",
+        "npm:@types/jest@^29.5.14",
+        "npm:@types/react@19.2",
+        "npm:@types/ws@^8.18.1",
+        "npm:@typescript-eslint/eslint-plugin@8",
+        "npm:@typescript-eslint/parser@8",
+        "npm:eslint-config-expo@55.0",
+        "npm:eslint-config-prettier@^9.1.0",
+        "npm:eslint@^9.25.0",
+        "npm:expo-constants@~55.0.16",
+        "npm:expo-dev-client@^55.0.32",
+        "npm:expo-linking@~55.0.15",
+        "npm:expo-router@~55.0.14",
+        "npm:expo-splash-screen@~55.0.20",
+        "npm:expo-status-bar@~55.0.6",
+        "npm:expo-system-ui@~55.0.17",
+        "npm:expo@~55.0.23",
+        "npm:i18next@^26.0.10",
+        "npm:jest-expo@~55.0.17",
+        "npm:jest@^29.7.0",
+        "npm:nativewind@^4.2.3",
+        "npm:prettier@^3.3.3",
+        "npm:react-dom@19.2.0",
+        "npm:react-i18next@^17.0.7",
+        "npm:react-native-gesture-handler@2.30",
+        "npm:react-native-reanimated@4.2.1",
+        "npm:react-native-safe-area-context@5.6",
+        "npm:react-native-screens@4.23",
+        "npm:react-native-url-polyfill@3",
+        "npm:react-native-web@0.21",
+        "npm:react-native-worklets@0.7.4",
+        "npm:react-native@0.83.6",
+        "npm:react@19.2.0",
+        "npm:tailwindcss@^3.4.17",
+        "npm:typescript@~5.9.2",
+        "npm:ws@^8.20.0",
+        "npm:zustand@^5.0.13"
+      ]
+    }
+  }
+}
