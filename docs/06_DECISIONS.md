@@ -247,3 +247,109 @@
 **Reassess at:** Play Console registration (within R0-M2). If `Petsona` is available there, take it; if not, use `Petsona: Your Pet's Profile` for parity.
 
 ---
+## D-017 — Onboarding flow expanded to 11 steps
+
+**Date:** 2026-05-11
+**Status:** Accepted (closing R0-M2)
+
+**Context.** Original product spec (`02_PRODUCT_SPEC.md`) described a 10-step happy path. While planning R1, Anton walked through the flow at the screen-by-screen level and surfaced three additions that materially change the funnel:
+
+1. **Explicit camera permission screen with force-settings branch** (new step 2). Originally implicit. Without a dedicated screen + force-settings handling, denied-permission users hit a dead-end with no recovery.
+2. **Location capture screen** (new step 7). Originally implicit. Climate-aware plan generation requires location data; a dedicated capture screen with system-permission + manual ZIP/city fallback is needed.
+3. **Fake progress screen** (new step 8). UX polish. Plan generation will take 10-30 seconds even with streaming; a progress screen with milestone messages ("Analyzing your pet's breed...", "Tailoring activities to {petname}'s age...") converts "this is too slow" into "this is doing real work." The fake progress can later be hooked to actual streaming events as plan content arrives.
+
+**Decision.** The locked happy path is 11 steps:
+
+1. Splash with [Get Started] button
+2. Camera permission explanation screen → [Allow access] → system dialog → force-settings recovery if denied
+3. Pet face capture screen [camera + gallery access]
+4. Side photo + documents capture (vet passport, DNA test, or other; documents optional)
+5. AI-extracted profile screen: "Welcome {petname}" — pre-filled fields (name, breed, gender, age, color, document data) — all editable
+6. Survey screens (2 screens with pet behavior/lifestyle questions)
+7. Location screen — [Use my location] (system dialog) OR manual ZIP/city search across North America
+8. Fake progress screen showing "creating profile..." with milestone messages
+9. Plan snippet preview (first 2 days revealed)
+10. Fake paywall ($5.99/month displayed; no charge)
+11. Sign-in (Apple / Google / email magic link) — `linkIdentity` upgrades the anonymous user
+
+**Plan generation prompt input.** The full pet profile bundle is passed to the plan-generation prompt — species, breed, age, weight, color, location (city/zip/country), survey answers, locale. The plan-generation model resolves climate context and personalization. No client-side reverse-geocoding or climate-zone lookups. Removes a moving part.
+
+**Affected.** `02_PRODUCT_SPEC.md` updated to reflect the 11-step flow. `04_BACKLOG.md` re-organized so each release's milestones map to specific flow steps. R1 picks up steps 1-3 and 5 (the breed-identification path); R2 picks up step 4; R3 picks up steps 6-9; R4 picks up steps 10-11.
+
+**Reversal cost.** Low pre-R3. Reordering screens before R3 is cheap. After R3 ships, screen order is locked because the persisted state machine references step IDs.
+
+---
+
+## D-018 — Validation ladder re-shaped: R5 = AI swap-in, R6 = localization
+
+**Date:** 2026-05-11
+**Status:** Accepted (closing R0-M2)
+
+**Context.** Original ladder put localization at R5 and finished MVP there. During R0-M2 close, Anton requested that R1-R4 ship with **hardcoded AI provider responses** (canned outputs for breed-identify and medcard-ocr) to maximize development velocity. Real AI quality validation moves to a dedicated release where accumulated real-world test photos and medical cards (collected through R1-R4) are evaluated against the real models in one focused pass.
+
+**Decision.** Validation ladder is now seven releases (R0-R6), not six (R0-R5):
+
+| Release | Question | What ships |
+|---|---|---|
+| R0 | Can we ship to stores reliably? | Infra spine |
+| R1 | Can users get from launch to "Welcome {petname}"? | Splash, camera perms, breed-identify edge fn (**hardcoded**), profile UI |
+| R2 | Does the medcard scan + merged profile feel useful? | Documents capture, medcard-ocr edge fn (**hardcoded**), merged profile UI |
+| R3 | Is the plan good enough to convert past paywall? | Survey, location capture, plan-generate (**real Claude Sonnet** — plan quality matters most for conversion), progress UI |
+| R4 | Do users convert past paywall + sign in? | Fake paywall + sign-in + persistence |
+| **R5 (new)** | **Do real models perform well enough across accumulated test data?** | **Flip `MODEL_FOR_BREED` and `MODEL_FOR_OCR` env vars from `hardcoded` to real models; validate against R1-R4 test photos.** |
+| R6 (was R5) | Do non-English users complete onboarding at parity? | Localization (Spanish + Russian) |
+
+**Plan generation is real AI from R3.** Hardcoded plan output would be useless for the validation question "is the plan good enough?" — the entire point of R3 is to test plan quality with the real model. Breed-ID and medcard-OCR can be hardcoded because R1's question is "does the UI work?" and R2's is "does the merged-profile experience feel useful?" — neither requires real ML accuracy at that stage.
+
+**Why R5 is a dedicated release, not "swap inside R1/R2".** Doing the swap inside each capability release means accumulating test data is gated by that release shipping, and real-AI debugging blocks UI iteration. Pulling it out gives R1-R4 a clean dev-velocity story, lets test data accumulate during friends-and-family testing in R4, and concentrates the real-AI validation into one focused pass.
+
+**R5 estimate.** ~6 hours. Most of the work is validation (testing accumulated photos against the real models, measuring cost-per-call, calibrating confidence thresholds), not coding — the swap itself is env var changes per D-019.
+
+**Total MVP estimate revised.** ~80 hours (was ~73). +6h for new R5; +1h overhead for R6 re-numbering and localization-of-real-AI-outputs validation. Net cost: 7 hours of additional ladder work in exchange for shipping R1-R4 measurably faster (estimated 4-8 hours saved across those releases by not chasing model accuracy in parallel with UI work).
+
+**Affected.** `04_BACKLOG.md` re-organized end-to-end with R5 as the AI swap-in and R6 as localization.
+
+**Reversal cost.** Medium. Reverting to "real AI from R1" requires re-doing R1 and R2's `ai_jobs` cost analysis and pushing back delivery. Don't reverse without good reason.
+
+---
+
+## D-019 — `hardcoded` AI provider adapter
+
+**Date:** 2026-05-11
+**Status:** Accepted (closing R0-M2)
+
+**Context.** D-006 established the multi-provider adapter pattern in `supabase/functions/_shared/ai/`. D-018 calls for hardcoded AI responses in R1 and R2. Combining the two: the hardcoded responses are implemented as **another adapter** satisfying the same `AIClient` interface, slotted in via env var like any other provider.
+
+**Decision.** The provider abstraction grows by one adapter:
+
+```
+supabase/functions/_shared/ai/
+  types.ts        Common AIClient interface (unchanged)
+  claude.ts       Anthropic adapter (R3+)
+  mistral.ts      Mistral adapter (R5)
+  openai.ts       Future
+  hardcoded.ts    NEW — returns canned responses matching the AIClient interface
+```
+
+`hardcoded.ts` exports the same `AIClient` shape as the real adapters: same method signatures, same return types, same error contract. The difference is the implementation:
+
+- `vision(imagePath: string, prompt: string)` → returns a hardcoded `{ species: "dog", breed: "Labrador Retriever", confidence: 0.92, candidates: [...] }` regardless of the image
+- `ocr(documentPath: string)` → returns hardcoded `{ raw_text: "...", fields: { name: "Bella", dob: "...", weight: 18.5, vaccinations: [...] } }` regardless of the document
+- `complete(prompt: string, options)` → returns hardcoded plan text (or throws "use claude adapter for plans"; we don't hardcode plan output)
+
+**Env var conventions** (consistent across all adapters):
+- `MODEL_FOR_BREED=hardcoded` → uses `hardcoded.ts` for breed-identify
+- `MODEL_FOR_BREED=claude-haiku-4-5-20251001` → uses `claude.ts` with that model
+- `MODEL_FOR_OCR=hardcoded` → uses `hardcoded.ts` for medcard-ocr
+- `MODEL_FOR_OCR=mistral-ocr-2512` → uses `mistral.ts`
+- `MODEL_FOR_PLAN=claude-sonnet-4-6` → always real model for plan generation
+
+**Every call still writes `ai_jobs`** with `model: "hardcoded"`, prompt_version, token counts (set to 0 for hardcoded), latency, cost ($0). This preserves the cost/latency/regression debugging surface across the hardcoded → real transition.
+
+**Why this matters for D-018.** R5's "AI swap-in" becomes literally an env var change in Supabase + validation: `supabase secrets set MODEL_FOR_BREED=claude-haiku-4-5-20251001`. Zero code change to capability functions. The cost-per-call data is already accumulating in `ai_jobs` from R1 onward (with `cost_usd: 0` for hardcoded entries). After the swap, real-model cost rows start landing; we compare actual against the $0.10/onboarding cap.
+
+**Affected.** All R1-R2 prompts will explicitly require capability functions import the generic `AIClient` from `_shared/ai/types.ts`, never `@anthropic-ai/sdk` directly. `03_ARCHITECTURE.md` updated to reflect `hardcoded` as a first-class provider, not a temporary hack.
+
+**Reversal cost.** Low. Removing `hardcoded.ts` after R5 is one deletion + env var swap (already done in R5). No knock-on changes.
+
+---

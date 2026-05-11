@@ -26,18 +26,22 @@ North America first: US, Canada, Mexico. Three locales at launch: English, Spani
 
 > *"In five minutes, I have a personalized week-by-week plan for my pet, and I'll never lose its medical history again."*
 
-## MVP scope (locked for R0–R4)
+## MVP scope (locked for R0–R6)
 
-The MVP answers: *will users complete the onboarding flow and convert past a paywall?*
+The MVP answers two validation questions in sequence: *will users complete the onboarding flow and convert past a paywall (R0-R4)?* and *do the real models perform well enough to ship and do non-English users complete at parity (R5-R6)?*
 
 In scope:
-1. Photo-based species + breed identification (dog/cat)
-2. Medical card scan with OCR → structured fields (name, age, weight, vaccinations) → user edits
-3. Short survey (location, activity level, behavior flags)
-4. Streaming AI-generated weekly plan (7 days, day-by-day actions)
-5. Fake paywall after partial plan reveal
-6. Sign-in (Apple, Google, email magic link) post-paywall, with anonymous-to-real account upgrade
-7. Persistent medical card view post-signup
+1. Splash + camera permission with force-settings recovery (steps 1-2)
+2. Photo-based species + breed identification (dog/cat) — hardcoded responses R1-R4, real Claude vision at R5 per D-018/D-019
+3. Side photo + optional document capture; medical card OCR → structured fields → user edits — hardcoded R1-R4, real Mistral OCR at R5
+4. Two-screen survey covering pet behavior/lifestyle
+5. Location capture (system permission OR manual ZIP/city across North America)
+6. Fake progress screen during plan generation
+7. Streaming AI-generated weekly plan (7 days, real Claude Sonnet from R3) with locale-aware output
+8. Fake paywall at $5.99/month after partial plan reveal (steps 9-10)
+9. Sign-in (Apple, Google, email magic link) with anonymous-to-real account upgrade (step 11)
+10. Persistent profile + medical card + plan post-signup
+11. Localization to Spanish and Russian (R6)
 
 Out of scope for MVP (in backlog for later):
 - Multi-pet households
@@ -52,49 +56,53 @@ Out of scope for MVP (in backlog for later):
 
 ## The onboarding flow (happy path)
 
-1. **Splash** — `[NEEDS PRODUCT INPUT: copy, animation]`
-2. **Photo capture** — Camera screen. User snaps photo of pet.
-3. **Breed identification** — App returns species + breed candidates with confidence. User confirms or picks alternative.
-4. **Medical card capture** — Camera screen. User photographs card.
-5. **Medical card review** — Form pre-filled from OCR. User edits.
-6. **Survey** — `[NEEDS PRODUCT INPUT: 3–5 question screens, exact questions]`
-7. **Generating plan** — Loading screen with streaming partial plan reveal (first 1–2 days).
-8. **Fake paywall** — `[NEEDS PRODUCT INPUT: copy, price displayed]`
-9. **Sign-in** — Apple / Google / email magic link.
-10. **Full plan** — Persistent. Pet profile + medical card + week-by-week plan.
+Locked at 11 steps per D-017 (2026-05-11). Reordering screens before R3 is cheap; after R3 ships, screen order is locked.
+
+1. **Splash** with `[Get Started]` button — Petsona brand. `[NEEDS PRODUCT INPUT: copy, animation, design]`
+2. **Camera permission** — explanation screen → `[Allow access]` → iOS/Android system dialog. On deny: force-settings recovery screen with deep-link to Settings; user cannot progress until permission granted (mitigates FM6).
+3. **Pet face capture** — "Take a picture of your pet's face." Camera controls + gallery picker fallback.
+4. **Side photo + documents** — Side photo of the pet, plus optional document capture (vet passport, DNA test, or other). `[Skip]` allowed for the document.
+5. **"Welcome {petname}"** — AI-extracted profile screen. Pre-filled fields: name, breed, gender, age, color, document data (DOB, weight, vaccinations). All fields editable; user confirms.
+6. **Survey** — 2 screens covering pet behavior/lifestyle. `[NEEDS PRODUCT INPUT: exact questions]`
+7. **Location** — `[Use my location]` (system dialog explains "we'll detect your area and tune the app to local climate") OR manual ZIP/city search (US, Canada, Mexico).
+8. **Fake progress** — "Creating profile..." screen with milestone messages ("Analyzing your pet's breed...", "Tailoring activities to {petname}'s age...", "Adapting for your local climate..."). Smooths perceived latency during plan generation. Currently fake-timed; may be hooked to real streaming events later.
+9. **Plan snippet preview** — First 2 days of the weekly plan, fully revealed.
+10. **Fake paywall** — $5.99/month displayed; `[Unlock]` button. No charge in MVP.
+11. **Sign-in** — Apple / Google / email magic link. `linkIdentity` upgrades the anonymous user; same `auth.uid()` preserved. Full plan revealed post-signin.
 
 ## Non-functional expectations
 
 - **Time to value:** First piece of plan visible in under 60 seconds from first tap (target). 90 seconds (acceptable).
 - **AI cost cap:** $0.10 per full onboarding (target $0.025–0.045 with current model selection).
 - **Offline:** Camera capture must work offline; AI calls require network and surface a clear retry state.
-- **Localization:** Every user-facing string available in en/es/ru by R5 launch.
+- **Localization:** Every user-facing string available in en/es/ru by R6 launch.
 - **Accessibility:** `[NEEDS PRODUCT INPUT: WCAG target, dynamic type support level]`
 
 ## Failure modes the product is designed against
 
-- **FM1:** User uploads a blurry or non-pet photo and the app silently returns a wrong breed. Mitigation: confidence threshold + "this doesn't look like a pet" branch.
-- **FM2:** OCR misreads the medical card and writes a wrong birthdate or weight. Mitigation: every field is editable in a confirmation step before save.
-- **FM3:** Plan generation feels generic / not tied to the pet's specifics. Mitigation: prompt includes breed + age + weight + survey answers explicitly; week 1 actions reference the pet by name.
+- **FM1:** User uploads a blurry or non-pet photo and the app silently returns a wrong breed. Mitigation: confidence threshold + "this doesn't look like a pet" branch (validated at R5 real-AI swap-in per D-018).
+- **FM2:** OCR misreads the medical card and writes a wrong birthdate or weight. Mitigation: every field is editable in the merged-profile confirmation step before save.
+- **FM3:** Plan generation feels generic / not tied to the pet's specifics. Mitigation: full pet profile bundle is passed to the plan prompt (species, breed, age, weight, color, location, survey answers, locale per D-017); model resolves climate context and personalization.
 - **FM4:** Paywall conversion tanks because the partial plan didn't show enough value. Mitigation: stream first 2 days fully (not teasers) before paywall.
 - **FM5:** User completes onboarding anonymously, abandons, comes back later — and their data is gone. Mitigation: anonymous auth from session start, every write tied to the anonymous `auth.uid()`, link-on-signin upgrades the same account.
+- **FM6:** User denies camera permission and reaches a dead-end. Mitigation: dedicated permission-denied recovery screen with deep-link to iOS/Android Settings; user cannot progress past step 2 until permission granted.
 
-## Naming
+## Naming (locked per D-015, D-016)
 
-- Working name: **Petsona**
-- App display name in stores: `[NEEDS PRODUCT INPUT — final naming review before R3]`
-- Bundle ID iOS: `com.antonglance.petsona`
-- Application ID Android: `com.antonglance.petsona`
-- Repo: https://github.com/anton-glance/petsona
+- **Brand name:** Petsona (in repo, code, marketing, splash)
+- **Apple App Store display name:** `Petsona: Your Pet's Profile` (registered 2026-05-09; bare "Petsona" was Apple-soft-blocked)
+- **Google Play display name:** TBD on Play Console registration (pending Anton's developer-account verification)
+- **Bundle Display Name** (the icon label on the home screen): `Petsona`
+- **Bundle ID iOS / applicationId Android:** `com.antonglance.petsona` (collapsed; locked)
+- **Repo:** https://github.com/anton-glance/petsona
+- **Splash tagline:** "Every pet has a Petsona"
 
-## Paywall (R4 fake paywall, R5+ real paywall)
+## Paywall (R4 fake paywall; real payments post-R6)
 
 - Displayed price at MVP: **$5.99 / month**
 - No real charge in MVP; the paywall validates conversion behavior, not revenue.
-- When real payments are wired in (post-R5), this becomes the launch price subject to product review.
+- When real payments are wired in (post-R6), this becomes the launch price subject to product review.
 
 ## Design
 
-`[NEEDS PRODUCT INPUT: link to Figma or design HTML in docs/design/]`
-
-When mockups are available, place them in `docs/design/` (HTML or Figma export) and reference from this file.
+In-progress designs accumulate in `docs/design/` as Anton produces them (logo SVG/PNG variants, brand colors, screen mockups). R1-R3 ship with NativeWind defaults; real design swaps in at R3 or later when designs are ready. The architecture intentionally separates styling from logic so design swaps are token/stylesheet changes, not refactors.

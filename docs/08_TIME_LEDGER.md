@@ -6,13 +6,14 @@
 
 ## Pace observations (refreshed at every session close)
 
-After session 001 (R0-M0 + R0-M1):
+After session 002 (R0-M2 close, validation-ladder re-shape D-017/D-018/D-019):
 
-- **Plan-review round-trips are cheap insurance.** The R0-M1 Phase 1 plan caught two architectural mistakes baked into the original docs (D-012 repo layout, D-013 Jest vs Vitest). Cost: one extra round-trip (~30 min). Saving: not refactoring 50+ files later. Repeat the discipline at R0-M2+.
-- **Toolchain setup absorbs more than estimated.** R0-M0 was estimated at 1h, took ~1.5h, mostly because of fnm permission issues with `~/.local/state` (root-owned from a prior gem install) and Node 25 needing to be displaced by Node 20. Worth flagging the fnm-state-dir gotcha for any future mac setup; logged in the R0-M0 milestone notes.
-- **Disk space is a real risk on dev machines.** Mid-R0-M1 the agent hit ENOSPC during commit. Recovery (clear DerivedData) freed 9.8 GB. Worth running `df -h /` and clearing DerivedData before any session involving builds.
-- **Agent reports occasionally misalign with diffs.** The R0-M1 report said `expo-env.d.ts` was checked in; the actual diff shows it gitignored. Implementation was correct; the report wording was stale. Confirms the value of spot-checking diffs in addition to reading the agent's self-review.
-- **Product naming has to clear all three surfaces, not just the bundle ID.** "MyPet" was bundle-ID-clear but App Store Connect display name was taken. Next time, check all three surfaces (Apple Dev App ID, App Store Connect display, Play Console package) *before* writing docs against a name. Burned ~30 min on a rename PR cycle that could have been avoided. Logged for R3 product-naming-review.
+- **R0 is over-running by ~50% per milestone.** M0 was 1h estimate → 1.5h actual; M1 was 2h → ~3h; M2 was 3h → ~6h. Common driver: external dependencies (Apple Developer / App Store Connect / Google Play / fnm permissions / disk pressure / Apple soft-blocks). These don't compound — they're one-time setup costs — but they do add wall-clock that isn't in the estimate. Applied lesson: pad R1-R6 estimates by ~25% for "first-time-doing-this-thing" tax. The estimates in `04_BACKLOG.md` are unchanged for now; track and revisit at R1 close.
+- **Plan-review round-trips are still cheap insurance.** R0-M2's EAS plan caught two pre-flight blockers (`eas login` not done; Node 25 active in shell) before any code ran. Saved ~15 min of confused agent failures.
+- **The agent's plan can be wrong and self-correct.** R0-M2's plan said bundle IDs were already correct in `app.json`; they weren't. The agent caught this in its own plan review when scanning the actual files (vs. trusting my prompt's claim). Architect-side prompts should state assumptions explicitly so the agent has something to verify. Don't write "X is already correct" — write "verify X matches expectation Y; if not, surface and propose fix."
+- **macOS process pressure cascades.** Parallel Claude Code sessions across multiple projects + accumulating Metro/simulator processes leads to fork-exhaustion within 4-6 hours of continuous work. Reboot is the only reliable recovery. Plan for ~30-45 min of "reboot + reopen" overhead in any session that runs >4 hours.
+- **Dev-client UX confusion is a one-time cost.** Once Anton sees the dev-client menu and understands what it is, the rest of the project uses the same dev workflow for free. Documented in `07_TROUBLESHOOTING.md`.
+- **Product naming must clear all three surfaces.** R0-M2 burned ~45 min on the bare-"Petsona" Apple soft-block. Future product naming (real-payments rebrand post-MVP, if any) checks all surfaces *before* any rename PR.
 
 ---
 
@@ -20,13 +21,14 @@ After session 001 (R0-M0 + R0-M1):
 
 | Release | Estimate (h) | Actual (h) | Variance | Notes |
 |---|---|---|---|---|
-| R0 — Infra spine | ~14 | *(in progress)* | — | M0 + M1 closed at ~4.5h vs ~3h estimate (+50%) — see milestone notes |
-| R1 — Breed ID | ~12 | — | — | — |
-| R2 — Medcard OCR | ~10.5 | — | — | — |
-| R3 — Survey + plan | ~15 | — | — | — |
+| R0 — Infra spine | ~14 | *(in progress, M0+M1+M2 = ~10.5h)* | +50% so far | M0 1.5h, M1 3h, M2 ~6h. Play submit still deferred. M3/M4/M5 pending. |
+| R1 — Splash, camera, hardcoded breed-ID, Welcome screen | ~12 | — | — | New shape per D-017 |
+| R2 — Documents, hardcoded medcard, merged profile | ~12 | — | — | New shape per D-017 |
+| R3 — Survey, location, real plan, progress UI | ~15 | — | — | Real Claude Sonnet from R3 per D-018 |
 | R4 — Paywall + signin | ~12 | — | — | — |
-| R5 — Localization | ~9 | — | — | — |
-| **MVP total** | **~73** | — | — | — |
+| R5 — Real AI swap-in (breed + medcard) | ~6 | — | — | New release per D-018 |
+| R6 — Localization | ~9 | — | — | Was R5 |
+| **MVP total** | **~80** | — | — | Re-shaped per D-018: was ~73 (R0-R5) |
 
 ---
 
@@ -34,7 +36,8 @@ After session 001 (R0-M0 + R0-M1):
 
 | Session | Start (UTC) | End (UTC) | Wall-clock (h) | Active (h, est.) | Modules touched | Notes |
 |---|---|---|---|---|---|---|
-| 001 — Architecture, doc set, R0-M0, R0-M1 | 2026-05-09 03:17 | 2026-05-09 15:24 | 12.1 | ~5–6 | All foundation docs (00–08, README, CLAUDE.md), R0-M0 toolchain, R0-M1 scaffold | Project kickoff. Stack locked, validation ladder locked, D-001..D-014 logged. R0-M1 PR #1 merged as squash `39a3133`. Wall-clock includes async time (Anton sleep / parallel work) — active session time substantially less. |
+| 001 — Architecture, doc set, R0-M0, R0-M1 | 2026-05-09 03:17 | 2026-05-09 15:24 | 12.1 | ~5–6 | All foundation docs (00–08, README, CLAUDE.md), R0-M0 toolchain, R0-M1 scaffold | Project kickoff. Stack locked, validation ladder locked, D-001..D-014 logged. R0-M1 PR #1 merged as squash `39a3133`. Wall-clock includes async time. |
+| 002 — Petsona rename, R0-M2 EAS config, R0-M2 close | 2026-05-09 15:24 | 2026-05-11 18:32 | ~51 | ~9–10 | Rename PRs #3 + #4 (D-015, D-016); EAS PR #5 (D-019 hardcoded adapter concept locked); R0-M2 close + journals (D-017, D-018, D-019, R5/R6 reshape) | Two-day session across many short bursts. Wall-clock dominated by async (Apple/Google review queues, EAS build queues, sleep). Active time concentrated on EAS configuration agent prompt + Apple credential flow + Android splash hotfix + post-close doc batch. Three incidents logged in `07_TROUBLESHOOTING.md` (Apple soft-block, fork exhaustion, dev-client confusion). |
 
 ---
 
@@ -44,6 +47,7 @@ After session 001 (R0-M0 + R0-M1):
 |---|---|---|---|---|---|---|
 | R0-M0 — Local environment | 1.0 | 0.3 | 1.2 (Anton) | ~1.5 | +50% | fnm `~/.local/state` permissions, Node 25 displacement |
 | R0-M1 — Repo and tooling scaffold | 2.0 | 0.5 | ~2.5 (agent) | ~3.0 | +50% | Plan-review round-trip caught D-012/D-013 (~30 min); CI fix commit; disk-pressure recovery |
+| R0-M2 — Store identifiers + EAS | 3.0 | 1.5 | ~4.5 (Anton + agent) | ~6.0 | +100% | Apple soft-block on bare "Petsona" → rename cycle (~45 min); fork-exhaustion recovery (~45 min); Android splash drawable hotfix (~50 min build wall-clock + 15 min implementation); Google Play Console deferred. Play submit not done in this M2; deferred without re-estimating. |
 
 ---
 
@@ -56,7 +60,7 @@ At every session close:
 3. Append a row to "Per-session log"
 4. If a release closed, update "Per-release totals" with the actual
 5. If multi-module session, append rows to "Per-module breakdown"
-6. Refresh "Pace observations" at the top with any new patterns (e.g. "OCR work consistently takes 1.4x estimate", "edge function setup faster than expected once adapter pattern is in place")
+6. Refresh "Pace observations" at the top with any new patterns
 
 For backfill of prior sessions, use:
 ```
