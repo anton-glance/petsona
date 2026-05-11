@@ -5,6 +5,9 @@ export const corsHeaders: Record<string, string> = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-export function handleCorsPreflightRequest(_req: Request): Response | null {
+export function handleCorsPreflightRequest(req: Request): Response | null {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: corsHeaders });
+  }
   return null;
 }

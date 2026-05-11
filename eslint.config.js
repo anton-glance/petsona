@@ -14,6 +14,9 @@ module.exports = defineConfig([
       'ios/*',
       'android/*',
       'coverage/*',
+      // supabase/ is Deno territory (different module resolution: jsr:, npm:,
+      // .ts extensions). Linted independently via `deno lint` if needed.
+      'supabase/**',
       'expo-env.d.ts',
       'nativewind-env.d.ts',
     ],

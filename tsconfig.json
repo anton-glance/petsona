@@ -15,5 +15,5 @@
     "nativewind-env.d.ts",
     "i18n-resources.d.ts"
   ],
-  "exclude": ["node_modules", "dist", ".expo", "ios", "android"]
+  "exclude": ["node_modules", "dist", ".expo", "ios", "android", "supabase"]
 }
