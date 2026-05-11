@@ -33,7 +33,16 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-localization",
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "exicore",
+          "project": "petsona-mobile"
+        }
+      ],
+      "expo-build-properties"
     ],
     "experiments": {
       "typedRoutes": true
