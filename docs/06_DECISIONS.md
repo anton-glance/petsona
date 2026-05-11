@@ -40,6 +40,8 @@
 
 **Consequences.** Free-tier constraints (project pauses after 1 week of inactivity, 500 MB DB). Acceptable for MVP. Upgrade to Pro ($25/mo) when MAU grows past 5k or before the project pause becomes a risk.
 
+**Amended 2026-05-11 (R0-M3 close):** Supabase rolled out a new API key model in mid-2025 — projects can use `sb_publishable_...` (new format) instead of the legacy `anon` JWT key. Both work identically with `@supabase/supabase-js`'s `createClient`. Petsona's project (`hkhzukxmonlgzzmuqvvp`) was provisioned with the new key format. The env variable name in the codebase is `EXPO_PUBLIC_SUPABASE_ANON_KEY` (legacy-naming) but holds an `sb_publishable_...` value. Naming kept legacy to avoid a refactor of the env layer already shipped through R0-M1 CI; the key format is what's modern. Legacy keys remain supported until late 2026 per Supabase's deprecation timeline.
+
 ---
 
 ## D-003 — AI gateway pattern (no client-side model calls)
@@ -351,5 +353,43 @@ supabase/functions/_shared/ai/
 **Affected.** All R1-R2 prompts will explicitly require capability functions import the generic `AIClient` from `_shared/ai/types.ts`, never `@anthropic-ai/sdk` directly. `03_ARCHITECTURE.md` updated to reflect `hardcoded` as a first-class provider, not a temporary hack.
 
 **Reversal cost.** Low. Removing `hardcoded.ts` after R5 is one deletion + env var swap (already done in R5). No knock-on changes.
+
+---
+## D-020 — Edge function `getUser()` uses anon-key + forwarded-JWT, not service-role
+
+**Date:** 2026-05-11
+**Status:** Accepted (during R0-M3 plan review)
+
+**Context.** R0-M3's `_shared/auth.ts` exposes a `getUser(req)` helper that extracts the authenticated user from an incoming request's JWT. The original architect-side prompt called for using `SUPABASE_SERVICE_ROLE_KEY` for this. The implementing agent pushed back during Phase 1 plan review with a security improvement.
+
+**The two options.**
+
+| Approach | What it does | Trust boundary | RLS interaction |
+|---|---|---|---|
+| Service-role key + verify the JWT | Function uses service-role privileges; calls `supabase.auth.getUser(jwt)` to extract user | Function code is fully trusted with database-bypass access | Bypasses RLS (service-role role) |
+| **Anon-key + forwarded JWT** | Function uses anon-key privileges, forwards the user's `Authorization` header through to Supabase Auth | Function code is scoped to anon + the user's permissions | Operates under RLS as the authenticated user |
+
+**Decision.** Option 2 — anon-key + forwarded JWT. Pattern:
+
+```typescript
+const client = createClient(
+  Deno.env.get('SUPABASE_URL')!,
+  Deno.env.get('SUPABASE_ANON_KEY')!,
+  { global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } } }
+);
+const { data: { user } } = await client.auth.getUser();
+```
+
+**Why.** Service-role is the right tool only when the function legitimately needs to bypass RLS (e.g., writing to `ai_jobs`, which has a service-role-only INSERT policy — see R1-M1). For functions that operate as the user — like `hello`, and like every future capability function (`breed-identify`, `medcard-ocr`, `plan-generate`) — anon-key + forwarded JWT is the principle-of-least-privilege choice. Service-role is database-bypass; you don't grant it where it's not needed.
+
+**Function-by-function pattern (for R1+):**
+- Capability functions calling `auth.getUser()` and reading/writing user data → anon-key + forwarded JWT (this ADR)
+- Logging to `ai_jobs` (the cost/latency record) → service-role required because `ai_jobs.INSERT` policy is service-role-only; isolated in `_shared/logging.ts` so the elevated privilege boundary is single-file and audit-able
+
+**Gateway JWT verification stays on.** `verify_jwt = true` in `supabase/config.toml` for every function. The platform gateway rejects unauthenticated requests before they reach function code. `getUser()` then extracts the **already-verified** user. Defense in depth.
+
+**Affected.** All R1+ edge function prompts. Agent pushed back correctly and prevented a security regression in the original prompt. Locked in by R0-M3's `_shared/auth.ts`.
+
+**Reversal cost.** Low pre-R1. After R1+ functions start using the pattern, reversing means rewriting each function. Don't reverse.
 
 ---

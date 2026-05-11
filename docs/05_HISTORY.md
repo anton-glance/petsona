@@ -47,6 +47,16 @@ R0 verdict pending. Detailed record will be in `JOURNAL_R0.md` when all R0 miles
 
 **Hardcoded AI provider adapter (D-019), 2026-05-11.** The hardcoded AI responses are implemented as another adapter satisfying the same `AIClient` interface defined in D-006. Slotted in via env var (`MODEL_FOR_BREED=hardcoded`) like any other provider. Every call still writes `ai_jobs` (with `cost_usd: 0` for hardcoded entries). R5 swap-in becomes literally a Supabase env var change.
 
-**R0-M3 onward — pending** (Supabase project + first edge function + first table with RLS, then telemetry, then end-to-end smoke test, then R0 close).
+**R0-M3 — Supabase backend spine ✅** Closed 2026-05-11 via PR #7, squash-merged as `2f4b559`. Supabase project `hkhzukxmonlgzzmuqvvp` provisioned in us-east-1. Migration `20260511195952_pets_ai_jobs_storage.sql` creates `pets`, `ai_jobs`, two private storage buckets (`pet-photos`, `medcard-scans`), 4 RLS policies per bucket per operation, and a `set_updated_at` trigger. Edge function `hello` deployed; uses anon-key + forwarded-JWT pattern per D-020 (security improvement on original prompt; agent pushed back during plan review). Client wiring: `lib/supabase.ts` with AsyncStorage adapter for cross-launch session persistence, `lib/auth.ts` with idempotent `ensureSignedIn()`, `lib/ai.ts` `callEdgeFunction()` wrapper. EAS dev builds re-triggered for both platforms (AsyncStorage is a native module). Smoke screen at `app/index.tsx` exercises the full round-trip: anonymous sign-in → `hello` function call → RLS-protected INSERT → cross-user read blocked.
+
+End-to-end production verification on both platforms 2026-05-11: iPhone (user_id `21cfa9a4-3eff-4ce0-b206-ab91df5ca5a2`) and Pixel 7 AVD (user_id `a10a46c8-78ac-483a-b9f6-b44875c40feb`) both pass all 4 smoke buttons. Dashboard confirms: 2+ anonymous users in `auth.users`, 2+ TestPet rows in `pets` table (each scoped to its inserting user), 2+ hello function invocations in edge function logs (28-30ms cold boot). The full R0 backend stack is proven in production.
+
+**D-002 amended 2026-05-11.** Project provisioned with new Supabase `sb_publishable_...` key format (rolled out mid-2025). Env var name kept as legacy `EXPO_PUBLIC_SUPABASE_ANON_KEY` to avoid refactoring the env layer; value is the new format.
+
+**D-020 added 2026-05-11.** Edge functions use anon-key + forwarded-JWT for `getUser()`, not service-role. Service-role isolated to `_shared/logging.ts` for `ai_jobs` writes in R1+.
+
+**Known minor for R1-M2:** Android smoke screen had viewport cut-off (content extends below visible area on Pixel 7). Not blocking — smoke screen gets replaced by the real splash in R1-M2 — but R1-M2 must use `SafeAreaView` and verify on Pixel 7 AVD before merge.
+
+**R0-M4 — pending** (PostHog + Sentry wiring).
 
 ---

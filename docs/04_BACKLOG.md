@@ -71,16 +71,20 @@
 
 **Estimate:** 3h. **Actual: ~6h** spread over 2 days (Apple Developer registration + ASC name flow + EAS config agent prompt + iOS build wall-clock + Apple credentials/device-registration flow + Android build + splash-asset hotfix + emulator install validation). Wall-clock was inflated by: (a) macOS fork-exhaustion incident requiring reboot mid-build, (b) Apple display-name soft-block requiring re-naming work, (c) Android splash asset missing (latent from R0-M1).
 
-#### R0-M3 — Supabase project
-- [ ] Create Supabase project (free tier, region: AWS US-East)
-- [ ] `supabase init` in repo
-- [ ] First migration: create `pets` table + RLS policies (default-deny, scoped to `auth.uid()`)
-- [ ] First edge function: `_shared/auth.ts` (`getUser` helper), `hello/index.ts` (returns `{ message, user_id }`)
-- [ ] Deploy: `supabase db push`, `supabase functions deploy hello`
-- [ ] Configure Apple sign-in provider, Google sign-in provider (credentials only — flow wired in R4)
-- [ ] Confirm anonymous sign-in is enabled
+#### R0-M3 — Supabase project ✅ shipped 2026-05-11
+- [x] Create Supabase project (free tier, region: AWS US-East — `hkhzukxmonlgzzmuqvvp`)
+- [x] `supabase init` in repo
+- [x] First migration: `pets` + `ai_jobs` + 2 storage buckets (`pet-photos`, `medcard-scans`) + RLS policies (default-deny, scoped to `auth.uid()`) + `set_updated_at` trigger
+- [x] First edge function: `_shared/auth.ts` (`getUser` helper using anon-key + forwarded-JWT pattern per D-020), `_shared/cors.ts`, `hello/index.ts` (returns `{ message, user_id }`)
+- [x] Deploy: `supabase db push`, `supabase functions deploy hello`
+- [ ] Configure Apple sign-in provider, Google sign-in provider (credentials only — flow wired in R4) — **deferred to R4-M1** where the full sign-in flow lands
+- [x] Confirm anonymous sign-in is enabled (toggled in dashboard 2026-05-11)
+- [x] Client-side wiring: `lib/supabase.ts` with AsyncStorage adapter, `lib/auth.ts` idempotent `ensureSignedIn()`, `lib/ai.ts` `callEdgeFunction()` wrapper
+- [x] Smoke screen at `app/index.tsx` validates: anon sign-in → hello function round-trip → RLS-protected INSERT → cross-user read blocked
+- [x] EAS env vars set for `EXPO_PUBLIC_SUPABASE_URL` (plain text) and `EXPO_PUBLIC_SUPABASE_ANON_KEY` (sensitive)
+- [x] EAS dev builds re-triggered, installed on iPhone + Pixel 7 AVD, all 4 smoke buttons pass on both platforms
 
-**Estimate:** 3h.
+**Estimate:** 3h. **Actual: ~3h** (agent Phase 1+2+3 ~2h, manual link/push/deploy + smoke test ~1h). On estimate — first milestone of R0 to hit the number cleanly. Driver: agent's plan-review caught the env-var-name issue (P-1) before any code was written, eliminating an otherwise-likely refactor cycle.
 
 #### R0-M4 — Telemetry
 - [ ] PostHog account, project for Petsona, install `posthog-react-native`
