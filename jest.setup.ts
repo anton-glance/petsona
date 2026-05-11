@@ -11,3 +11,12 @@ process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY =
 if (typeof globalThis.WebSocket === 'undefined') {
   (globalThis as { WebSocket: unknown }).WebSocket = WsWebSocket;
 }
+
+// AsyncStorage ships a Jest mock that swaps the native bridge for an in-memory
+// Map. supabase-js's auth client touches storage at construction time, so the
+// mock has to be registered before any test imports lib/supabase.
+jest.mock(
+  '@react-native-async-storage/async-storage',
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.mock factory must be sync
+  () => require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
+);

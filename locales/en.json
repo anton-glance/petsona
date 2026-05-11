@@ -4,5 +4,18 @@
   },
   "splash": {
     "tagline": "Every pet has a Petsona"
+  },
+  "smoke": {
+    "title": "Backend smoke check",
+    "subtitle": "R0-M3 verification",
+    "authPending": "Signing in…",
+    "authUserId": "Anonymous user_id",
+    "callHello": "Call hello function",
+    "callHelloResult": "Function returned user_id",
+    "insertPet": "Insert pets row",
+    "insertPetResult": "Inserted pets.id",
+    "crossUserRead": "Try to read another user's pets",
+    "crossUserResult": "Rows visible across users",
+    "error": "Error"
   }
 }

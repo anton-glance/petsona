@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react';
 
 import '../global.css';
 import { initI18n } from '../i18n';
+import { ensureSignedIn } from '../lib/auth';
 import { logger } from '../lib/logger';
+import { useAppStore } from '../lib/store';
 
 void SplashScreen.preventAutoHideAsync().catch(() => {
   // Ignore: splash may already be hidden in some launch paths.
@@ -12,25 +14,36 @@ void SplashScreen.preventAutoHideAsync().catch(() => {
 
 export default function RootLayout(): React.JSX.Element | null {
   const [ready, setReady] = useState(false);
+  const setAuthUserId = useAppStore((s) => s.setAuthUserId);
 
   useEffect(() => {
     let cancelled = false;
-    initI18n()
-      .then(() => {
-        if (!cancelled) {
-          setReady(true);
-        }
-      })
-      .catch((err: unknown) => {
-        logger.error('i18n init failed', { err: String(err) });
-        if (!cancelled) {
-          setReady(true);
+
+    const boot = async (): Promise<void> => {
+      const results = await Promise.allSettled([
+        initI18n(),
+        ensureSignedIn().then((r) => {
+          if (!cancelled) {
+            setAuthUserId(r.userId);
+          }
+        }),
+      ]);
+      const labels = ['i18n init', 'anonymous sign-in'];
+      results.forEach((result, i) => {
+        if (result.status === 'rejected') {
+          logger.error(`${labels[i] ?? 'boot step'} failed`, { err: String(result.reason) });
         }
       });
+      if (!cancelled) {
+        setReady(true);
+      }
+    };
+
+    void boot();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [setAuthUserId]);
 
   useEffect(() => {
     if (ready) {
