@@ -8,7 +8,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "com.antonglance.petsona",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.antonglance.petsona",
@@ -23,6 +26,8 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#ffffff",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
           "resizeMode": "contain",
           "dark": {
             "backgroundColor": "#000000"
@@ -32,6 +37,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a268d3f9-4f46-4f36-b9ab-46c9ca6e7f3b"
+      }
+    },
+    "owner": "anton-glance"
   }
 }
