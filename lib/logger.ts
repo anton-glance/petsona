@@ -1,4 +1,8 @@
-// This module is the only authorized wrapper around console.* — see eslint.config.js
+// This module is the only authorized wrapper around console.* — see eslint.config.js.
+// Per R0-M4 + P-1: logger.error additionally routes to Sentry.captureException;
+// info/warn stay console-only.
+import * as Sentry from '@sentry/react-native';
+
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 export interface Logger {
@@ -51,8 +55,10 @@ export function createLogger(opts: CreateLoggerOptions = {}): Logger {
       emit('info', (m, c) => (c ? console.info(m, c) : console.info(m)), message, context),
     warn: (message, context) =>
       emit('warn', (m, c) => (c ? console.warn(m, c) : console.warn(m)), message, context),
-    error: (message, context) =>
-      emit('error', (m, c) => (c ? console.error(m, c) : console.error(m)), message, context),
+    error: (message, context) => {
+      emit('error', (m, c) => (c ? console.error(m, c) : console.error(m)), message, context);
+      Sentry.captureException(new Error(message), context ? { extra: context } : undefined);
+    },
   };
 }
 
