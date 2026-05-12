@@ -248,6 +248,14 @@ If you've been corrected on the same issue twice in one session, stop and ask An
 
 ---
 
+## Branch naming
+
+Pattern: `{handle}/{module-id}-{slug}`. The handle is whoever is running the current agent session — `anton-glance` shortens to `anton`; `kidem42` stays `kidem42`. Examples: `anton/r1-m2-camera`, `kidem42/r2-m1-medcard-ocr`.
+
+Never commit directly to `main`. Branch protection rejects direct pushes — see the 2026-05-12 entry in `07_TROUBLESHOOTING.md` and D-022 in `06_DECISIONS.md` for the two-contributor model that makes this enforcement load-bearing.
+
+---
+
 ## Multi-locale awareness
 
 Even when only English content is being added, every user-facing string goes through i18next. R5 will be a localization-only release; the discipline of keeping all strings in `locales/en.json` from day one is what makes that release a few hours instead of a week.

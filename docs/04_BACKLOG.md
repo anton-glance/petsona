@@ -128,6 +128,7 @@ These leaked out of R0 close. Captured here so they're not lost. Should clear be
 
 - [ ] **Configure GitHub branch protection rule for `main`.** R0-M1 close marked this done but it wasn't actually wired up — discovered 2026-05-12 when the R1-M1 agent's commit pushed cleanly to main via direct push. Required settings: Settings → Branches → Add classic branch protection rule (or ruleset) for `main` → require pull request before merging, require status checks (CI typecheck/test/lint) before merging, include administrators. Documented in `07_TROUBLESHOOTING.md`. **Estimate: 5 min Anton-side, browser-only.**
 - [ ] **Submit a placeholder build to TestFlight + Play Internal Testing** (originally R0-M2). Gated on Google Play verification clearing; TestFlight is unblocked but deferred to closer to R4 friends-and-family testing.
+- [ ] **kidem42 contributor onboarding.** Per D-022. One-time setup (Anton clicks): (a) add kidem42 as repo collaborator at https://github.com/anton-glance/petsona/settings/access, (b) toggle "Require review from Code Owners" in the main-protection ruleset, (c) invite kidem42 to Supabase project hkhzukxmonlgzzmuqvvp as member, (d) add kidem42 to the EAS team, (e) add kidem42 to Apple Developer team (after kidem42 has an Apple Developer account), (f) add kidem42 to Google Play Console once Anton's account clears Google verification, (g) invite to PostHog project Petsona, (h) invite to Sentry org exicore. Estimate: 20-30 min total once kidem42's accounts are ready.
 
 ---
 

@@ -1,0 +1,19 @@
+# Default: either of us can review anything.
+*                                @anton-glance @kidem42
+
+# Friend owns AI pipeline (edge functions, prompts, ai_jobs writer)
+/supabase/functions/             @kidem42
+/supabase/migrations/            @anton-glance @kidem42
+/shared/                         @anton-glance @kidem42
+
+# Anton owns client UI/UX
+/app/                            @anton-glance
+/components/                     @anton-glance
+/lib/                            @anton-glance
+/locales/                        @anton-glance
+/assets/                         @anton-glance
+
+# Both review docs + repo config
+/docs/                           @anton-glance @kidem42
+/.github/                        @anton-glance @kidem42
+/CLAUDE.md                       @anton-glance @kidem42
