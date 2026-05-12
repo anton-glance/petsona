@@ -430,3 +430,42 @@ If we later need cross-rail operational breadcrumbs (e.g., "user clicked X → A
 **Reversal cost.** Low pre-R3. Adding `log_info` → PostHog would be a 5-line change to `lib/logger.ts`; tests would need updating. Don't reverse without a real cross-rail debugging need.
 
 ---
+
+## D-022 — Two-contributor model (Anton + kidem42)
+
+**Date:** 2026-05-12
+**Status:** Accepted
+
+**Context.** Petsona is gaining a second contributor as of 2026-05-12: kidem42 (GitHub handle). Until now, Anton has been the sole human contributor on the repo, working with the Claude Code agent and Claude.ai. The validation ladder, hard rules, and ADRs were designed under a single-contributor assumption (see D-010 on tooling, D-011 on single-repo). With two humans now committing, we need an explicit role split so review routing, branch naming, and merge expectations don't collide.
+
+The split is locked before any of kidem42's code lands. Roles are based on Anton's existing strengths (client UI/UX, product) and kidem42 being full-stack but scoped to the AI gateway layer (edge functions, prompts, `ai_jobs`) — exactly where Anton has the least desire to own day-to-day.
+
+**Decision.**
+
+**Role split by path:**
+
+| Area | Owner | Paths |
+|---|---|---|
+| Client UI/UX | anton-glance | `/app/`, `/components/`, `/lib/`, `/locales/`, `/assets/` |
+| AI pipeline | kidem42 | `/supabase/functions/` (edge functions, prompts, `_shared/ai/`, `_shared/logging.ts`) |
+| Shared infrastructure | both | `/supabase/migrations/`, `/shared/`, `/docs/`, `/.github/`, `/CLAUDE.md` |
+
+**CODEOWNERS routes review automatically.** `.github/CODEOWNERS` (added in this change) auto-requests the right reviewer on every PR based on which paths the PR touches. PRs touching multiple areas request multiple reviewers; PRs touching only one area request only that area's owner.
+
+**Branch protection: required approvals = 0, CODEOWNERS auto-request enabled.** Anton and kidem42 work in the same timezone window but asynchronously; requiring approvals up-front would create idle blocking time. CODEOWNERS still auto-requests review on every PR, so the right person sees it — but the PR author can merge after CI passes without waiting for a review-button click. This is a deliberate trust-the-three-phase-workflow choice; flip to required-1 later if a PR merges without genuine review. The "Require review from Code Owners" toggle in the main-protection ruleset must be on for CODEOWNERS auto-request to work (Anton's post-merge click — see R0 follow-up in `04_BACKLOG.md`).
+
+**Branch naming: `{handle}/{module-id}-{slug}`.** The handle is whoever ran the current agent session: `anton-glance` shortens to `anton`; `kidem42` stays `kidem42`. Examples: `anton/r1-m2-camera`, `kidem42/r2-m1-medcard-ocr`, `anton/r0-followup-two-contributor` (this change). Never commit directly to `main` — branch protection (once enforced, per the R0-M1 → R0 follow-up item) rejects direct pushes. Documented in `01_AGENT_INSTRUCTIONS.md` and the 2026-05-12 entry in `07_TROUBLESHOOTING.md`.
+
+**Both contributors run Claude Code agents under the existing workflow.** The three-phase plan/implement/self-review process in `01_AGENT_INSTRUCTIONS.md` is unchanged. Both Anton and kidem42 run the agent under those rules and review each other's agent output. Architecture decisions still gate through Claude.ai via either contributor. Product decisions remain Anton's call as Chief of Product.
+
+**Consequences.**
+
+- The "Require review from Code Owners" toggle on the main-protection ruleset is the one extra click that makes CODEOWNERS auto-request actionable. Listed as a sub-item under the kidem42 onboarding checklist in `04_BACKLOG.md`.
+- kidem42 needs collaborator access on the repo plus invites to every service that holds production credentials: Supabase project `hkhzukxmonlgzzmuqvvp`, EAS org, Apple Developer team (once kidem42 has an Apple Developer account), Google Play Console (once Anton's developer account clears Google verification), PostHog project `Petsona`, Sentry org `exicore`. Tracked as a single onboarding checklist item in `04_BACKLOG.md` under R0 follow-up.
+- The agent's verification rule (run `pnpm typecheck && pnpm test && pnpm lint` after every meaningful change) is unchanged — both contributors' agent sessions hit the same gate.
+- Release quality gates per `04_BACKLOG.md` are unchanged: each contributor signs off on their own work, and both Anton and Claude.ai must be comfortable proceeding to the next release. Adding a second human doesn't loosen the gate; it just means review of in-progress milestones is naturally distributed by area.
+- Service-role isolation precedent from D-020 stays load-bearing: kidem42's AI-pipeline work routinely touches the elevated-privilege boundary in `_shared/logging.ts`, so the audit-able single-file pattern matters more, not less, with a second contributor.
+
+**Reversal cost.** Low. To revert: delete `.github/CODEOWNERS`, remove kidem42 from the repo collaborators, undo the "Require review from Code Owners" toggle. None of these are baked into code or migrations. Branch-naming convention has no enforcement — it's a discipline rule, not a hook.
+
+---

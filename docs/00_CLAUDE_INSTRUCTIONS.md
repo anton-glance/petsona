@@ -49,11 +49,32 @@ Expo SDK 55 (React Native) + TypeScript + NativeWind + Expo Router on the client
 
 **I do NOT write production code directly** unless Anton explicitly asks. I describe intent and write prompts; the agent writes code.
 
-**Claude Code agent — Implementer.**
+**Implementer — Claude Code agent + the two human contributors.**
 - Reads `CLAUDE.md` + the prompt
 - Plans in Phase 1, implements in Phase 2 (tests-first), self-reviews in Phase 3
 - Self-verifies via `pnpm typecheck`, `pnpm test`, `pnpm lint`, `expo-doctor`
 - Stops only when verification passes; reports back with proof
+- Both Anton (client UI/UX) and kidem42 (AI pipeline) run the agent under this workflow and review each other's agent output. See D-022 for the role split.
+
+---
+
+## Two-contributor model
+
+As of 2026-05-12 Petsona has two human contributors. The role split is locked in **D-022** (`docs/06_DECISIONS.md`); this section is the operational summary.
+
+- **anton-glance — Chief of Product + client UI/UX implementer.** Owns `/app/`, `/components/`, `/lib/`, `/locales/`, `/assets/`. Product decisions remain Anton's call (paywall, copy, UX, market, pricing, release priority).
+- **kidem42 — AI pipeline implementer.** Full-stack, scoped to the AI gateway layer. Owns `/supabase/functions/` (edge functions, prompts under `_shared/ai/`, `_shared/logging.ts`).
+- **Both** review `/supabase/migrations/`, `/shared/`, `/docs/`, `/.github/`, `/CLAUDE.md`. Architecture decisions still gate through Claude.ai (me) via either contributor.
+
+**Both contributors run Claude Code agents under `01_AGENT_INSTRUCTIONS.md`.** The three-phase plan / implement / self-review workflow, the verification suite, and the journaling discipline are unchanged. The agent's behavior doesn't depend on which contributor is at the keyboard; only branch name, commit author, and the CODEOWNERS-driven review routing differ.
+
+**Branch naming convention: `{handle}/{module-id}-{slug}`.** `anton-glance` shortens to `anton`; `kidem42` stays `kidem42`. Examples: `anton/r1-m2-camera`, `kidem42/r2-m1-medcard-ocr`. Documented in `01_AGENT_INSTRUCTIONS.md`.
+
+**CODEOWNERS auto-routes review.** `.github/CODEOWNERS` requests the right reviewer based on which paths a PR touches. **Required approvals are 0** by design (same-timezone async work; trust the three-phase workflow). The "Require review from Code Owners" toggle on the main-protection ruleset must be on for auto-request to surface — that's a one-time Anton-side click, tracked in `04_BACKLOG.md` under R0 follow-up.
+
+**Session-start recap addressing:** At session start, identify the active contributor from the session opener message; if ambiguous, check the most recent commit author on `main` via `git log -1 --pretty=format:'%an %ae'`. Address the recap to that person by name. Both contributors get the same recap structure; only the salutation changes.
+
+**Quality gates unchanged.** Each contributor signs off on their own work, and both Anton and Claude.ai must remain comfortable proceeding to the next release per the existing `04_BACKLOG.md` quality gates. Adding a second human doesn't loosen the gate.
 
 ---
 
