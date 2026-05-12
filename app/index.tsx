@@ -8,6 +8,7 @@ import { logger } from '../lib/logger';
 import { useAppStore } from '../lib/store';
 import { supabase } from '../lib/supabase';
 import { track } from '../lib/telemetry';
+import type { BreedIdentifyResponse } from '../shared/types';
 
 interface HelloResponse {
   message: string;
@@ -22,6 +23,7 @@ export default function Index(): React.JSX.Element {
   const [helloResult, setHelloResult] = useState<string | null>(null);
   const [insertResult, setInsertResult] = useState<string | null>(null);
   const [crossResult, setCrossResult] = useState<string | null>(null);
+  const [breedResult, setBreedResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleCallHello = async (): Promise<void> => {
@@ -68,6 +70,24 @@ export default function Index(): React.JSX.Element {
       setCrossResult(String(data?.length ?? 0));
     } catch (err) {
       logger.error('cross-user read failed', { err: String(err) });
+      setError(String(err));
+    }
+  };
+
+  const handleCallBreedIdentify = async (): Promise<void> => {
+    if (!authUserId) {
+      setError(t('smoke.authPending'));
+      return;
+    }
+    try {
+      setError(null);
+      const photo_path = `${authUserId}/smoke-test.jpg`;
+      const data = await callEdgeFunction<BreedIdentifyResponse>('breed-identify', {
+        photo_path,
+      });
+      setBreedResult(`${data.species} — ${data.breed} (${data.confidence})`);
+    } catch (err) {
+      logger.error('breed-identify call failed', { err: String(err) });
       setError(String(err));
     }
   };
@@ -126,6 +146,18 @@ export default function Index(): React.JSX.Element {
         {crossResult !== null ? (
           <Text className="mt-2 text-sm text-slate-700">
             {t('smoke.crossUserResult')}: {crossResult}
+          </Text>
+        ) : null}
+
+        <Pressable
+          onPress={() => void handleCallBreedIdentify()}
+          className="mt-4 rounded-md bg-slate-900 px-4 py-3"
+        >
+          <Text className="text-center text-white">{t('smoke.callBreedIdentify')}</Text>
+        </Pressable>
+        {breedResult !== null ? (
+          <Text className="mt-2 text-sm text-slate-700">
+            {t('smoke.callBreedIdentifyResult')}: {breedResult}
           </Text>
         ) : null}
 

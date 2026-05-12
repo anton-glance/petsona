@@ -16,6 +16,8 @@
     "insertPetResult": "Inserted pets.id",
     "crossUserRead": "Try to read another user's pets",
     "crossUserResult": "Rows visible across users",
+    "callBreedIdentify": "Call breed-identify (R1-M1 smoke)",
+    "callBreedIdentifyResult": "Function returned",
     "throwError": "Throw test error",
     "error": "Error"
   }
