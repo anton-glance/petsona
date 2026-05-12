@@ -1,0 +1,427 @@
+/* ============================================================
+   PETSONA — Component primitives
+   Wires tokens.css into a small, reusable surface library.
+   Each block has a one-line spec at the top describing variants
+   and intended use. Mirror these into React Native components
+   under `src/components/ui/`.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   RESET / BASE
+   ------------------------------------------------------------ */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-family-ui);
+  background: var(--color-surface);
+  color: var(--color-text-default);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ------------------------------------------------------------
+   TYPOGRAPHY
+   .display-xl / .display-lg / .display-md / .body-lg / .body / .caption
+   ------------------------------------------------------------ */
+.h-display, .display-xl, .display-lg, .display-md {
+  font-weight: var(--font-weight-semi);
+  letter-spacing: -0.015em;
+  color: var(--color-text-default);
+  margin: 0;
+}
+.display-xl { font-size: var(--type-display-xl-size); line-height: var(--type-display-xl-lh); }
+.display-lg { font-size: var(--type-display-lg-size); line-height: var(--type-display-lg-lh); }
+.display-md { font-size: var(--type-display-md-size); line-height: var(--type-display-md-lh); }
+
+.body-lg { font-size: var(--type-body-lg-size); line-height: var(--type-body-lg-lh); color: var(--color-text-soft); margin: 0; }
+.body    { font-size: var(--type-body-size);    line-height: var(--type-body-lh);    color: var(--color-text-soft); margin: 0; }
+.body.muted, .body-lg.muted { color: var(--color-text-muted); }
+
+.caption {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-lh);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: var(--font-weight-semi);
+  color: var(--color-text-muted);
+}
+
+/* ------------------------------------------------------------
+   SCREEN CONTAINER · phone-frame mockup wrapper
+   Renders a 360x760 device frame with notch + safe areas.
+   Inside production code this maps to a SafeAreaView root.
+   ------------------------------------------------------------ */
+.design-stage {
+  min-height: 100vh;
+  display: grid; place-items: center;
+  padding: 32px;
+  background: #ECE6D8;
+}
+.design-stage .frame {
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+}
+.design-stage .legend {
+  text-align: center;
+  font-size: 13px; color: var(--color-text-muted); line-height: 1.5;
+  max-width: 340px;
+}
+.design-stage .legend strong { color: var(--color-text-default); }
+
+.phone {
+  width: 360px; height: 760px;
+  background: #1F1E1A;
+  border-radius: 44px;
+  padding: 11px;
+  box-shadow: var(--shadow-lg), inset 0 0 0 1.5px rgba(255,255,255,0.04);
+  position: relative;
+}
+.phone .notch {
+  position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+  width: 104px; height: 26px; background: #0a0a09;
+  border-radius: 999px; z-index: 5; pointer-events: none;
+}
+.screen-canvas {
+  width: 100%; height: 100%;
+  border-radius: 33px; background: var(--color-surface);
+  overflow: hidden; position: relative;
+}
+/* SCREEN — the base inside-the-canvas container. Every onboarding step extends this. */
+.screen {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  background: var(--color-surface);
+}
+
+/* STATUS BAR — 50px high. iOS-style time + battery. Use `.dim` over dark surfaces. */
+.statusbar {
+  height: 50px;
+  padding: 18px var(--s5) 0;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 14px; font-weight: var(--font-weight-semi);
+  color: var(--color-text-default);
+  flex: 0 0 auto; z-index: 4;
+}
+.statusbar.dim { color: var(--ivory); }
+.statusbar .icons { display: inline-flex; gap: 4px; align-items: center; }
+.statusbar .battery { width: 22px; height: 11px; border: 1.5px solid currentColor; border-radius: 3px; position: relative; }
+.statusbar .battery::after  { content: ""; position: absolute; right: -3px; top: 3px; width: 2px; height: 4px; background: currentColor; border-radius: 0 2px 2px 0; }
+.statusbar .battery::before { content: ""; position: absolute; left: 1px; top: 1px; width: 14px; height: 5px; background: currentColor; border-radius: 1px; }
+
+/* ------------------------------------------------------------
+   BUTTON
+   Variants: .btn (primary, forest glass capsule)
+             .btn.secondary (translucent glass, brand text)
+             .btn.text (ghost — text-only, no chrome)
+             .btn.dark (Apple-style sign-in capsule)
+             .btn.outline (translucent glass with hairline stroke)
+             .btn.honey-text (inline action, NOT full-width)
+   ------------------------------------------------------------ */
+.btn {
+  appearance: none; border: 0;
+  position: relative; isolation: isolate;
+  background: var(--color-primary); color: var(--color-text-on-primary);
+  border-radius: var(--r-pill);
+  padding: 14px 22px;
+  font: var(--font-weight-semi) 15px var(--font-family-ui);
+  width: 100%; cursor: pointer; min-height: 52px;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
+  box-shadow:
+    inset 0 0.8px 0 rgba(255,255,255,0.32),
+    inset 0 -0.6px 0 rgba(0,0,0,0.18),
+    0 16px 30px -16px rgba(31,58,42,0.55),
+    0 2px 6px -2px rgba(31,58,42,0.30);
+  transition: transform var(--motion-fast) var(--easing-primary),
+              box-shadow var(--motion-medium) var(--easing-primary);
+}
+.btn::before {
+  content: ""; position: absolute; inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.05) 42%, rgba(255,255,255,0) 60%);
+  pointer-events: none; z-index: 1;
+}
+.btn > * { position: relative; z-index: 2; }
+.btn:active { transform: scale(0.985); }
+.btn:disabled { opacity: 0.5; pointer-events: none; }
+
+.btn.secondary {
+  background: var(--glass-fill-thin); color: var(--color-primary);
+  -webkit-backdrop-filter: var(--glass-blur-regular);
+          backdrop-filter: var(--glass-blur-regular);
+  box-shadow:
+    inset 0 0 0 1px rgba(45,79,60,0.30),
+    var(--glass-specular), var(--glass-cast-sm);
+}
+.btn.secondary::before { display: none; }
+
+.btn.text {
+  background: transparent; color: var(--color-primary); box-shadow: none;
+  min-height: 42px; font-weight: var(--font-weight-medium); padding: 10px 16px;
+}
+.btn.text::before { display: none; }
+
+.btn.dark {
+  background: rgba(20,19,15,0.92); color: #fff;
+  box-shadow:
+    inset 0 0.8px 0 rgba(255,255,255,0.18),
+    inset 0 -0.5px 0 rgba(0,0,0,0.5),
+    0 14px 28px -14px rgba(0,0,0,0.55);
+}
+
+.btn.outline {
+  background: var(--glass-fill-regular); color: var(--color-text-default);
+  -webkit-backdrop-filter: var(--glass-blur-regular);
+          backdrop-filter: var(--glass-blur-regular);
+  box-shadow:
+    inset 0 0 0 0.5px var(--glass-stroke-dark),
+    var(--glass-specular), var(--glass-cast-sm);
+}
+.btn.outline::before {
+  background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 60%, rgba(255,255,255,0) 100%);
+}
+
+.btn.honey-text {
+  background: transparent; color: var(--honey-dk); box-shadow: none;
+  padding: 6px 10px; min-height: 32px;
+  font-weight: var(--font-weight-medium); font-size: 12.5px;
+  width: auto; flex: 0 0 auto;
+}
+.btn.honey-text::before { display: none; }
+
+/* CTA STACK — vertical group, pinned 16px from screen bottom on every screen except splash */
+.cta-stack {
+  display: flex; flex-direction: column; gap: var(--s2);
+  margin-top: auto;
+  padding-top: var(--s3);
+}
+
+/* ------------------------------------------------------------
+   INPUT
+   .input — text input. Pair with .input-label for label,
+            .input-error for error message + .has-error on field-row.
+   ------------------------------------------------------------ */
+.field-row { display: flex; flex-direction: column; gap: 3px; }
+
+.input-label {
+  font-size: 11px; font-weight: var(--font-weight-semi);
+  letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--color-text-muted); margin-bottom: 4px; display: block;
+}
+
+.input {
+  background: var(--glass-fill-thick);
+  -webkit-backdrop-filter: var(--glass-blur-thin);
+          backdrop-filter: var(--glass-blur-thin);
+  border: 0.5px solid var(--glass-stroke-dark);
+  border-radius: var(--r-md);
+  padding: 11px 14px;
+  font: var(--font-weight-medium) 14.5px var(--font-family-ui);
+  color: var(--color-text-default); width: 100%;
+  box-shadow: var(--glass-specular);
+}
+.input:focus {
+  outline: 0;
+  border-color: var(--color-primary);
+  box-shadow: var(--glass-specular), 0 0 0 3px rgba(45,79,60,0.10);
+}
+
+.field-row.has-error .input {
+  border-color: var(--color-status-danger);
+  box-shadow: var(--glass-specular), 0 0 0 3px rgba(168,68,42,0.10);
+}
+.input-error {
+  font-size: 12px; line-height: 16px;
+  color: var(--color-status-danger);
+  margin-top: 4px;
+}
+
+/* ------------------------------------------------------------
+   CARD · translucent glass surface
+   Variants:
+     .card           — default glass card
+     .card.selected  — honey-tint glass (selection state)
+     .card.compact   — tighter padding
+   ------------------------------------------------------------ */
+.card {
+  background: var(--glass-fill-regular);
+  -webkit-backdrop-filter: var(--glass-blur-regular);
+          backdrop-filter: var(--glass-blur-regular);
+  border: 0.5px solid var(--glass-stroke);
+  border-radius: 18px;
+  padding: var(--s4) var(--s4);
+  box-shadow: var(--glass-specular), var(--glass-cast-sm);
+  transition: background var(--motion-medium) var(--easing-primary),
+              box-shadow var(--motion-medium) var(--easing-primary);
+}
+.card.selected {
+  background: var(--glass-tint-honey);
+  border-color: transparent;
+  box-shadow: var(--glass-specular), var(--glass-cast-md);
+}
+.card.compact { padding: var(--s3) var(--s3); }
+
+/* ------------------------------------------------------------
+   SEGMENTED CONTROL · glass pill with floating thumb
+   <div class="seg"><button class="is-active">…</button><button>…</button></div>
+   ------------------------------------------------------------ */
+.seg {
+  display: inline-flex;
+  background: rgba(38,37,34,0.06);
+  -webkit-backdrop-filter: var(--glass-blur-thin);
+          backdrop-filter: var(--glass-blur-thin);
+  border: 0.5px solid var(--glass-stroke-dark);
+  border-radius: var(--r-pill);
+  padding: 3px; width: 100%;
+  box-shadow: inset 0 0.5px 0 rgba(255,255,255,0.5);
+}
+.seg button {
+  flex: 1; background: transparent; border: 0;
+  padding: 7px 12px; font: var(--font-weight-semi) 13px var(--font-family-ui);
+  color: var(--color-text-muted); cursor: pointer;
+  border-radius: 999px;
+  transition: color var(--motion-fast) var(--easing-primary);
+}
+.seg.tight button { padding: 4px 10px; font-size: 11px; }
+.seg button.is-active {
+  background: var(--glass-fill-thick);
+  -webkit-backdrop-filter: var(--glass-blur-regular);
+          backdrop-filter: var(--glass-blur-regular);
+  color: var(--color-text-default);
+  box-shadow:
+    inset 0 0.5px 0 rgba(255,255,255,0.9),
+    0 2px 6px -2px rgba(38,37,34,0.18),
+    0 0 0 0.5px var(--glass-stroke-dark);
+}
+
+/* ------------------------------------------------------------
+   PILL · small inline indicator (e.g. "NEW", "Optional")
+   ------------------------------------------------------------ */
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px;
+  background: var(--glass-tint-honey);
+  -webkit-backdrop-filter: var(--glass-blur-thin);
+          backdrop-filter: var(--glass-blur-thin);
+  color: var(--honey-dk);
+  border-radius: var(--r-pill);
+  font: var(--font-weight-semi) 10px var(--font-family-ui);
+  letter-spacing: 0.04em; text-transform: uppercase;
+  box-shadow: inset 0 0.5px 0 rgba(255,255,255,0.5);
+}
+
+/* ------------------------------------------------------------
+   CHECKBOX · "paw" checkbox (round) and square variant
+   ------------------------------------------------------------ */
+.checkbox-paw, .checkbox-paw-square {
+  width: 22px; height: 22px;
+  border: 0.5px solid var(--glass-stroke-dark);
+  background: var(--glass-fill-thick);
+  -webkit-backdrop-filter: var(--glass-blur-thin);
+          backdrop-filter: var(--glass-blur-thin);
+  display: grid; place-items: center; flex: 0 0 auto; color: transparent;
+  box-shadow: inset 0 0.5px 0 rgba(255,255,255,0.7);
+}
+.checkbox-paw        { border-radius: 999px; }
+.checkbox-paw-square { border-radius: 7px;   }
+.checkbox-paw.checked, .checkbox-paw-square.checked {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-accent);
+  box-shadow:
+    inset 0 0.6px 0 rgba(255,255,255,0.30),
+    0 4px 8px -3px rgba(31,58,42,0.40);
+}
+.checkbox-paw .paw-icon, .checkbox-paw-square .paw-icon { width: 12px; height: 12px; }
+
+/* PAW GLYPH · mask-based, scales with font-size */
+.paw-icon {
+  display: inline-block; width: 1em; height: 1em;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><ellipse cx='12' cy='15' rx='5.5' ry='4.5'/><circle cx='6' cy='9' r='2.4'/><circle cx='18' cy='9' r='2.4'/><circle cx='9' cy='5' r='2'/><circle cx='15' cy='5' r='2'/></svg>") no-repeat center / contain;
+          mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><ellipse cx='12' cy='15' rx='5.5' ry='4.5'/><circle cx='6' cy='9' r='2.4'/><circle cx='18' cy='9' r='2.4'/><circle cx='9' cy='5' r='2'/><circle cx='15' cy='5' r='2'/></svg>") no-repeat center / contain;
+}
+
+/* ------------------------------------------------------------
+   ICON BUTTON · glass capsule
+   .iconbtn for general use, .back-arrow for back navigation
+   ------------------------------------------------------------ */
+.iconbtn {
+  appearance: none; border: 0;
+  background: var(--glass-fill-regular);
+  -webkit-backdrop-filter: var(--glass-blur-regular);
+          backdrop-filter: var(--glass-blur-regular);
+  width: 36px; height: 36px; border-radius: var(--r-pill);
+  display: grid; place-items: center; cursor: pointer; color: var(--color-text-soft);
+  box-shadow:
+    inset 0 0 0 0.5px var(--glass-stroke-dark),
+    var(--glass-specular), var(--glass-cast-sm);
+}
+.back-arrow {
+  appearance: none; border: 0;
+  background: var(--glass-fill-thin);
+  -webkit-backdrop-filter: var(--glass-blur-thin);
+          backdrop-filter: var(--glass-blur-thin);
+  color: var(--color-text-soft);
+  display: inline-flex; align-items: center; gap: 4px;
+  font: var(--font-weight-medium) 14px var(--font-family-ui);
+  padding: 6px 12px 6px 8px; border-radius: var(--r-pill); cursor: pointer;
+  box-shadow:
+    inset 0 0 0 0.5px var(--glass-stroke-dark),
+    inset 0 0.5px 0 rgba(255,255,255,0.6);
+}
+.back-arrow:hover { color: var(--color-primary); }
+
+/* ------------------------------------------------------------
+   PROGRESS BAR · glass track + brand-gradient fill
+   ------------------------------------------------------------ */
+.progress {
+  height: 10px;
+  background: rgba(38,37,34,0.06);
+  -webkit-backdrop-filter: var(--glass-blur-thin);
+          backdrop-filter: var(--glass-blur-thin);
+  border-radius: 999px; overflow: hidden; position: relative;
+  box-shadow: inset 0 0.5px 0 rgba(255,255,255,0.5);
+}
+.progress > span {
+  display: block; height: 100%;
+  background: linear-gradient(180deg, #E0B560 0%, var(--color-accent) 50%, var(--honey-dk) 100%);
+  border-radius: 999px;
+  box-shadow: inset 0 0.5px 0 rgba(255,255,255,0.5);
+}
+
+.progress-dots { display: inline-flex; gap: 6px; }
+.progress-dots span {
+  width: 22px; height: 4px; border-radius: 2px;
+  background: rgba(38,37,34,0.10);
+}
+.progress-dots span.done       { background: var(--forest-soft); }
+.progress-dots span.is-active  { background: var(--color-primary); width: 34px; box-shadow: 0 0 8px rgba(45,79,60,0.35); }
+
+/* ------------------------------------------------------------
+   LOADING SPINNER · brand dot ring
+   <div class="spinner" role="status" aria-label="Loading"></div>
+   ------------------------------------------------------------ */
+.spinner {
+  width: 28px; height: 28px;
+  border: 2.5px solid rgba(45,79,60,0.18);
+  border-top-color: var(--color-primary);
+  border-radius: 999px;
+  animation: spin 0.9s linear infinite;
+}
+.spinner.dim { border-color: rgba(255,255,255,0.22); border-top-color: var(--color-accent); }
+.spinner.lg  { width: 44px; height: 44px; border-width: 3.5px; }
+@keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+
+/* ------------------------------------------------------------
+   COMMON TOP-ROW · back + progress dots + step counter
+   Three-column grid so the dots sit at the true horizontal centre
+   regardless of back-arrow / counter width.
+   ------------------------------------------------------------ */
+.top-row {
+  padding: 4px 0 var(--s2);
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; gap: 8px; z-index: 2;
+}
+.top-row > .back-arrow    { justify-self: start; }
+.top-row > .progress-dots { justify-self: center; }
+.top-row > .caption       { justify-self: end; }

@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Petsona — Brand Book v1</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* ============================================================
+     PETSONA — BRAND BOOK v1
+     ============================================================ */
+  :root {
+    --honey:#D4A248; --honey-dk:#A77E2F; --honey-soft:#EAD6A0; --honey-tint:#F5E8C4;
+    --forest:#2D4F3C; --forest-dk:#1F3A2A; --forest-soft:#79A38A;
+    --ivory:#FBF7EE; --ivory-dim:#F4EEDE;
+    --ink:#262522; --ink-soft:#45433D; --muted:#6E6A5F; --muted-soft:#93907F;
+    --rule:#EAE2CE; --rule-soft:#F2EBD8;
+    --night:#15130E; --night-elev:#1E1B14; --night-elev-2:#28241B;
+    --ink-inverse:#F1EBDC; --muted-dark:#9B9583; --rule-dark:#38332A;
+    --error:#A8442A; --error-dark:#D86B4D;
+  }
+
+  /* ---- print setup ---- */
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  @media print {
+    body { background: #fff !important; }
+    .toc { page-break-after: always; }
+    .page-break { page-break-before: always; }
+    nav.top { display: none; }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "DM Sans", -apple-system, system-ui, sans-serif;
+    background: #ECE6D8;
+    color: var(--ink);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ---- nav (screen-only) ---- */
+  nav.top {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(251,247,238,0.95); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 32px;
+  }
+  nav.top .inner { max-width: 1200px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  nav.top .left { display: flex; align-items: center; gap: 12px; }
+  nav.top .mark { width: 32px; height: 32px; background: var(--forest); border-radius: 9px; display: grid; place-items: center; }
+  nav.top .mark img { width: 26px; height: 26px; }
+  nav.top h1 { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; margin: 0; }
+  nav.top .sub { color: var(--muted); font-size: 12px; }
+  nav.top ul { list-style: none; display: flex; gap: 18px; padding: 0; margin: 0; font-size: 13px; }
+  nav.top a { color: var(--ink-soft); text-decoration: none; font-weight: 500; }
+  nav.top a:hover { color: var(--forest); }
+
+  /* ---- page layout ---- */
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 0;
+    box-shadow: 0 24px 64px -32px rgba(0,0,0,0.15);
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  .section {
+    padding: 80px 80px 88px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section:last-of-type { border-bottom: 0; }
+  @media (max-width: 820px) { .section { padding: 56px 32px; } }
+
+  /* ---- cover page ---- */
+  .cover {
+    background: var(--forest);
+    color: var(--ivory);
+    padding: 120px 80px;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 60px;
+    align-items: center;
+    min-height: 720px;
+  }
+  @media (max-width: 820px) { .cover { grid-template-columns: 1fr; padding: 56px 32px; } }
+  .cover .left { display: flex; flex-direction: column; gap: 16px; }
+  .cover .small { font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--honey); font-weight: 600; }
+  .cover h1 {
+    font-family: "DM Sans", sans-serif;
+    font-weight: 700;
+    font-size: 76px;
+    letter-spacing: -0.025em;
+    line-height: 1.0;
+    margin: 0;
+  }
+  .cover h2 { font-weight: 500; font-size: 24px; margin: 0; color: var(--honey-soft); letter-spacing: -0.01em; }
+  .cover .meta { display: flex; gap: 32px; margin-top: 48px; font-size: 13px; color: var(--honey-soft); }
+  .cover .meta b { display: block; color: var(--ivory); font-weight: 600; margin-bottom: 4px; }
+  .cover .right { display: grid; place-items: center; }
+  .cover .right img { width: 100%; max-width: 380px; }
+
+  /* ---- TOC ---- */
+  .toc { padding: 80px; background: var(--ivory); }
+  .toc h2 {
+    font-weight: 700; font-size: 48px; letter-spacing: -0.02em;
+    margin: 0 0 32px;
+  }
+  .toc ol {
+    list-style: none; padding: 0; margin: 0;
+    columns: 2; column-gap: 64px;
+  }
+  @media (max-width: 720px) { .toc ol { columns: 1; } }
+  .toc li {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px dotted var(--rule);
+    font-size: 16px;
+    break-inside: avoid;
+  }
+  .toc .num { font-family: ui-monospace, monospace; color: var(--muted); font-weight: 600; font-size: 13px; min-width: 24px; }
+  .toc .name { flex: 1; font-weight: 500; }
+  .toc .pg { color: var(--muted); font-family: ui-monospace, monospace; font-size: 13px; }
+  .toc a { color: var(--ink); text-decoration: none; flex: 1; display: flex; align-items: baseline; gap: 12px; }
+  .toc a:hover .name { color: var(--forest); }
+
+  /* ---- typography of section headers ---- */
+  .lbl {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.10em;
+    font-weight: 700; color: var(--honey-dk);
+    margin: 0 0 8px;
+  }
+  h2.h-title {
+    font-weight: 700; font-size: 44px; letter-spacing: -0.022em;
+    line-height: 1.08; margin: 0 0 16px;
+  }
+  h3.h-sub {
+    font-weight: 600; font-size: 20px; letter-spacing: -0.01em;
+    margin: 36px 0 12px;
+  }
+  .lede {
+    font-size: 17px; color: var(--ink-soft); margin: 0 0 32px; line-height: 1.55; max-width: 720px;
+  }
+  .body { font-size: 15px; color: var(--ink-soft); line-height: 1.6; margin: 0 0 16px; max-width: 720px; }
+
+  .pullquote {
+    font-family: "DM Sans", serif;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 28px;
+    letter-spacing: -0.015em;
+    line-height: 1.28;
+    color: var(--forest);
+    padding: 32px 40px;
+    border-left: 4px solid var(--honey);
+    background: var(--ivory);
+    border-radius: 0 18px 18px 0;
+    margin: 32px 0;
+    max-width: 720px;
+  }
+
+  /* ---- asset grids ---- */
+  .preview-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin: 24px 0;
+  }
+  @media (max-width: 720px) { .preview-grid { grid-template-columns: 1fr; } }
+  .preview-grid.three { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 820px) { .preview-grid.three { grid-template-columns: repeat(2, 1fr); } }
+  .preview-card { border-radius: 16px; overflow: hidden; border: 1px solid var(--rule); }
+  .preview-card .top { padding: 36px 24px; display: grid; place-items: center; min-height: 200px; }
+  .preview-card.bg-light .top  { background: var(--ivory); }
+  .preview-card.bg-dim .top    { background: var(--ivory-dim); }
+  .preview-card.bg-forest .top { background: var(--forest); }
+  .preview-card.bg-night .top  { background: var(--night); }
+  .preview-card.bg-honey .top  { background: var(--honey-soft); }
+  .preview-card.bg-checker .top {
+    background-image: linear-gradient(45deg, #e5dccb 25%, transparent 25%),
+                       linear-gradient(-45deg, #e5dccb 25%, transparent 25%),
+                       linear-gradient(45deg, transparent 75%, #e5dccb 75%),
+                       linear-gradient(-45deg, transparent 75%, #e5dccb 75%);
+    background-size: 24px 24px;
+    background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+    background-color: #f2ecdb;
+  }
+  .preview-card img { max-width: 100%; max-height: 140px; height: auto; display: block; }
+  .preview-card .meta {
+    background: #fff; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid var(--rule); font-size: 13px;
+  }
+  .preview-card.bg-night .meta, .preview-card.bg-forest .meta { background: #fff; }
+  .preview-card .name { font-weight: 600; color: var(--ink); }
+  .preview-card .file { font-family: ui-monospace, monospace; font-size: 11.5px; color: var(--muted); }
+
+  /* ---- icon size demo ---- */
+  .icon-board {
+    display: flex; align-items: flex-end; justify-content: center; gap: 28px; flex-wrap: wrap;
+    background: linear-gradient(180deg, #f0e9d4, #e8e0c8);
+    padding: 36px 24px; border-radius: 18px;
+    margin: 24px 0;
+  }
+  .icon-cell { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .icon-cell .iw { display: grid; place-items: center; }
+  .icon-cell img { border-radius: 22%; box-shadow: 0 8px 20px -10px rgba(0,0,0,0.3); }
+  .icon-cell .nm { font-weight: 600; font-size: 12px; color: var(--ink); }
+  .icon-cell .px { font-size: 11px; color: var(--muted); font-family: ui-monospace, monospace; }
+  .icon-cell.android img { border-radius: 50%; }
+
+  /* ---- monochrome grid (light + dark surfaces side by side) ---- */
+  .mono-table {
+    display: grid;
+    grid-template-columns: 140px 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    margin: 24px 0;
+  }
+  .mono-table > div { background: #fff; padding: 28px 24px; display: grid; place-items: center; }
+  .mono-table .mono-label {
+    background: var(--ivory-dim);
+    align-items: flex-start; justify-content: flex-start;
+    text-align: left;
+    padding: 28px 24px;
+  }
+  .mono-table .mono-label .nm { font-weight: 600; font-size: 14px; }
+  .mono-table .mono-label .hex { font-family: ui-monospace, monospace; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .mono-table .mono-label .files { font-family: ui-monospace, monospace; font-size: 10.5px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+  .mono-table .preview-light { background: var(--ivory); }
+  .mono-table .preview-dark { background: var(--night); }
+  .mono-table img { max-width: 90%; max-height: 70px; }
+
+  /* ---- color palette ---- */
+  .palette-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 24px 0; }
+  @media (max-width: 880px) { .palette-grid { grid-template-columns: repeat(2, 1fr); } }
+  .swatch { border-radius: 12px; overflow: hidden; border: 1px solid var(--rule); background: #fff; }
+  .swatch.dark-bg { background: var(--night-elev); border-color: var(--rule-dark); }
+  .swatch .chip { height: 80px; display: flex; align-items: flex-end; padding: 12px 14px; color: rgba(255,255,255,0.95); font-weight: 600; font-size: 14px; }
+  .swatch .chip.light { color: rgba(0,0,0,0.72); }
+  .swatch .meta { padding: 10px 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--rule); display: flex; align-items: center; justify-content: space-between; }
+  .swatch.dark-bg .meta { border-top-color: var(--rule-dark); color: var(--muted-dark); }
+  .swatch .meta b { color: var(--ink); font-family: ui-monospace, monospace; font-weight: 500; }
+  .swatch.dark-bg .meta b { color: var(--ink-inverse); }
+
+  /* ---- AA pair ---- */
+  .pair { display: flex; align-items: center; gap: 16px; padding: 14px 20px; border-radius: 12px; margin-bottom: 8px; border: 1px solid var(--rule); }
+  .pair .swatch-mini { width: 32px; height: 32px; border-radius: 8px; flex: 0 0 auto; border: 1px solid rgba(0,0,0,0.06); }
+  .pair .text { font-size: 15px; font-weight: 500; flex: 1; }
+  .pair .ratio { font-family: ui-monospace, monospace; font-size: 12px; color: var(--ink-soft); }
+  .pair .ratio b { color: var(--forest); }
+  .pair.fail { background: #FBEFE7; border-color: #E8C2B0; }
+  .pair.fail .ratio b { color: var(--error); }
+
+  /* ---- type scale ---- */
+  .type-row { display: grid; grid-template-columns: 130px 1fr; align-items: baseline; gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--rule); }
+  .type-row:last-child { border-bottom: 0; }
+  .type-row .meta { font-size: 11.5px; color: var(--muted); font-family: ui-monospace, monospace; line-height: 1.5; }
+  .type-row .meta b { color: var(--ink); display: block; font-family: "DM Sans", sans-serif; font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+
+  /* ---- motion table ---- */
+  .motion-table { display: grid; grid-template-columns: 110px 100px 1fr; gap: 0; margin: 24px 0; }
+  .motion-table > div { padding: 12px 0; border-bottom: 1px solid var(--rule); font-size: 14px; }
+  .motion-table > div:nth-child(-n+3) {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    font-weight: 700; color: var(--muted);
+    border-bottom-color: var(--ink); padding-bottom: 8px;
+  }
+  .motion-table code {
+    background: var(--ivory-dim); padding: 2px 8px; border-radius: 4px;
+    font-family: ui-monospace, monospace; font-size: 12.5px;
+  }
+
+  /* ---- spacing visual ---- */
+  .spacing-bars { display: flex; gap: 16px; align-items: flex-end; padding: 28px 0 12px; margin: 24px 0; }
+  .spacing-bars .bar { background: var(--honey-soft); border-radius: 4px; width: 38px; position: relative; color: var(--honey-dk); font-family: ui-monospace, monospace; font-weight: 600; font-size: 12px; text-align: center; }
+  .spacing-bars .bar > span { position: absolute; bottom: -24px; left: 0; right: 0; color: var(--muted); }
+
+  .radii-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .radii-row > div {
+    background: var(--honey-soft); width: 56px; height: 56px;
+    display: grid; place-items: center;
+    color: var(--honey-dk); font: 700 11px ui-monospace, monospace;
+  }
+
+  /* ---- do / don't ---- */
+  .dodont { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+  @media (max-width: 720px) { .dodont { grid-template-columns: 1fr; } }
+  .col-dd { border-radius: 18px; padding: 24px; border: 1px solid var(--rule); }
+  .col-dd.do { background: #F4F9F4; border-color: #C8DDC9; }
+  .col-dd.dont { background: #FBEFE7; border-color: #E8C2B0; }
+  .col-dd h4 { font-weight: 700; font-size: 16px; margin: 0 0 12px; }
+  .col-dd.do h4::before { content: "✓  "; color: var(--forest); }
+  .col-dd.dont h4::before { content: "✕  "; color: var(--error); }
+  .col-dd ul { margin: 0; padding-left: 22px; color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+
+  /* ---- in-context mocks ---- */
+  .context-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+  @media (max-width: 720px) { .context-row { grid-template-columns: 1fr; } }
+  .ctx { border-radius: 24px; overflow: hidden; border: 1px solid var(--rule); }
+  .ctx.l { background: #fff; }
+  .ctx.d { background: var(--night); color: var(--ivory); border-color: var(--rule-dark); }
+  .ctx .top { height: 36px; padding: 0 14px; display: flex; align-items: center; gap: 6px; }
+  .ctx.l .top { background: var(--ivory-dim); border-bottom: 1px solid var(--rule); }
+  .ctx.d .top { background: var(--night-elev); border-bottom: 1px solid var(--rule-dark); }
+  .ctx .dot { width: 10px; height: 10px; border-radius: 999px; }
+  .ctx.l .dot { background: var(--rule); }
+  .ctx.d .dot { background: var(--rule-dark); }
+  .ctx .pad { padding: 28px; }
+  .ctx .lockup img { height: 32px; display: block; margin-bottom: 16px; }
+  .ctx .pad h3 { font-weight: 600; font-size: 22px; margin: 0 0 8px; letter-spacing: -0.01em; }
+  .ctx.d .pad h3 { color: var(--ivory); }
+  .ctx .pad p { color: var(--muted); margin: 0; font-size: 14px; line-height: 1.6; }
+  .ctx.d .pad p { color: var(--muted-dark); }
+  .ctx .btn { margin-top: 18px; background: var(--forest); color: var(--ivory); padding: 13px 18px; border-radius: 14px; border: 0; font: 600 14px "DM Sans", sans-serif; }
+  .ctx.d .btn { background: var(--forest-soft); color: var(--night); }
+
+  /* ---- file inventory ---- */
+  .file-tree {
+    background: var(--ivory); border: 1px solid var(--rule);
+    border-radius: 14px; padding: 20px 24px;
+    font-family: ui-monospace, monospace; font-size: 12.5px;
+    color: var(--ink-soft); line-height: 1.7;
+    margin: 24px 0;
+    overflow-x: auto;
+  }
+  .file-tree .dir { color: var(--forest); font-weight: 700; }
+  .file-tree .new { color: var(--honey-dk); font-weight: 600; }
+  .file-tree .com { color: var(--muted); }
+
+  footer.book {
+    background: var(--night);
+    color: var(--ivory);
+    padding: 60px 80px;
+    display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+    font-size: 14px;
+  }
+  footer.book .item b { display: block; font-weight: 600; color: var(--ivory); margin-bottom: 4px; }
+  footer.book .item { color: var(--muted-dark); }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="inner">
+    <div class="left">
+      <div class="mark"><img src="brand/monochrome/icon-white.svg" alt="Petsona"/></div>
+      <div>
+        <h1>Petsona — Brand Book</h1>
+        <div class="sub">v1.0 · 2026-05-11</div>
+      </div>
+    </div>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#contents">Contents</a></li>
+      <li><a href="#essence">Essence</a></li>
+      <li><a href="#logo">Logo</a></li>
+      <li><a href="#mono">Monochrome</a></li>
+      <li><a href="#wordmark">Wordmark</a></li>
+      <li><a href="#icon">Icon</a></li>
+      <li><a href="#color">Color</a></li>
+      <li><a href="#type">Type</a></li>
+      <li><a href="#motion">Motion</a></li>
+      <li><a href="#rules">Rules</a></li>
+      <li><a href="#files">Files</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- ==================== COVER ==================== -->
+  <section class="cover" id="cover">
+    <div class="left">
+      <div class="small">Brand Book · v1.0</div>
+      <h1>Petsona</h1>
+      <h2>Every pet has a Petsona.</h2>
+      <div class="meta">
+        <div><b>Released</b>2026-05-11</div>
+        <div><b>Status</b>Locked, commercial use</div>
+        <div><b>Owner</b>Petsona</div>
+      </div>
+    </div>
+    <div class="right">
+      <img src="brand/monochrome/icon-honey.svg" alt="Petsona logo"/>
+    </div>
+  </section>
+
+  <!-- ==================== TOC ==================== -->
+  <section class="toc" id="contents">
+    <div class="lbl">Contents</div>
+    <h2>Brand Book</h2>
+    <ol>
+      <li><a href="#essence"><span class="num">01</span><span class="name">Brand essence</span><span class="pg">04</span></a></li>
+      <li><a href="#logo"><span class="num">02</span><span class="name">Logo</span><span class="pg">05</span></a></li>
+      <li><a href="#mono"><span class="num">03</span><span class="name">Monochrome</span><span class="pg">07</span></a></li>
+      <li><a href="#wordmark"><span class="num">04</span><span class="name">Wordmark lockup</span><span class="pg">09</span></a></li>
+      <li><a href="#icon"><span class="num">05</span><span class="name">App icon</span><span class="pg">11</span></a></li>
+      <li><a href="#color"><span class="num">06</span><span class="name">Color system</span><span class="pg">13</span></a></li>
+      <li><a href="#type"><span class="num">07</span><span class="name">Typography</span><span class="pg">15</span></a></li>
+      <li><a href="#motion"><span class="num">08</span><span class="name">Motion</span><span class="pg">17</span></a></li>
+      <li><a href="#space"><span class="num">09</span><span class="name">Spacing &amp; radii</span><span class="pg">18</span></a></li>
+      <li><a href="#rules"><span class="num">10</span><span class="name">Do / don't</span><span class="pg">19</span></a></li>
+      <li><a href="#context"><span class="num">11</span><span class="name">In context</span><span class="pg">20</span></a></li>
+      <li><a href="#files"><span class="num">12</span><span class="name">File inventory</span><span class="pg">21</span></a></li>
+    </ol>
+  </section>
+
+  <!-- ==================== 01 ESSENCE ==================== -->
+  <section class="section page-break" id="essence">
+    <div class="lbl">01 — Essence</div>
+    <h2 class="h-title">The brand in one breath.</h2>
+    <p class="lede">
+      Petsona is a single calm place for everything pet — breed, vitals, vet records, behavioral notes, an AI-curated weekly care plan.
+      The name is the promise: every pet has a Petsona, and the app captures it.
+    </p>
+
+    <div class="pullquote">Every pet has a Petsona.</div>
+
+    <h3 class="h-sub">Voice</h3>
+    <p class="body">
+      Premium-clean meets playful-quirky. Friendly and modern, not scholarly or fashion-y.
+      Speaks to a first-time owner without dumbing down for a 10-year veteran.
+      Think "your friend who's a vet tech" — never "premium wellness brand," never "pet store loyalty card."
+    </p>
+
+    <h3 class="h-sub">Animation principle</h3>
+    <p class="body">
+      Animated everywhere. Every screen transition, every list reveal, every tap.
+      Owning a pet is fun; the app should never feel boring. Motion tokens live in code (<code>lib/theme.ts</code>) — never hard-coded.
+      Reduce-motion is respected; every animation drops to instant when the user has it on.
+    </p>
+
+    <h3 class="h-sub">Three principles</h3>
+    <p class="body">
+      <b>One.</b> Forest does the work. The dark forest green is the color your thumb presses. Primary CTAs, emphasis, the body of the wordmark.<br/>
+      <b>Two.</b> Honey does the recognition. The warm amber is the brand color — logo accents, badges, the moment your eye catches the brand.<br/>
+      <b>Three.</b> Ivory replaces white. Warm cream backgrounds reads "competent friend" where cold white reads "telehealth."
+    </p>
+  </section>
+
+  <!-- ==================== 02 LOGO ==================== -->
+  <section class="section page-break" id="logo">
+    <div class="lbl">02 — Logo</div>
+    <h2 class="h-title">The mark.</h2>
+    <p class="lede">
+      A continuous-line composition: a dog sitting on the left, a cat sitting on the right, their backs touching.
+      Hand-drawn outline with a brush-painted character. Both species visible at first glance —
+      no cat owner ever feels secondary to the mark.
+    </p>
+
+    <div class="preview-grid">
+      <div class="preview-card bg-light"><div class="top"><img src="brand/logo-on-ivory.png" alt="Logo on ivory"/></div>
+        <div class="meta"><span class="name">Default</span><span class="file">logo-on-ivory.svg</span></div></div>
+      <div class="preview-card bg-forest"><div class="top"><img src="brand/logo-on-forest.png" alt="Logo on forest"/></div>
+        <div class="meta"><span class="name">Forest backdrop</span><span class="file">logo-on-forest.svg</span></div></div>
+      <div class="preview-card bg-night"><div class="top"><img src="brand/logo-on-night.png" alt="Logo on night"/></div>
+        <div class="meta"><span class="name">Dark surfaces</span><span class="file">logo-on-night.svg</span></div></div>
+      <div class="preview-card bg-honey"><div class="top"><img src="brand/wordmark-honey-bg.png" alt="Lockup on honey" style="max-height:60px"/></div>
+        <div class="meta"><span class="name">Honey marketing surface</span><span class="file">wordmark-honey-bg.svg</span></div></div>
+    </div>
+
+    <h3 class="h-sub">Vectorization</h3>
+    <p class="body">
+      Source: <code>logo_mockup.png</code> (the locked design). Vectorized via OpenCV contour detection (4 contours: dog outline, dog inner-ear curl, cat outline, ground line), smoothed with Catmull-Rom cubic Bezier interpolation. Smooth at any zoom level; preserves the hand-drawn brush-painted character.
+    </p>
+
+    <h3 class="h-sub">Clear space</h3>
+    <p class="body">
+      Half the height of the dog's head on every side. At minimum. Don't crowd it.
+    </p>
+
+    <h3 class="h-sub">Minimum size</h3>
+    <p class="body">
+      32px height for the full logo. Below that, use the app icon (the logo cropped + padded on the forest backdrop) — never shrink the full logo past 32px height.
+    </p>
+  </section>
+
+  <!-- ==================== 03 MONOCHROME ==================== -->
+  <section class="section page-break" id="mono">
+    <div class="lbl">03 — Monochrome</div>
+    <h2 class="h-title">Single-color variants.</h2>
+    <p class="lede">
+      Four monochrome treatments shipped as transparent SVG so the logo composites onto any surface.
+      Both forms: <b>full logo</b> (natural rectangle, native aspect ratio) and <b>square icon</b> (centered with padding, for app/favicon use). Reach for the right one based on background contrast.
+    </p>
+
+    <h3 class="h-sub">Full logo · all four colors</h3>
+    <div class="mono-table">
+      <div class="mono-label">
+        <div><div class="nm">Black</div><div class="hex">#000000</div></div>
+        <div class="files">logo-black.svg<br/>logo-black.png</div>
+      </div>
+      <div class="preview-light"><img src="brand/monochrome/logo-black.png" alt="Logo black on ivory"/></div>
+      <div class="preview-dark"><img src="brand/monochrome/logo-black.png" alt="Logo black on night" style="opacity:0.3"/></div>
+
+      <div class="mono-label">
+        <div><div class="nm">White</div><div class="hex">#FFFFFF</div></div>
+        <div class="files">logo-white.svg<br/>logo-white.png</div>
+      </div>
+      <div class="preview-light"><img src="brand/monochrome/logo-white.png" alt="Logo white on ivory" style="filter:drop-shadow(0 0 1px rgba(0,0,0,0.1))"/></div>
+      <div class="preview-dark"><img src="brand/monochrome/logo-white.png" alt="Logo white on night"/></div>
+
+      <div class="mono-label">
+        <div><div class="nm">Forest</div><div class="hex">#2D4F3C</div></div>
+        <div class="files">logo-forest.svg<br/>logo-forest.png</div>
+      </div>
+      <div class="preview-light"><img src="brand/monochrome/logo-forest.png" alt="Logo forest on ivory"/></div>
+      <div class="preview-dark"><img src="brand/monochrome/logo-forest.png" alt="Logo forest on night" style="opacity:0.5"/></div>
+
+      <div class="mono-label">
+        <div><div class="nm">Honey</div><div class="hex">#D4A248</div></div>
+        <div class="files">logo-honey.svg<br/>logo-honey.png</div>
+      </div>
+      <div class="preview-light"><img src="brand/monochrome/logo-honey.png" alt="Logo honey on ivory"/></div>
+      <div class="preview-dark"><img src="brand/monochrome/logo-honey.png" alt="Logo honey on night"/></div>
+    </div>
+
+    <h3 class="h-sub">Square icon · all four colors</h3>
+    <div class="mono-table">
+      <div class="mono-label">
+        <div><div class="nm">Black</div><div class="hex">#000000</div></div>
+        <div class="files">icon-black.svg<br/>icon-black.png</div>
+      </div>
+      <div class="preview-light"><img src="brand/monochrome/icon-black.png" alt="Icon black on ivory" style="max-height:120px"/></div>
+      <div class="preview-dark"><img src="brand/monochrome/icon-black.png" alt="Icon black on night" style="opacity:0.3; max-height:120px"/></div>
+
+      <div class="mono-label">
+        <div><div class="nm">White</div><div class="hex">#FFFFFF</div></div>
+        <div class="files">icon-white.svg<br/>icon-white.png</div>
+      </div>
+      <div class="preview-light"><img src="brand/monochrome/icon-white.png" alt="Icon white on ivory" style="max-height:120px; filter:drop-shadow(0 0 1px rgba(0,0,0,0.1))"/></div>
+      <div class="preview-dark"><img src="brand/monochrome/icon-white.png" alt="Icon white on night" style="max-height:120px"/></div>
+
+      <div class="mono-label">
+        <div><div class="nm">Forest</div><div class="hex">#2D4F3C</div></div>
+        <div class="files">icon-forest.svg<br/>icon-forest.png</div>
+      </div>
+      <div class="preview-light"><img src="brand/monochrome/icon-forest.png" alt="Icon forest on ivory" style="max-height:120px"/></div>
+      <div class="preview-dark"><img src="brand/monochrome/icon-forest.png" alt="Icon forest on night" style="opacity:0.5; max-height:120px"/></div>
+
+      <div class="mono-label">
+        <div><div class="nm">Honey</div><div class="hex">#D4A248</div></div>
+        <div class="files">icon-honey.svg<br/>icon-honey.png</div>
+      </div>
+      <div class="preview-light"><img src="brand/monochrome/icon-honey.png" alt="Icon honey on ivory" style="max-height:120px"/></div>
+      <div class="preview-dark"><img src="brand/monochrome/icon-honey.png" alt="Icon honey on night" style="max-height:120px"/></div>
+    </div>
+
+    <h3 class="h-sub">When to use which</h3>
+    <p class="body">
+      <b>Forest</b> on ivory or honey backgrounds — the default brand mark.<br/>
+      <b>Ivory / white</b> on dark surfaces — forest, night, deep imagery.<br/>
+      <b>Honey</b> on night / dark forest — accent and dark-mode hero use.<br/>
+      <b>Black</b> for print fallback, fax, single-color photocopying.<br/>
+      <b>White</b> on dark print collateral or when laser-cutting / embossing.
+    </p>
+  </section>
+
+  <!-- ==================== 04 WORDMARK ==================== -->
+  <section class="section page-break" id="wordmark">
+    <div class="lbl">04 — Wordmark</div>
+    <h2 class="h-title">Logo + Petsona.</h2>
+    <p class="lede">
+      Logo on the left, "Petsona" in DM Sans SemiBold on the right.
+      Baseline-aligned with the cap-height center of the <em>P</em>. Logo height is 1.55× cap-height.
+      Gap between logo and wordmark is 6% of cap-height — don't tighten further.
+    </p>
+
+    <div class="preview-grid">
+      <div class="preview-card bg-light"><div class="top"><img src="brand/wordmark-light.png" alt="Wordmark light"/></div>
+        <div class="meta"><span class="name">Light</span><span class="file">wordmark-light.svg</span></div></div>
+      <div class="preview-card bg-night"><div class="top"><img src="brand/wordmark-dark.png" alt="Wordmark dark"/></div>
+        <div class="meta"><span class="name">Dark</span><span class="file">wordmark-dark.svg</span></div></div>
+      <div class="preview-card bg-forest"><div class="top"><img src="brand/wordmark-on-forest.png" alt="Wordmark on forest"/></div>
+        <div class="meta"><span class="name">On forest</span><span class="file">wordmark-on-forest.svg</span></div></div>
+      <div class="preview-card bg-honey"><div class="top"><img src="brand/wordmark-honey-bg.png" alt="Wordmark on honey"/></div>
+        <div class="meta"><span class="name">On honey</span><span class="file">wordmark-honey-bg.svg</span></div></div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 ICON ==================== -->
+  <section class="section page-break" id="icon">
+    <div class="lbl">05 — App icon</div>
+    <h2 class="h-title">Forest backdrop, ivory line, 14% padding.</h2>
+    <p class="lede">
+      The square app icon uses the forest brand backdrop with the logo in ivory.
+      The icon backdrop is <b>always forest</b> — never ivory, never honey, never gradient.
+      Pre-rendered at every iOS size + Android adaptive layers + monochrome themed icon.
+    </p>
+
+    <h3 class="h-sub">iOS</h3>
+    <div class="icon-board">
+      <div class="icon-cell"><div class="iw"><img src="brand/app-icon/ios-icon-1024.png" width="160" height="160"/></div><span class="nm">1024 · master</span><span class="px">App Store</span></div>
+      <div class="icon-cell"><div class="iw"><img src="brand/app-icon/ios-icon-180.png" width="120" height="120"/></div><span class="nm">180 · @3x</span><span class="px">120pt</span></div>
+      <div class="icon-cell"><div class="iw"><img src="brand/app-icon/ios-icon-120.png" width="80" height="80"/></div><span class="nm">120 · @2x</span><span class="px">80pt</span></div>
+      <div class="icon-cell"><div class="iw"><img src="brand/app-icon/ios-icon-87.png" width="60" height="60"/></div><span class="nm">87 · Settings</span><span class="px">29pt @3x</span></div>
+      <div class="icon-cell"><div class="iw"><img src="brand/app-icon/ios-icon-60.png" width="48" height="48"/></div><span class="nm">60 · Notification</span><span class="px">20pt @3x</span></div>
+      <div class="icon-cell"><div class="iw"><img src="brand/app-icon/ios-icon-40.png" width="40" height="40"/></div><span class="nm">40 · Spotlight</span><span class="px">20pt @2x</span></div>
+    </div>
+
+    <h3 class="h-sub">Android · adaptive icon</h3>
+    <p class="body">
+      Foreground + background composited under any system mask. Foreground stays inside the 264dp safe zone of the 432dp canvas. Monochrome layer ships for Android 13+ themed icons.
+    </p>
+    <div class="icon-board">
+      <div class="icon-cell android"><div class="iw">
+        <div style="position:relative; width:140px; height:140px; border-radius:50%; overflow:hidden; background:var(--forest);">
+          <img src="brand/app-icon/android-adaptive-foreground-432.png" width="140" height="140" style="border-radius:0;"/>
+        </div>
+      </div><span class="nm">Circle mask</span><span class="px">Pixel · Samsung</span></div>
+      <div class="icon-cell android"><div class="iw">
+        <div style="position:relative; width:140px; height:140px; border-radius:30px; overflow:hidden; background:var(--forest);">
+          <img src="brand/app-icon/android-adaptive-foreground-432.png" width="140" height="140" style="border-radius:0;"/>
+        </div>
+      </div><span class="nm">Squircle</span><span class="px">OnePlus · OPPO</span></div>
+      <div class="icon-cell"><div class="iw" style="background:#3c4043; padding:20px; border-radius:24px;">
+        <img src="brand/app-icon/android-monochrome-432.png" width="100" height="100" style="filter:invert(1) opacity(0.92); border-radius:50%;"/>
+      </div><span class="nm">Themed</span><span class="px">Android 13+</span></div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 COLOR ==================== -->
+  <section class="section page-break" id="color">
+    <div class="lbl">06 — Color · Light mode</div>
+    <h2 class="h-title">Honey + Forest + Ivory.</h2>
+    <p class="lede">
+      Twelve tokens. Forest does the work — primary CTAs, text emphasis, the logo line.
+      Honey does the recognition — accents, the icon's pet line, marketing surfaces.
+      Ivory replaces cold white as the canvas.
+    </p>
+
+    <div class="palette-grid">
+      <div class="swatch"><div class="chip" style="background:#D4A248">honey</div><div class="meta"><span>Brand</span><b>#D4A248</b></div></div>
+      <div class="swatch"><div class="chip" style="background:#A77E2F">honey-dark</div><div class="meta"><span>Hover</span><b>#A77E2F</b></div></div>
+      <div class="swatch"><div class="chip light" style="background:#EAD6A0">honey-soft</div><div class="meta"><span>BG</span><b>#EAD6A0</b></div></div>
+      <div class="swatch"><div class="chip light" style="background:#F5E8C4">honey-tint</div><div class="meta"><span>Fill</span><b>#F5E8C4</b></div></div>
+
+      <div class="swatch"><div class="chip" style="background:#2D4F3C">forest</div><div class="meta"><span>Primary</span><b>#2D4F3C</b></div></div>
+      <div class="swatch"><div class="chip" style="background:#1F3A2A">forest-dark</div><div class="meta"><span>Hover</span><b>#1F3A2A</b></div></div>
+      <div class="swatch"><div class="chip" style="background:#79A38A">forest-soft</div><div class="meta"><span>Dark primary</span><b>#79A38A</b></div></div>
+      <div class="swatch"><div class="chip light" style="background:#FBF7EE">ivory</div><div class="meta"><span>App BG</span><b>#FBF7EE</b></div></div>
+
+      <div class="swatch"><div class="chip" style="background:#262522">ink</div><div class="meta"><span>Text</span><b>#262522</b></div></div>
+      <div class="swatch"><div class="chip" style="background:#6E6A5F">muted</div><div class="meta"><span>Text 2°</span><b>#6E6A5F</b></div></div>
+      <div class="swatch"><div class="chip light" style="background:#EAE2CE">rule</div><div class="meta"><span>Borders</span><b>#EAE2CE</b></div></div>
+      <div class="swatch"><div class="chip" style="background:#A8442A">error</div><div class="meta"><span>Error</span><b>#A8442A</b></div></div>
+    </div>
+
+    <h3 class="h-sub">Dark mode</h3>
+    <p class="body">
+      Night never goes pure black — warmth survives. Forest is too dark on night, so primary CTA <b>swaps to forest-soft</b> (#79A38A) for AA. Honey brightens slightly to #E0B25E.
+    </p>
+
+    <div class="palette-grid">
+      <div class="swatch dark-bg"><div class="chip" style="background:#15130E">night</div><div class="meta"><span>App BG</span><b>#15130E</b></div></div>
+      <div class="swatch dark-bg"><div class="chip" style="background:#1E1B14">night-elev</div><div class="meta"><span>Card</span><b>#1E1B14</b></div></div>
+      <div class="swatch dark-bg"><div class="chip" style="background:#79A38A">forest-soft</div><div class="meta"><span>Primary</span><b>#79A38A</b></div></div>
+      <div class="swatch dark-bg"><div class="chip" style="background:#E0B25E">honey-dm</div><div class="meta"><span>Brand</span><b>#E0B25E</b></div></div>
+      <div class="swatch dark-bg"><div class="chip" style="background:#F1EBDC">ink-inverse</div><div class="meta"><span>Text</span><b>#F1EBDC</b></div></div>
+      <div class="swatch dark-bg"><div class="chip" style="background:#9B9583">muted-dark</div><div class="meta"><span>Text 2°</span><b>#9B9583</b></div></div>
+      <div class="swatch dark-bg"><div class="chip" style="background:#38332A">rule-dark</div><div class="meta"><span>Borders</span><b>#38332A</b></div></div>
+      <div class="swatch dark-bg"><div class="chip" style="background:#D86B4D">error-dark</div><div class="meta"><span>Error</span><b>#D86B4D</b></div></div>
+    </div>
+
+    <h3 class="h-sub">AA contrast pairs · verified</h3>
+
+    <div class="pair">
+      <span class="swatch-mini" style="background:var(--ivory); border-color:var(--rule);"></span>
+      <span class="text" style="color:var(--ink);">Ink #262522 on Ivory #FBF7EE — body text</span>
+      <span class="ratio"><b>13.6:1</b> AAA</span>
+    </div>
+    <div class="pair" style="background:var(--forest); border-color:transparent;">
+      <span class="swatch-mini" style="background:var(--ivory);"></span>
+      <span class="text" style="color:var(--ivory);">Ivory on Forest — primary CTA</span>
+      <span class="ratio" style="color:var(--ivory);"><b style="color:var(--honey);">8.4:1</b> AAA</span>
+    </div>
+    <div class="pair">
+      <span class="swatch-mini" style="background:var(--muted);"></span>
+      <span class="text" style="color:var(--muted);">Muted on Ivory — secondary text</span>
+      <span class="ratio"><b>5.1:1</b> AA</span>
+    </div>
+    <div class="pair">
+      <span class="swatch-mini" style="background:var(--honey-dk);"></span>
+      <span class="text" style="color:var(--honey-dk);">Honey-dark on Ivory — hover state</span>
+      <span class="ratio"><b>4.6:1</b> AA</span>
+    </div>
+    <div class="pair fail">
+      <span class="swatch-mini" style="background:var(--honey);"></span>
+      <span class="text" style="color:var(--honey);">Honey-default on Ivory — FAILS for body</span>
+      <span class="ratio"><b>2.8:1</b> 24px+ bold only</span>
+    </div>
+    <div class="pair" style="background:var(--night); border-color:var(--rule-dark);">
+      <span class="swatch-mini" style="background:var(--ink-inverse);"></span>
+      <span class="text" style="color:var(--ink-inverse);">Ink-inverse on Night — dark mode body</span>
+      <span class="ratio" style="color:var(--muted-dark);"><b style="color:var(--forest-soft);">14.1:1</b> AAA</span>
+    </div>
+    <div class="pair" style="background:var(--forest-soft); border-color:transparent;">
+      <span class="swatch-mini" style="background:var(--night);"></span>
+      <span class="text" style="color:var(--night);">Night on Forest-soft — dark mode primary</span>
+      <span class="ratio" style="color:var(--night);"><b>5.4:1</b> AA</span>
+    </div>
+  </section>
+
+  <!-- ==================== 07 TYPE ==================== -->
+  <section class="section page-break" id="type">
+    <div class="lbl">07 — Typography</div>
+    <h2 class="h-title">DM Sans, single family.</h2>
+    <p class="lede">
+      DM Sans (SIL OFL, commercial-use cleared). One family — SemiBold reads premium, Regular reads friendly. No serif pairing. Weights shipped: <b>400 Regular · 500 Medium · 600 SemiBold · 700 Bold</b>.
+    </p>
+
+    <div>
+      <div class="type-row">
+        <div class="meta"><b>display-xl</b>32 / 38 · -.015em<br/>weight 600</div>
+        <div style="font-weight:600; font-size:32px; letter-spacing:-0.015em; line-height:1.18;">Every pet has a Petsona.</div>
+      </div>
+      <div class="type-row">
+        <div class="meta"><b>display-lg</b>24 / 30 · -.01em<br/>weight 600</div>
+        <div style="font-weight:600; font-size:24px; letter-spacing:-0.01em; line-height:1.25;">Looks like Bear is a Labrador.</div>
+      </div>
+      <div class="type-row">
+        <div class="meta"><b>display-md</b>19 / 26<br/>weight 600</div>
+        <div style="font-weight:600; font-size:19px;">This week</div>
+      </div>
+      <div class="type-row">
+        <div class="meta"><b>body-lg</b>16 / 24<br/>weight 400</div>
+        <div style="font-size:16px; color:var(--ink-soft);">Climate shapes coat care, hydration, and walk timing.</div>
+      </div>
+      <div class="type-row">
+        <div class="meta"><b>body</b>14 / 21<br/>weight 400</div>
+        <div style="font-size:14px; color:var(--ink-soft);">Dense body — plan-card descriptions, list metadata, legal copy.</div>
+      </div>
+      <div class="type-row">
+        <div class="meta"><b>caption</b>12 / 16 · +.06em<br/>weight 600 · uppercase</div>
+        <div style="font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:600;">PET BASICS</div>
+      </div>
+    </div>
+
+    <h3 class="h-sub">Loading</h3>
+    <p class="body">
+      Static TTF files in <code>assets/fonts/DMSans-{Regular,Medium,SemiBold,Bold}.ttf</code> → registered via <code>useFonts</code> in <code>app/_layout.tsx</code>. Splash held until fonts resolve to prevent flash of unstyled text.
+    </p>
+
+    <h3 class="h-sub">Localization slack</h3>
+    <p class="body">
+      Reserve <b>30% extra horizontal space</b> on every text container. ES is typically 20–25% longer than EN; RU is similar with different break points. Numerals and product names (e.g., "Petsona") never translate.
+    </p>
+  </section>
+
+  <!-- ==================== 08 MOTION ==================== -->
+  <section class="section page-break" id="motion">
+    <div class="lbl">08 — Motion</div>
+    <h2 class="h-title">Animated everywhere.</h2>
+    <p class="lede">
+      Boring is forbidden. Five durations, two easings. Tokens in <code>lib/theme.ts</code>; presets in <code>lib/motion.ts</code>. Reduce-motion is respected — when the user has it on, every animation drops to instant.
+    </p>
+
+    <div class="motion-table">
+      <div>Token</div>
+      <div>Duration</div>
+      <div>Use</div>
+
+      <div><code>instant</code></div><div>60ms</div><div>Tap feedback (scale 0.985 spring)</div>
+      <div><code>fast</code></div><div>150ms</div><div>Toggles, chips, color shifts</div>
+      <div><code>medium</code></div><div>260ms</div><div>Sheet entrances, screen transitions, card reveals</div>
+      <div><code>slow</code></div><div>420ms</div><div>Splash → app, plan-day reveal</div>
+      <div><code>languid</code></div><div>700ms</div><div>Loading shimmers, decorative motion</div>
+    </div>
+
+    <h3 class="h-sub">Easing curves</h3>
+    <p class="body">
+      <b>Primary</b> · <code>cubic-bezier(0.32, 0.72, 0.0, 1)</code> — almost all transitions. Calm, settled.<br/>
+      <b>Out</b> · <code>cubic-bezier(0.5, 0.0, 0.4, 1)</code> — dismiss / exit. Brisker.
+    </p>
+
+    <h3 class="h-sub">Where animations live</h3>
+    <p class="body">
+      <b>Splash</b> · logo scales 0.92 → 1.0 over 420ms; ivory bg crossfades to ivory app bg.<br/>
+      <b>Screen enter</b> · <code>calmFade</code> (260ms) on the container.<br/>
+      <b>Card lists</b> · <code>fadeInUp(12)</code> per child, 60ms stagger.<br/>
+      <b>Sheets</b> · <code>sheetIn</code> from bottom (420ms), <code>sheetOut</code> (260ms).<br/>
+      <b>Tap feedback</b> · <code>useTapAnim()</code> — scale 0.985 spring-back.<br/>
+      <b>Streaming reveals</b> · <code>fadeInUp(20)</code> per day card with stagger; honey shimmer on skeletons.
+    </p>
+  </section>
+
+  <!-- ==================== 09 SPACE ==================== -->
+  <section class="section page-break" id="space">
+    <div class="lbl">09 — Spacing &amp; radii</div>
+    <h2 class="h-title">Seven steps. Six radii.</h2>
+    <p class="lede">Spacing is based on 4: <code>4 / 8 / 12 / 16 / 24 / 32 / 48</code>. Use tokens, not raw px.</p>
+
+    <div class="spacing-bars">
+      <div class="bar" style="height:4px"><span>4</span></div>
+      <div class="bar" style="height:8px"><span>8</span></div>
+      <div class="bar" style="height:12px"><span>12</span></div>
+      <div class="bar" style="height:16px"><span>16</span></div>
+      <div class="bar" style="height:24px"><span>24</span></div>
+      <div class="bar" style="height:32px"><span>32</span></div>
+      <div class="bar" style="height:48px"><span>48</span></div>
+    </div>
+
+    <h3 class="h-sub">Radii</h3>
+    <div class="radii-row">
+      <div style="border-radius:6px">6</div>
+      <div style="border-radius:10px">10</div>
+      <div style="border-radius:14px">14</div>
+      <div style="border-radius:20px">20</div>
+      <div style="border-radius:28px">28</div>
+      <div style="border-radius:999px">pill</div>
+    </div>
+    <p class="body" style="margin-top:24px;">
+      <b>pill (999)</b> reserved for chips and tab buttons.<br/>
+      <b>md (14)</b> for primary buttons and inputs.<br/>
+      <b>lg (20)</b> for cards.<br/>
+      <b>xl (28)</b> for sheets (top corners only).
+    </p>
+
+    <h3 class="h-sub">Touch targets</h3>
+    <p class="body">
+      <b>44pt minimum</b> hit area on every tappable element. Visually smaller elements (e.g., 32pt chips) must have padding extending the tap target to 44pt invisibly.
+    </p>
+  </section>
+
+  <!-- ==================== 10 DO / DON'T ==================== -->
+  <section class="section page-break" id="rules">
+    <div class="lbl">10 — Do / don't</div>
+    <h2 class="h-title">The rules that protect the brand.</h2>
+
+    <div class="dodont">
+      <div class="col-dd do">
+        <h4>Do</h4>
+        <ul>
+          <li>Use the wordmark when there's room. Use the icon when there isn't.</li>
+          <li>Use <b>forest</b> for the thing your thumb presses. Use <b>honey</b> for the thing your eye recognizes.</li>
+          <li>Animate every state change — it's the brand promise.</li>
+          <li>Reserve 30% horizontal slack on every label for ES / RU.</li>
+          <li>Verify AA contrast against the table in §06.</li>
+          <li>Use Lucide icons. Line weight 1.8–2px.</li>
+          <li>Pick the monochrome variant that contrasts <em>with</em> the surface — never the same family.</li>
+          <li>Keep ivory backgrounds. Cold white is forbidden.</li>
+        </ul>
+      </div>
+      <div class="col-dd dont">
+        <h4>Don't</h4>
+        <ul>
+          <li>Don't put the wordmark on the app icon. Icon is logo-only.</li>
+          <li>Don't use honey-default for body text on ivory — fails AA at 2.8:1.</li>
+          <li>Don't tilt the wordmark. Don't curve it. Don't outline it.</li>
+          <li>Don't replace DM Sans with serifs, Comic Sans, or handwriting fonts.</li>
+          <li>Don't add a tagline beneath the wordmark in app chrome (marketing only).</li>
+          <li>Don't scatter paw prints. The dog + cat composition is the only pet glyph.</li>
+          <li>Don't use clinical-blue for any accent. Petsona is warm.</li>
+          <li>Don't gradient-fill the icon backdrop. Solid forest only.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 11 IN CONTEXT ==================== -->
+  <section class="section page-break" id="context">
+    <div class="lbl">11 — In context</div>
+    <h2 class="h-title">How the system shows up.</h2>
+    <p class="lede">Two real-world surfaces — light and dark — showing the brand operating with its tokens.</p>
+
+    <div class="context-row">
+      <div class="ctx l">
+        <div class="top"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        <div class="pad">
+          <div class="lockup"><img src="brand/wordmark-light.png" alt="Petsona"/></div>
+          <h3>Bear's first week is ready.</h3>
+          <p>Five care actions today, three tomorrow. We'll remind you about the Bordetella booster in September.</p>
+          <button class="btn">See this week</button>
+        </div>
+      </div>
+      <div class="ctx d">
+        <div class="top"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        <div class="pad">
+          <div class="lockup"><img src="brand/wordmark-dark.png" alt="Petsona"/></div>
+          <h3>Bear's first week is ready.</h3>
+          <p>Five care actions today, three tomorrow. We'll remind you about the Bordetella booster in September.</p>
+          <button class="btn">See this week</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 12 FILE INVENTORY ==================== -->
+  <section class="section page-break" id="files">
+    <div class="lbl">12 — File inventory</div>
+    <h2 class="h-title">What's where.</h2>
+    <p class="lede">Everything ships under <code>docs/design/</code>. The source PNG <code>logo_mockup.png</code> stays at the root; all derivatives live under <code>brand/</code>.</p>
+
+    <div class="file-tree">
+<span class="dir">docs/design/</span>
+├── logo_mockup.png                       <span class="com">← locked source</span>
+├── brand-book.html                       <span class="com">← this document</span>
+├── brand-preview.html                    <span class="com">← compact preview</span>
+└── <span class="dir">brand/</span>
+    ├── identity.md                       <span class="com">written spec</span>
+    │
+    ├── logo-{forest,ivory,honey,ink}.svg
+    ├── logo-on-{ivory,forest,night}.svg + .png
+    │
+    ├── wordmark-{light,dark,on-forest,honey-bg,transparent}.svg + .png
+    │
+    ├── <span class="new">monochrome/</span>                       <span class="com">← new in v1.0</span>
+    │   ├── logo-{black,white,forest,honey}.svg + .png
+    │   └── icon-{black,white,forest,honey}.svg + .png
+    │
+    ├── <span class="dir">app-icon/</span>
+    │   ├── icon-master.{svg,png}            <span class="com">1024</span>
+    │   ├── ios-icon-{1024,180,167,152,120,87,80,76,60,40,29,20}.svg + .png
+    │   ├── android-adaptive-foreground-{432,1024}.png + .svg
+    │   ├── android-adaptive-background-{432,1024}.png + .svg
+    │   ├── android-monochrome-432.png + .svg
+    │   └── android-legacy-512.png + .svg
+    │
+    ├── <span class="dir">splash/</span>
+    │   ├── splash.svg + .png + @2x.png
+    │   └── splash-dark.svg + .png + @2x.png
+    │
+    └── <span class="dir">favicon/</span>
+        ├── favicon.svg
+        ├── favicon-{16,32,48,64,180}.png
+        └── apple-touch-icon-180.svg + .png
+    </div>
+
+    <h3 class="h-sub">License</h3>
+    <p class="body">
+      <b>DM Sans</b> — SIL Open Font License 1.1.<br/>
+      <b>Lucide icons</b> — ISC License.<br/>
+      <b>Petsona logo, wordmark, app icon</b> — © Petsona. All rights reserved.
+    </p>
+  </section>
+
+</div>
+
+<footer class="book">
+  <div class="item"><b>Petsona Brand Book v1.0</b>Last updated 2026-05-11</div>
+  <div class="item"><b>Source</b>docs/design/logo_mockup.png</div>
+  <div class="item"><b>Spec</b>docs/design/brand/identity.md</div>
+  <div class="item"><b>Decision</b>docs/06_DECISIONS.md · D-013</div>
+</footer>
+
+</body>
+</html>

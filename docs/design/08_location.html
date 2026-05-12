@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Petsona — 08 Location</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<link rel="stylesheet" href="screens.css" />
+</head>
+<body class="is-cat-mode">
+<main class="design-stage">
+  <div class="frame">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen-canvas">
+        <section class="screen location">
+          <div class="statusbar"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+          <div class="top">
+            <button class="back-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+            <div class="progress-dots"><span class="done"></span><span class="done"></span><span class="is-active"></span></div>
+            <span class="caption">3 / 3</span>
+          </div>
+          <div class="question">
+            <h1>Where do you live?</h1>
+            <p>Different climates influence pets' health — heat, humidity, allergens, walk timing.</p>
+          </div>
+          <div class="options-block">
+            <button class="use-loc">
+              <span class="icon-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+              <div class="info">
+                <span class="title">Use my location</span>
+                <span class="sub">We'll detect your area and tune the app to local climate. Only the rough region is stored.</span>
+              </div>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <div class="or-divider">or enter manually</div>
+            <div class="manual field-row">
+              <label class="input-label">City or ZIP code</label>
+              <input class="input" placeholder="e.g. Seattle or 98101"/>
+            </div>
+          </div>
+          <div class="cta-stack"><button class="btn">Continue</button></div>
+        </section>
+      </div>
+    </div>
+    <div class="legend">
+      <strong>Step 08 · Location</strong><br>
+      Two paths to provide location: device GPS (triggers OS prompt) or manual entry. Only region-level data persists — no precise coordinates.
+    </div>
+  </div>
+</main>
+</body>
+</html>
