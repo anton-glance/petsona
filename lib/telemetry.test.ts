@@ -2,7 +2,10 @@ import * as Sentry from '@sentry/react-native';
 import { PostHog } from 'posthog-react-native';
 
 import { Events } from './events';
+import { _resetForTesting, posthog } from './posthog';
 import { captureException, identify, track } from './telemetry';
+
+const PostHogMock = PostHog as unknown as jest.Mock;
 
 interface PostHogMockInstance {
   capture: jest.Mock;
@@ -12,9 +15,8 @@ interface PostHogMockInstance {
 }
 
 function getPostHogMockInstance(): PostHogMockInstance {
-  // The mock factory in jest.setup.ts makes PostHog return the same instance
-  // shape each time. We grab the latest constructed instance.
-  const PostHogMock = PostHog as unknown as jest.Mock;
+  // Touch the proxy to force singleton construction.
+  void posthog.capture;
   const calls = PostHogMock.mock.results;
   if (calls.length === 0) {
     throw new Error('PostHog constructor was never called');
@@ -24,7 +26,8 @@ function getPostHogMockInstance(): PostHogMockInstance {
 
 describe('track', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    _resetForTesting();
+    PostHogMock.mockClear();
   });
 
   it('forwards event name to PostHog capture', () => {
@@ -47,20 +50,22 @@ describe('track', () => {
 });
 
 describe('captureException', () => {
+  const captureMock = Sentry.captureException as jest.Mock;
+
   beforeEach(() => {
-    jest.clearAllMocks();
+    captureMock.mockClear();
   });
 
   it('forwards the error to Sentry.captureException', () => {
     const err = new Error('boom');
     captureException(err);
-    expect(Sentry.captureException).toHaveBeenCalledWith(err, undefined);
+    expect(captureMock).toHaveBeenCalledWith(err, undefined);
   });
 
   it('forwards context as an extras hint', () => {
     const err = new Error('boom');
     captureException(err, { requestId: 'abc-123' });
-    expect(Sentry.captureException).toHaveBeenCalledWith(
+    expect(captureMock).toHaveBeenCalledWith(
       err,
       expect.objectContaining({ extra: { requestId: 'abc-123' } }),
     );
@@ -69,7 +74,8 @@ describe('captureException', () => {
 
 describe('identify', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    _resetForTesting();
+    PostHogMock.mockClear();
   });
 
   it('forwards userId to PostHog.identify', () => {

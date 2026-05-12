@@ -3,16 +3,19 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { callEdgeFunction } from '../lib/ai';
+import { Events } from '../lib/events';
 import { logger } from '../lib/logger';
 import { useAppStore } from '../lib/store';
 import { supabase } from '../lib/supabase';
+import { track } from '../lib/telemetry';
 
 interface HelloResponse {
   message: string;
   user_id: string;
 }
 
-// R0-M3 smoke screen. Replaced by the real splash + Get-Started screen at R1-M2.
+// R0-M3 + R0-M4 smoke screen. Replaced by the real splash + Get-Started screen
+// at R1-M2; the test-error button moves with it.
 export default function Index(): React.JSX.Element {
   const { t } = useTranslation();
   const authUserId = useAppStore((s) => s.authUserId);
@@ -69,6 +72,13 @@ export default function Index(): React.JSX.Element {
     }
   };
 
+  const handleThrowTestError = (): void => {
+    track(Events.test_error_thrown);
+    // Throw uncaught so Sentry's global handler catches it. The press event
+    // already flushed through PostHog above.
+    throw new Error('R0-M4 telemetry smoke test');
+  };
+
   return (
     <ScrollView className="flex-1 bg-white">
       <View className="px-6 pb-12 pt-16">
@@ -118,6 +128,13 @@ export default function Index(): React.JSX.Element {
             {t('smoke.crossUserResult')}: {crossResult}
           </Text>
         ) : null}
+
+        <Pressable
+          onPress={handleThrowTestError}
+          className="mt-8 rounded-md bg-red-600 px-4 py-3"
+        >
+          <Text className="text-center text-white">{t('smoke.throwError')}</Text>
+        </Pressable>
 
         {error !== null ? (
           <Text className="mt-6 text-sm text-red-700">

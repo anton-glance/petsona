@@ -1,6 +1,8 @@
 import { PostHog } from 'posthog-react-native';
 
-import { resolvePostHogConfig } from './posthog';
+import { _resetForTesting, posthog, resolvePostHogConfig } from './posthog';
+
+const PostHogMock = PostHog as unknown as jest.Mock;
 
 describe('resolvePostHogConfig', () => {
   it('uses the US PostHog Cloud host', () => {
@@ -27,33 +29,25 @@ describe('resolvePostHogConfig', () => {
 
 describe('posthog singleton', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.resetModules();
+    _resetForTesting();
+    PostHogMock.mockClear();
   });
 
   it('constructs PostHog exactly once across multiple property accesses', () => {
-    jest.isolateModules(() => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- isolateModules requires sync require
-      const { posthog: instance } = require('./posthog') as typeof import('./posthog');
-      // Touch the singleton twice; constructor should fire once.
-      void instance.capture;
-      void instance.identify;
-      expect(PostHog).toHaveBeenCalledTimes(1);
-    });
+    // Touch the singleton twice; constructor should fire once.
+    void posthog.capture;
+    void posthog.identify;
+    expect(PostHogMock).toHaveBeenCalledTimes(1);
   });
 
   it('passes the resolved config into the PostHog constructor', () => {
-    jest.isolateModules(() => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- isolateModules requires sync require
-      const { posthog: instance } = require('./posthog') as typeof import('./posthog');
-      void instance.capture;
-      expect(PostHog).toHaveBeenCalledWith(
-        process.env.EXPO_PUBLIC_POSTHOG_API_KEY,
-        expect.objectContaining({
-          host: 'https://us.i.posthog.com',
-          disableSessionRecording: true,
-        }),
-      );
-    });
+    void posthog.capture;
+    expect(PostHogMock).toHaveBeenCalledWith(
+      process.env.EXPO_PUBLIC_POSTHOG_API_KEY,
+      expect.objectContaining({
+        host: 'https://us.i.posthog.com',
+        disableSessionRecording: true,
+      }),
+    );
   });
 });

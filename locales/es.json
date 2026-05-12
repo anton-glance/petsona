@@ -16,6 +16,7 @@
     "insertPetResult": "Inserted pets.id",
     "crossUserRead": "Try to read another user's pets",
     "crossUserResult": "Rows visible across users",
+    "throwError": "Throw test error",
     "error": "Error"
   }
 }
