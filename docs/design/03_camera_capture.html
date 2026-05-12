@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Petsona — 03 Camera Capture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<link rel="stylesheet" href="screens.css" />
+</head>
+<body class="is-cat-mode">
+<main class="design-stage">
+  <div class="frame">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen-canvas">
+        <section class="screen camera">
+          <div class="statusbar dim"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+          <div class="top-tools">
+            <button class="iconbtn-dark" aria-label="Close">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+            </button>
+            <span class="top-pill">Photo 1 of 3 · Front</span>
+            <span style="width:34px"></span>
+          </div>
+          <div class="viewfinder">
+            <div class="corners"><span></span></div>
+            <div class="silhouette"><img src="brand/monochrome/icon-honey.svg" alt=""/></div>
+          </div>
+          <div class="tip"><strong>Front-facing photo</strong> · face and chest visible</div>
+          <div class="controls-row">
+            <button class="iconbtn-dark" aria-label="Photo library">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5-7 7"/></svg>
+            </button>
+            <button class="shutter" aria-label="Capture"><span></span></button>
+            <button class="iconbtn-dark" aria-label="Flip camera">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-7-3.5"/>
+                <path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 7 3.5"/>
+                <path d="M21 4v5h-5"/>
+                <path d="M3 20v-5h5"/>
+              </svg>
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="legend">
+      <strong>Step 03 · Camera capture</strong><br>
+      One screen handles all three photos (front / side / vet card). The top pill rotates and the silhouette swaps. Library button opens the system picker; flip-camera toggles between rear/front cameras.
+    </div>
+  </div>
+</main>
+</body>
+</html>

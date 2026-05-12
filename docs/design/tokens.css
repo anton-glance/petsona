@@ -1,0 +1,178 @@
+/* ============================================================
+   PETSONA — Design Tokens
+   Source of truth for colors, type, spacing, radii, shadows,
+   motion, and Liquid Glass materials. Mirror these values into
+   `lib/theme.ts` and `tailwind.config.js` for the app. See
+   `identity.md` for brand rationale.
+   ============================================================ */
+
+:root {
+  /* ---------- Color · core palette (hex) ---------- */
+  --honey:          #D4A248;
+  --honey-dk:       #A77E2F;
+  --honey-soft:     #EAD6A0;
+  --honey-tint:     #F5E8C4;
+
+  --forest:         #2D4F3C;
+  --forest-dk:      #1F3A2A;
+  --forest-soft:    #79A38A;
+
+  --terracotta:     #C97B5C;
+  --terracotta-dk:  #A35E42;
+  --terracotta-soft:#E5B8A6;
+
+  --ivory:          #FBF7EE;
+  --ivory-dim:      #F4EEDE;
+  --night:          #15130E;
+  --night-elev:     #1E1B14;
+
+  --ink:            #262522;
+  --ink-soft:       #45433D;
+  --muted:          #6E6A5F;
+  --muted-soft:     #93907F;
+
+  --rule:           #EAE2CE;
+  --rule-soft:      #F2EBD8;
+
+  --error:          #A8442A;
+  --error-bg:       #FBEFE7;
+
+  /* ---------- Color · semantic aliases ---------- */
+  --color-primary:           var(--forest);
+  --color-primary-pressed:   var(--forest-dk);
+  --color-primary-on-dark:   var(--forest-soft);
+
+  --color-accent:            var(--honey);
+  --color-accent-pressed:    var(--honey-dk);
+  --color-accent-on-dark:    #E0B25E;
+
+  --color-surface:           var(--ivory);
+  --color-surface-elev:      #FFFFFF;
+  --color-surface-dim:       var(--ivory-dim);
+  --color-surface-inverse:   var(--night);
+
+  --color-text-default:      var(--ink);
+  --color-text-soft:          var(--ink-soft);
+  --color-text-muted:        var(--muted);
+  --color-text-inverse:      var(--ivory);
+  --color-text-on-primary:   var(--ivory);
+
+  --color-border:            var(--rule);
+  --color-border-soft:       var(--rule-soft);
+
+  --color-status-danger:     var(--error);
+  --color-status-danger-bg:  var(--error-bg);
+
+  /* ---------- Typography ---------- */
+  --font-family-ui: "DM Sans", -apple-system, system-ui, sans-serif;
+
+  --font-weight-regular: 400;
+  --font-weight-medium:  500;
+  --font-weight-semi:    600;
+  --font-weight-bold:    700;
+
+  /* Type scale — size / line-height pairs. Explicit line-heights so cross-platform rendering is deterministic. */
+  --type-display-xl-size: 32px;  --type-display-xl-lh: 38px;  /* hero on splash / paywall */
+  --type-display-lg-size: 24px;  --type-display-lg-lh: 30px;  /* screen titles */
+  --type-display-md-size: 19px;  --type-display-md-lh: 26px;  /* section titles */
+  --type-body-lg-size:    16px;  --type-body-lg-lh:    24px;  /* prominent body */
+  --type-body-size:       14px;  --type-body-lh:       21px;  /* default body */
+  --type-caption-size:    12px;  --type-caption-lh:    16px;  /* labels, captions */
+
+  /* Localization — reserve 30% extra horizontal space for ES/RU. */
+  --i18n-slack: 1.30;
+
+  /* ---------- Spacing scale ---------- */
+  --s1:  4px;
+  --s2:  8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+
+  /* Legacy/short alias (matches Tailwind/RN spacing convention) */
+  --ui: var(--font-family-ui);
+
+  /* ---------- Radii ---------- */
+  --r-xs:    6px;
+  --r-sm:   10px;
+  --r-md:   14px;
+  --r-lg:   20px;
+  --r-xl:   28px;
+  --r-pill: 999px;
+
+  /* ---------- Shadows (cast only) ---------- */
+  --shadow-sm: 0 1px 2px rgba(38,37,34,0.06);
+  --shadow-md: 0 6px 18px -8px rgba(38,37,34,0.18), 0 2px 6px -2px rgba(38,37,34,0.08);
+  --shadow-lg: 0 24px 48px -16px rgba(38,37,34,0.28);
+
+  /* ---------- Motion ---------- */
+  --motion-instant:  60ms;
+  --motion-fast:    150ms;
+  --motion-medium:  260ms;
+  --motion-slow:    420ms;
+  --motion-languid: 700ms;
+
+  --easing-primary: cubic-bezier(0.32, 0.72, 0.0, 1);
+  --easing-out:     cubic-bezier(0.50, 0.00, 0.4, 1);
+
+  /* ---------- Liquid Glass · materials ---------- */
+  --glass-blur-thin:    blur(18px) saturate(160%);
+  --glass-blur-regular: blur(34px) saturate(180%);
+  --glass-blur-thick:   blur(48px) saturate(190%);
+
+  --glass-fill-thin:    rgba(255,255,255,0.32);
+  --glass-fill-regular: rgba(255,255,255,0.58);
+  --glass-fill-thick:   rgba(255,255,255,0.78);
+  --glass-fill-on-dark: rgba(20,19,15,0.42);
+
+  --glass-tint-honey:   rgba(212,162,72,0.22);
+  --glass-tint-forest:  rgba(45,79,60,0.30);
+  --glass-tint-terra:   rgba(201,123,92,0.24);
+
+  --glass-stroke:       rgba(255,255,255,0.55);
+  --glass-stroke-dim:   rgba(255,255,255,0.28);
+  --glass-stroke-dark:  rgba(38,37,34,0.10);
+
+  --glass-specular:     inset 0 0.6px 0 rgba(255,255,255,0.85);
+  --glass-cast-sm:      0 4px 10px -4px rgba(38,37,34,0.16);
+  --glass-cast-md:      0 12px 30px -14px rgba(38,37,34,0.26), 0 2px 8px -4px rgba(38,37,34,0.10);
+  --glass-cast-lg:      0 26px 56px -22px rgba(38,37,34,0.40), 0 4px 14px -6px rgba(38,37,34,0.14);
+}
+
+/* ---------- Dark mode ---------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary:         var(--forest-soft); /* CTA in dark */
+    --color-accent:          #E0B25E;
+    --color-surface:         var(--night);
+    --color-surface-elev:    var(--night-elev);
+    --color-surface-dim:     #211D15;
+    --color-surface-inverse: var(--ivory);
+    --color-text-default:    #F1EBDC;
+    --color-text-soft:       #DCD6C8;
+    --color-text-muted:      #9B9583;
+    --color-border:          #38332A;
+    --color-border-soft:     #2B2620;
+  }
+}
+
+/* ---------- Accessibility — reduced transparency / motion ---------- */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-fill-thin:    rgba(255,255,255,0.94);
+    --glass-fill-regular: rgba(255,255,255,0.94);
+    --glass-fill-thick:   rgba(255,255,255,0.96);
+    --glass-fill-on-dark: rgba(20,19,15,0.92);
+    --glass-blur-thin:    none;
+    --glass-blur-regular: none;
+    --glass-blur-thick:   none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

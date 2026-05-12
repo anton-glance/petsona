@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Petsona — 02b Permission Denied (edge)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<link rel="stylesheet" href="screens.css" />
+</head>
+<body class="is-cat-mode">
+<main class="design-stage">
+  <div class="frame">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen-canvas">
+        <section class="screen cam-denied">
+          <div class="statusbar"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+          <div class="header-block">
+            <span class="small-cap">Camera access needed</span>
+            <h1 class="h-display display-lg">Petsona can't continue without camera.</h1>
+            <p class="body muted">Enable camera in Settings — Petsona needs it to identify your pet and digitize records.</p>
+          </div>
+          <div class="camera-slash-icon">
+            <svg viewBox="0 0 256 256" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M48 80 L 48 200 A 8 8 0 0 0 56 208 L 184 208"/>
+              <path d="M72 80 L 88 56 L 168 56 L 184 80 L 200 80 A 8 8 0 0 1 208 88 L 208 188"/>
+              <circle cx="128" cy="132" r="32"/>
+              <line x1="40" y1="40" x2="216" y2="216" stroke-width="14"/>
+            </svg>
+          </div>
+          <div class="instructions">
+            <div class="step"><span class="num">1</span><span class="txt">Open <b>Settings</b></span></div>
+            <div class="step"><span class="num">2</span><span class="txt">Find <b>Petsona</b> in the app list</span></div>
+            <div class="step"><span class="num">3</span><span class="txt">Toggle <b>Camera</b> on</span></div>
+          </div>
+          <div class="cta-stack">
+            <button class="btn">Open Settings</button>
+            <button class="btn text">Already granted. Try again</button>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="legend">
+      <strong>Edge case · Camera permission denied</strong><br>
+      Shown when OS permission was denied. Primary CTA deep-links into iOS/Android Settings; secondary text-button retries permission check.
+    </div>
+  </div>
+</main>
+</body>
+</html>
