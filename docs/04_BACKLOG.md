@@ -1,12 +1,12 @@
 # 04 — Backlog
 
-> Forward-looking work queue. R0–R5 validation ladder. Each release answers one question; no R(N+1) starts until R(N) earns a verdict.
+> Forward-looking work queue. R0–R6 validation ladder per D-018. Each release answers one question; no R(N+1) starts until R(N) earns a verdict.
 
 ---
 
 ## How this document works
 
-- **Releases (R0–R5)** are the validation rungs.
+- **Releases (R0–R6)** are the validation rungs.
 - **Milestones (R0-M1, R0-M2, …)** are the work units inside a release.
 - **Quality gates** sit between releases. Anton tests end-to-end per the Test Plan; both Anton and Claude.ai must be comfortable proceeding.
 - Estimates are wall-clock hours. Actuals tracked in `08_TIME_LEDGER.md`.
@@ -55,7 +55,8 @@
 - [x] Add the doc set to `docs/` (already on `main` from the project-start session)
 - [x] Add `CLAUDE.md` to repo root (already present)
 - [x] Add `.github/workflows/ci.yml` running typecheck + test + lint on PR
-- [x] First commit on `main`; protect `main` (require PR + passing CI)
+- [x] First commit on `main`
+- [ ] ~~Protect `main` (require PR + passing CI)~~ — **R0-M1 documentation lie discovered 2026-05-12 during R1-M1 close.** GitHub Settings → Branches showed "Classic branch protections have not been configured." Item moved to **R0 follow-up below**. Logged in `07_TROUBLESHOOTING.md` (2026-05-12 entry).
 
 **Estimate:** 2h. **Actual: ~3h** (agent implementation + plan-review round-trip + CI fix commit + disk-pressure recovery).
 
@@ -69,7 +70,7 @@
 - [x] `eas build --profile development --platform android` — initially failed (missing `assets/splash-icon.png`); hotfixed with placeholder PNG on same branch; built and installed on Pixel 7 AVD (Google Play emulator image)
 - [ ] Submit a placeholder build to TestFlight; submit to Play Internal Testing track — **deferred** (Play submit gated on Google verification; TestFlight submit deferred to closer to R4 when friends-and-family testing starts)
 
-**Estimate:** 3h. **Actual: ~6h** spread over 2 days (Apple Developer registration + ASC name flow + EAS config agent prompt + iOS build wall-clock + Apple credentials/device-registration flow + Android build + splash-asset hotfix + emulator install validation). Wall-clock was inflated by: (a) macOS fork-exhaustion incident requiring reboot mid-build, (b) Apple display-name soft-block requiring re-naming work, (c) Android splash asset missing (latent from R0-M1).
+**Estimate:** 3h. **Actual: ~6h** spread over 2 days.
 
 #### R0-M3 — Supabase project ✅ shipped 2026-05-11
 - [x] Create Supabase project (free tier, region: AWS US-East — `hkhzukxmonlgzzmuqvvp`)
@@ -84,7 +85,7 @@
 - [x] EAS env vars set for `EXPO_PUBLIC_SUPABASE_URL` (plain text) and `EXPO_PUBLIC_SUPABASE_ANON_KEY` (sensitive)
 - [x] EAS dev builds re-triggered, installed on iPhone + Pixel 7 AVD, all 4 smoke buttons pass on both platforms
 
-**Estimate:** 3h. **Actual: ~3h** (agent Phase 1+2+3 ~2h, manual link/push/deploy + smoke test ~1h). On estimate — first milestone of R0 to hit the number cleanly. Driver: agent's plan-review caught the env-var-name issue (P-1) before any code was written, eliminating an otherwise-likely refactor cycle.
+**Estimate:** 3h. **Actual: ~3h**.
 
 #### R0-M4 — Telemetry ✅ shipped 2026-05-11
 - [x] PostHog account, project `Petsona` (US Cloud) created
@@ -96,34 +97,37 @@
 - [x] Sentry config: `tracesSampleRate: 0`, `replaysSessionSampleRate: 0`, `replaysOnErrorSampleRate: 0`, `beforeSend` drops stackless events, `environment: __DEV__ ? 'development' : 'production'`, empty `integrations: []` (no replay)
 - [x] PostHog config: US host, `disableSessionRecording: true`, `captureAppLifecycleEvents: true`, `flushAt: 1` in `__DEV__`
 - [x] Sentry Spike Protection + inbound filters enabled in dashboard
-- [x] EAS env vars: `EXPO_PUBLIC_POSTHOG_API_KEY` (sensitive), `EXPO_PUBLIC_SENTRY_DSN` (sensitive) — both alongside Supabase vars from R0-M3
+- [x] EAS env vars: `EXPO_PUBLIC_POSTHOG_API_KEY` (sensitive), `EXPO_PUBLIC_SENTRY_DSN` (sensitive)
 - [x] EAS dev builds re-triggered for both platforms; installed and verified on iPhone + Pixel 7 AVD
-- [x] PostHog Activity feed shows `Identify` → `app_launch` → `test_error_thrown` events from both devices with distinct_ids matching their `auth.uid()` UUIDs
+- [x] PostHog Activity feed shows `Identify` → `app_launch` → `test_error_thrown` events from both devices
 - [x] Sentry Issues page shows test errors from both devices, tagged `environment: development`
 - [ ] Source-map upload via `SENTRY_AUTH_TOKEN` — **deferred to R3** (errors flow without it; stack traces are minified but readable for current test cases)
 
-**Estimate:** 2h. **Actual: ~3h** (agent Phase 1+2 ~2h, EAS rebuilds ~30 min wall-clock, dashboard setup + smoke-test ~30 min). +50% variance driven by an extra round-trip in Phase 1 plan-review (P-1 logger semantics: agent pushed back on architect's prompt; agent's proposal was adopted — led to D-021).
+**Estimate:** 2h. **Actual: ~3h**.
 
-#### R0-M5 — End-to-end smoke test ✅ shipped 2026-05-11
-**Note:** The validation criteria for R0-M5 were proven by the combined R0-M3 + R0-M4 smoke tests. Listing the criteria here for completeness; no additional implementation needed.
+#### R0-M5 — End-to-end smoke test ✅ shipped 2026-05-11 (absorbed into M3+M4)
+- [x] Splash placeholder + smoke screen exercises the full R0 stack
+- [x] On launch: anonymous sign-in fires; `auth.uid()` displayed on smoke screen
+- [x] "Hello function" button + "Insert pets row" + "Cross-user read" buttons all pass
+- [x] EAS dev builds installed on iPhone + Pixel 7 AVD across both R0-M3 and R0-M4 rebuilds
 
-- [x] Splash placeholder + smoke screen at `app/index.tsx` exercises the full R0 stack (verified by R0-M3 + R0-M4 smoke tests on iPhone + Pixel 7 AVD)
-- [x] On launch: anonymous sign-in fires; `auth.uid()` displayed on smoke screen (R0-M3, confirmed by user_id matching across smoke screen + hello function response + PostHog distinct_id)
-- [x] "Hello function" button: calls `hello` edge function and shows `user_id` (R0-M3)
-- [x] "Insert pets row" button: insert succeeds, returns row id (R0-M3); cross-user read attempt blocked by RLS, returns 0 rows (R0-M3)
-- [x] EAS dev builds installed on iPhone + Pixel 7 AVD across both R0-M3 and R0-M4 rebuilds (4 dev builds total during R0)
-- [x] Test plan: combined R0-M3 + R0-M4 smoke tests serve as the R0 acceptance test plan (documented in `JOURNAL_R0.md`)
-
-**Estimate:** 3h. **Actual: ~0h** (proven by R0-M3 + R0-M4 work; no additional milestone-specific implementation required). Variance: -100% because R0-M5's validation was absorbed into earlier milestones. Lesson logged for future ladder planning.
+**Estimate:** 3h. **Actual: ~0h** (absorbed).
 
 ### R0 quality gate ✅
-- [x] All R0 milestones checked
+- [x] All R0 milestones checked (with exceptions logged in `JOURNAL_R0.md`)
 - [x] `JOURNAL_R0.md` written with verdict + lessons + actuals
 - [x] `05_HISTORY.md` updated
 - [x] `08_TIME_LEDGER.md` updated with R0 actuals vs estimate
 - [x] Both Anton and Claude.ai comfortable proceeding to R1
 
-**R0 estimate total:** ~14 hours. **Actual: ~16.5 hours** (+18% over estimate). Detailed breakdown in `JOURNAL_R0.md` + `08_TIME_LEDGER.md`. The +18% lands well within the +25% buffer flagged after R0-M2; the validation ladder is calibrating.
+**R0 estimate total:** ~14 hours. **Actual: ~16.5 hours** (+18%). Detailed breakdown in `JOURNAL_R0.md` + `08_TIME_LEDGER.md`.
+
+### R0 follow-up items (not gating any release)
+
+These leaked out of R0 close. Captured here so they're not lost. Should clear before R2 ships.
+
+- [ ] **Configure GitHub branch protection rule for `main`.** R0-M1 close marked this done but it wasn't actually wired up — discovered 2026-05-12 when the R1-M1 agent's commit pushed cleanly to main via direct push. Required settings: Settings → Branches → Add classic branch protection rule (or ruleset) for `main` → require pull request before merging, require status checks (CI typecheck/test/lint) before merging, include administrators. Documented in `07_TROUBLESHOOTING.md`. **Estimate: 5 min Anton-side, browser-only.**
+- [ ] **Submit a placeholder build to TestFlight + Play Internal Testing** (originally R0-M2). Gated on Google Play verification clearing; TestFlight is unblocked but deferred to closer to R4 friends-and-family testing.
 
 ---
 
@@ -145,43 +149,58 @@
 
 ### Milestones
 
-#### R1-M1 — `breed-identify` edge function (hardcoded provider) [agent]
-- [ ] `supabase/functions/_shared/ai/types.ts` — common `AIClient` interface (D-006)
-- [ ] `supabase/functions/_shared/ai/hardcoded.ts` — `AIClient` adapter returning canned breed responses (D-019)
-- [ ] `supabase/functions/_shared/logging.ts` — `ai_jobs` writer
-- [ ] `supabase/functions/breed-identify/index.ts` — accepts Storage path; calls the adapter selected by `MODEL_FOR_BREED` env var; writes `ai_jobs` row
-- [ ] `BREED_PROMPT_V = "2026-05-08-1"` constant
-- [ ] Deno tests for the adapter, the logger, and the function
-- [ ] Migration: `ai_jobs` table created (or confirmed from R0-M3)
+#### R1-M1 — `breed-identify` edge function (hardcoded provider) ✅ shipped 2026-05-12 [agent]
+- [x] `supabase/functions/_shared/ai/types.ts` — `VisionAIClient` interface, capability-segregated per D-006 (no growing `AIClient`)
+- [x] `supabase/functions/_shared/ai/hardcoded.ts` — `VisionAIClient` adapter returning canned `Labrador / Golden / Beagle` payload (D-019)
+- [x] `supabase/functions/_shared/logging.ts` — `ai_jobs` writer; service-role key referenced only in this file (AC-9); telemetry-never-breaks-user-flow (swallows all failures via `console.error`)
+- [x] `supabase/functions/breed-identify/index.ts` — accepts `{ photo_path }`; validates format + user-prefix; selects adapter via `MODEL_FOR_BREED` (request-time); writes `ai_jobs` row on success and every error path
+- [x] `BREED_PROMPT_V = "2026-05-08-1"` constant exported, flows into every `ai_jobs.prompt_version` write
+- [x] Deno tests for the adapter (5), the logger (7), and the function (20). 32 new Deno tests; full suite at 40 (incl. 8 prior hello + auth tests)
+- [x] `ai_jobs` table confirmed from R0-M3 migration (no new migration)
+- [x] `shared/types.ts` first-occupant — `BreedIdentifyRequest` / `BreedIdentifyResponse` / `BreedIdentifyCandidate`; client (R1-M3) imports the same types the function returns
+- [x] PR #11 merged as squash `7f178ec`; deployed via `supabase functions deploy breed-identify`; `MODEL_FOR_BREED=hardcoded` set
+- [x] Smoke-screen verification button added (`feat(smoke): add breed-identify button to R0 smoke screen`, commit `938390b`) — calls the edge function from the client and renders `dog — Labrador Retriever (0.92)` on success
+- [x] End-to-end verification 2026-05-12: button tapped on iPhone (user `21cfa9a4-…`) and Pixel 7 AVD (user `a10a46c8-…`); both rendered the canned payload; both wrote `ai_jobs` rows visible in the Supabase dashboard with `capability='breed-identify'`, `model='hardcoded'`, `prompt_version='2026-05-08-1'`, `status='success'`, `cost_usd=0`
 
-**Estimate:** 3h.
+**Estimate:** 3h. **Actual: ~1.5h** (-50%). First under-estimate of the project. Drivers: tight prompt → fast Phase 1 agent plan → no significant pushbacks during implementation; smoke-button addition was a ~30 min round-trip rolled into the same milestone. One process miss surfaced (agent committed to main; branch protection was never enforced from R0-M1) — captured in `07_TROUBLESHOOTING.md`, no code damage.
 
-#### R1-M2 — Splash, camera permission, photo capture [agent]
-- [ ] Splash screen with [Get Started] (placeholder visual design — NativeWind defaults; final design swaps in at R3 or later when Anton's designs land)
+**Architectural notes from R1-M1** (no new ADRs; falls under D-006 + D-019):
+- Capability-segregated interfaces (one interface per capability — `VisionAIClient` now, `OcrAIClient` at R2-M1, `CompletionAIClient` at R3) rather than a single growing `AIClient`. Adapters implement whichever subsets they support.
+- `error_code = 'misconfiguration'` is logged to `ai_jobs` when `MODEL_FOR_BREED` is unset or unknown. The bad config is visible in monitoring without redeploying. R5 swap-in inherits this safety.
+- Service-role isolation verified: `grep -rn SERVICE_ROLE supabase/ shared/ lib/ app/` returns only two lines in `_shared/logging.ts`.
+
+#### R1-M2 — Splash, camera permission, photo capture [agent] ⏸ BLOCKED on design spike
+
+**Blocker:** Anton's designer is compiling a full brandbook + 11-screen HTML mockup + assets package. R1-M2 starts after that package lands and a Design Spike session produces `app/components/` primitives + `app/theme/tokens.ts` + tailwind extension. Building R1-M2 against NativeWind defaults would force a retrofit when the design package arrives; the timing makes that retrofit unnecessary.
+
+- [ ] Splash screen with [Get Started] (against real brand tokens + components)
 - [ ] Camera permission explanation screen → [Allow access] → iOS/Android system dialog → recovery screen with "Open Settings" deep-link if denied
 - [ ] Photo capture screen using `expo-camera` with gallery picker fallback (`expo-image-picker`)
 - [ ] Client-side compression with `expo-image-manipulator` (max 2048px long edge, JPEG quality 0.8)
 - [ ] Upload to `pet-photos` bucket at `{user_id}/{uuid}.jpg`
 - [ ] All strings through `t('...')` in `locales/en.json`
+- [ ] Replace the R0 smoke screen at `app/index.tsx` (the breed-identify smoke button goes with it)
+- [ ] Fix the SafeAreaView issue on Pixel 7 (R0-M3 follow-up)
 
-**Estimate:** 5h.
+**Estimate:** 5h (separate from the design spike — which earns its own `JOURNAL_SPIKE_DESIGN.md`).
 
 #### R1-M3 — "Welcome {petname}" profile screen [agent]
 - [ ] Result screen showing photo, species, breed, editable name field
 - [ ] User confirms or edits any field
 - [ ] On confirm: insert/update `pets` row with collected fields
 - [ ] All strings in `en.json`
+- [ ] `@testing-library/react-native` added; first component tests land here (per CLAUDE.md note)
 
 **Estimate:** 4h.
 
 ### R1 quality gate
-- [ ] Anton runs at least 5 onboarding flows on TestFlight build, all complete without crash
+- [ ] Anton runs at least 5 onboarding flows on the dev-client build, all complete without crash
 - [ ] Force-settings recovery branch tested (deny permission, then re-grant via Settings, then continue)
 - [ ] At least 2 photo upload variations: portrait and landscape, both compressed and uploaded successfully
 - [ ] `JOURNAL_R1.md` written with UX verdict
 - [ ] Both Anton and Claude.ai comfortable proceeding to R2
 
-**R1 estimate total:** ~12 hours.
+**R1 estimate total:** ~12 hours. **Progress: ~1.5h of 12h committed (R1-M1 done).**
 
 ---
 
@@ -203,7 +222,7 @@
 ### Milestones
 
 #### R2-M1 — `medcard-ocr` edge function (hardcoded provider) [agent]
-- [ ] Extend `supabase/functions/_shared/ai/hardcoded.ts` with `ocr()` method returning canned medcard fields
+- [ ] Extend `supabase/functions/_shared/ai/hardcoded.ts` with `ocr()` method returning canned medcard fields (adds `OcrAIClient` interface to `_shared/ai/types.ts`)
 - [ ] `supabase/functions/medcard-ocr/index.ts` — accepts Storage path; calls the adapter selected by `MODEL_FOR_OCR` env var; writes `ai_jobs` row
 - [ ] `OCR_PROMPT_V` and `MEDCARD_SCHEMA_PROMPT_V` constants
 - [ ] Deno tests against the hardcoded adapter
@@ -248,75 +267,73 @@
 **Definition of done:**
 - User completes 2 survey screens covering pet behavior/lifestyle
 - User captures location via system permission OR types ZIP/city manually (North America: US/CA/MX)
-- Fake progress screen displays milestone messages during plan generation
-- Plan-generate edge function streams real Claude Sonnet 4.6 output back via SSE
-- Plan content references the pet by name, breed, age, weight, and is locale-aware
-- First-day-of-plan visible in under 15 seconds from "Generate" tap; full plan in under 30 seconds
-- Plan persists to `weekly_plans`
-- Cost-per-plan logged
-- `JOURNAL_R3.md` records plan quality verdict across at least 3 different (species, breed, age, location) profiles
+- Real Claude Sonnet 4.6 generates a 7-day plan, streamed via SSE
+- First day visible in under 15s; full plan in under 30s
+- Plan snippet (first 2 days) revealed in the UI; full plan persisted to `weekly_plans` but gated behind paywall in R4
+- Plan generation cost logged in `ai_jobs` (real cost; target <$0.05/plan per D-005)
+- `JOURNAL_R3.md` records plan quality assessment across at least 3 distinct (species, breed, age) profiles
 
 ### Milestones
 
 #### R3-M1 — Survey screens [agent]
-- [ ] 2 survey screens (question set defined by Anton)
+- [ ] 2 question screens (final question set TBD by Anton as Chief of Product)
 - [ ] Persists `survey_responses` row
+- [ ] All strings in `en.json`
+- [ ] Migration: `survey_responses` table + RLS
+
+**Estimate:** 3h.
+
+#### R3-M2 — Location screen [agent]
+- [ ] System geolocation permission flow + recovery
+- [ ] Manual fallback: ZIP code (US/CA/MX) or city/country search
+- [ ] Persists `pets.location` JSON column (or new table; TBD)
 - [ ] All strings in `en.json`
 
 **Estimate:** 3h.
 
-#### R3-M2 — Location capture screen [agent]
-- [ ] Location explanation screen → [Use my location] (system dialog via `expo-location`) OR [Type manually]
-- [ ] Manual ZIP/city search supporting US, Canada, Mexico (using `react-native-google-places-autocomplete` or `expo-location` reverse-geocoding; pick one in Phase 1)
-- [ ] Persists `pet_location` field on `pets` (city, region/state, country, optional lat/lon)
+#### R3-M3 — Edge function: `plan-generate` (streaming, real Claude Sonnet) [agent]
+- [ ] `supabase/functions/_shared/ai/claude.ts` — Claude adapter implementing `CompletionAIClient` interface (added to `_shared/ai/types.ts`)
+- [ ] `plan-generate/index.ts` — SSE-streaming endpoint; prompt assembled from `pets` + `medical_records` + `survey_responses` + locale
+- [ ] `PLAN_PROMPT_V = "2026-05-08-1"`
+- [ ] On completion, persist `weekly_plans` row
+- [ ] Deno tests with mocked Anthropic streaming response
+- [ ] `ANTHROPIC_API_KEY` set in Supabase secrets; `MODEL_FOR_PLAN=claude-sonnet-4-6` set
+
+**Estimate:** 5h.
+
+#### R3-M4 — Progress UI + streaming plan reveal [agent]
+- [ ] Fake progress screen with milestone messages ("Analyzing your pet's breed...", "Tailoring activities to {petname}'s age...")
+- [ ] Client SSE consumer
+- [ ] Plan snippet UI (first 2 days revealed; remainder gated)
 - [ ] All strings in `en.json`
 
 **Estimate:** 4h.
 
-#### R3-M3 — `plan-generate` edge function (streaming, real Claude Sonnet) [agent]
-- [ ] Add `supabase/functions/_shared/ai/claude.ts` adapter implementing the `AIClient.complete()` streaming method
-- [ ] Server-Sent Events from edge function back to client
-- [ ] Prompt assembled from full pet profile bundle: species, breed, age, weight, color, location, survey answers, locale (per D-017 — model resolves climate context)
-- [ ] `PLAN_PROMPT_V = "2026-05-08-1"` constant
-- [ ] `MODEL_FOR_PLAN=claude-sonnet-4-6` env var set (real model, not hardcoded — plan quality matters for R3's validation question)
-- [ ] On stream completion, persist `weekly_plans` row
-- [ ] Deno tests with mocked Anthropic streaming response
-
-**Estimate:** 5h.
-
-#### R3-M4 — Fake progress screen + plan reveal UI [agent]
-- [ ] Progress screen with milestone messages: "Analyzing your pet's breed...", "Reviewing medical history...", "Tailoring activities to {petname}'s age...", "Adapting for your local climate..."
-- [ ] Messages are fake-timed for R3 (hooked to real streaming events at R5 if needed; Anton's design intent is to validate the UI first per D-017)
-- [ ] Plan reveal: first 2 days fully revealed (the paywall preview at R4)
-- [ ] Day-by-day card layout
-- [ ] All strings in `en.json`
-
-**Estimate:** 3h.
-
 ### R3 quality gate
-- [ ] At least 3 distinct (species, breed, age, location) profiles tested — plans recorded in `JOURNAL_R3.md`
-- [ ] Anton subjective rating: would I pay for this plan? (this is the gate)
+- [ ] At least 3 distinct (species, breed, age) profiles tested — plans recorded in `JOURNAL_R3.md`
+- [ ] Anton subjective rating: would I pay for this plan?
 - [ ] First-day-visible time under 15 seconds, full-plan time under 30 seconds
 - [ ] Cost per plan under $0.05, logged
+- [ ] `JOURNAL_R3.md` written with verdict
 - [ ] Both Anton and Claude.ai comfortable proceeding to R4
 
-**R3 estimate total:** ~15 hours. This remains the heaviest release.
+**R3 estimate total:** ~15 hours.
 
 ---
 
 ## R4 — Fake paywall + sign-in + persistence
 
-**Validation question:** *Do users tap through the paywall and complete sign-in?*
+**Validation question:** *Do users convert past the paywall and complete sign-in?*
 
-**Flow steps covered:** 10 (paywall), 11 (sign-in).
+**Flow steps covered:** 10 (fake paywall), 11 (sign-in via Apple / Google / email magic link).
 
 **Definition of done:**
-- After 2 days of plan reveal, paywall screen appears with $5.99/month price (no charge in MVP)
-- "Unlock" button advances to sign-in
+- After plan snippet reveal, paywall screen appears
+- "Unlock" button advances to sign-in (no charge in MVP)
 - Sign-in via Apple, Google, or email magic link calls `linkIdentity` and upgrades the anonymous user
-- Full plan revealed post-signin; profile + medcard + plan visible
-- PostHog funnel: photo → breed → medcard → survey → location → plan reveal → paywall tap → signin → completed
-- `JOURNAL_R4.md` records funnel data from Anton + 5-10 friends/family testing
+- Full plan revealed post-signin, persisted profile + medcard + plan visible
+- PostHog funnel: photo → breed → medcard → survey → plan reveal → paywall tap → signin → completed
+- `JOURNAL_R4.md` records funnel data from Anton + 5–10 friends/family testing
 
 ### Milestones
 
@@ -324,28 +341,28 @@
 - [ ] Apple sign-in: configure capability in Apple Developer, add to Expo config
 - [ ] Google sign-in: configure OAuth credentials, add to Supabase auth providers
 - [ ] Email magic link: Supabase auth email template, deep link handling
-- [ ] Test all three on iOS and (if Play verification cleared) Android
+- [ ] Test all three on iOS and Android
 
 **Estimate:** 5h.
 
-#### R4-M2 — Paywall + linkIdentity flow [agent]
-- [ ] Paywall UI ($5.99/month displayed; copy per D-015 / Anton-final)
-- [ ] On [Unlock] tap: navigate to sign-in
-- [ ] On sign-in success: call `linkIdentity`, verify same `auth.uid()` preserved (no data migration)
+#### R4-M2 — Paywall screen + linkIdentity flow [agent]
+- [ ] Paywall UI (copy and price by Anton; current placeholder $5.99/mo)
+- [ ] On "Unlock" tap: navigate to sign-in
+- [ ] On sign-in success: call `linkIdentity`, verify same `auth.uid()` preserved
 - [ ] Reveal full plan
 - [ ] Show "Pet profile" tab with photo, breed, medcard, plan
 
 **Estimate:** 5h.
 
 #### R4-M3 — Funnel events in PostHog [agent]
-- [ ] Event per step: `onboarding_*` events covering all 11 flow steps + paywall + signin
+- [ ] Event for each onboarding step
 - [ ] PostHog funnel chart configured
 - [ ] Verify with Anton's own session
 
 **Estimate:** 2h.
 
 ### R4 quality gate
-- [ ] 5-10 friends/family complete onboarding (TestFlight + Play Internal if Google verification cleared)
+- [ ] 5–10 friends/family complete onboarding (TestFlight + Play Internal); funnel data in PostHog
 - [ ] Anonymous-to-real account upgrade verified by Anton on both platforms
 - [ ] Magic link deep link works on both platforms
 - [ ] `JOURNAL_R4.md` written with funnel verdict
@@ -355,9 +372,9 @@
 
 ---
 
-## R5 — Real AI swap-in (breed-identify + medcard-ocr)
+## R5 — Real AI swap-in (breed + medcard)
 
-**Validation question:** *Do the real models perform well enough on accumulated test data to ship?*
+**Validation question:** *Do real models perform well enough across accumulated test data?*
 
 **Definition of done:**
 - `MODEL_FOR_BREED` env var flipped from `hardcoded` to `claude-haiku-4-5-20251001`
@@ -372,7 +389,8 @@
 ### Milestones
 
 #### R5-M1 — Claude vision adapter [agent]
-- [ ] Extend `supabase/functions/_shared/ai/claude.ts` with `vision(imagePath, prompt)` method
+- [ ] Extend `supabase/functions/_shared/ai/claude.ts` with `vision()` method
+- [ ] Real `BREED_PROMPT` text constant (currently `''` placeholder in R1)
 - [ ] Deno tests against a small fixture set
 - [ ] `MODEL_FOR_BREED=claude-haiku-4-5-20251001` flipped via `supabase secrets set`
 
@@ -448,6 +466,27 @@
 
 **R6 estimate total:** ~9 hours.
 
+---
+
+## Inter-release spikes (not part of the validation ladder)
+
+These are bounded, off-ladder tracks earning their own `JOURNAL_SPIKE_*.md` entries.
+
+### Design spike — incoming before R1-M2
+
+**Trigger:** Anton's designer is compiling a complete onboarding-flow design package: full brandbook + assets + HTML mockup of all 11 screens (per D-017).
+
+**Definition of done:**
+- `app/components/` populated with the primitives the design demands (Button, Input, Card, ScreenContainer, etc.)
+- `app/theme/tokens.ts` exports brand color, typography, spacing, radius tokens
+- `tailwind.config.js` extended with the tokens so NativeWind classes match the design
+- `docs/design/` populated with the 11 HTML mockups + a README mapping each mockup to its flow step
+- Agent-prompt template addition: "when implementing a screen, reference `docs/design/{step}_{name}.html` and `app/components/`"
+- `JOURNAL_SPIKE_DESIGN.md` written
+
+**Estimate:** 2-4h once the package lands.
+
+**Sequence:** R1-M1 closed → design spike (pending design-package handoff) → R1-M2 starts against the spike's outputs.
 
 ---
 
@@ -475,6 +514,8 @@ These are out of scope for the MVP validation ladder. Added here so they're not 
 
 ## Total MVP estimate
 
-**~80 hours of focused work, R0–R6.** Calendar time will be longer due to Apple/Google review cycles, friend/family testing windows, real-AI validation in R5, and translation lead time in R6.
+**~80 hours of focused work, R0–R6.** Calendar time will be longer due to Apple/Google review cycles, friend/family testing windows, real-AI validation in R5, design spike wall-clock, and translation lead time in R6.
+
+**Progress: ~18 of 80 hours committed.** R0 (16.5h) + R1-M1 (1.5h). Design spike is additive (not in the 80h estimate) — currently estimated at 2-4h.
 
 Reality check: this is an aggressive estimate assuming the validation ladder produces clean "yes" verdicts and no major rework. Track actuals in `08_TIME_LEDGER.md` and adjust the remaining estimates after each release closes.

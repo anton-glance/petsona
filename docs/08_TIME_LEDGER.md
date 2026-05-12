@@ -6,6 +6,13 @@
 
 ## Pace observations (refreshed at every session close)
 
+After session 005 (R1-M1 close):
+
+- **R1-M1 came in under estimate (1.5h actual vs 3h estimate, -50%).** First under-estimate of the project. Drivers: (a) the R1-M1 prompt was tight and concrete; the agent's Phase 1 plan was clean with three pushbacks (P-1 R0-status confusion, P-2 prompt-version semantics, P-3 service-role injection) all resolved cheaply in the architect↔Anton round-trip before code; (b) the smoke-button add-on was a single ~30 min Phase 1+2+3 cycle. Pattern to repeat: when the prompt is sharp and the codebase is already shaped by prior milestones (auth helper, CORS helper, hello-function pattern from R0-M3), the agent doesn't need expensive Phase-1 architectural exploration.
+- **Architect↔agent prompt-quality compounds.** R0's early milestones absorbed setup tax; R0's later milestones (M3, M4) hit their estimates cleanly; R1-M1 came in under. The codebase patterns established in R0 are paying down in R1+ capability work.
+- **Process miss: branch protection was never enforced.** R0-M1 checklist said it was, GitHub Settings showed it wasn't. No code damage; ~10 min documentation work. Lesson: "marked done in checklist" ≠ "verified to work." For setup-style items at R0-quality-gate, the close criterion must be "verified to work." Captured in `07_TROUBLESHOOTING.md` 2026-05-12 entry; action item in `04_BACKLOG.md` R0 follow-up.
+- **Time accounting discipline tightened.** Architect (Claude.ai) will run `date` via bash at every session start *and* ask Anton for active coding time at every milestone close. R1-M1 was the first milestone where the explicit ask happened — Anton reported 1.5h, which is recorded as the authoritative actual.
+
 After session 004 (R0 closed):
 
 - **R0 closed at +18% over estimate (16.5h actual vs 14h estimate).** Within the +25% buffer flagged at R0-M2. M0-M2 ran +50% to +100% on one-time setup costs; M3-M4 hit close to estimate; M5 was 0 (absorbed into M3+M4). Net: setup costs are non-recurring; capability releases (R1+) should track close to estimate.
@@ -38,13 +45,13 @@ After session 002 (R0-M2 close, validation-ladder re-shape D-017/D-018/D-019):
 | Release | Estimate (h) | Actual (h) | Variance | Notes |
 |---|---|---|---|---|
 | R0 — Infra spine | ~14 | **~16.5 (closed)** | +18% | M0 1.5h, M1 3h, M2 ~6h, M3 ~3h, M4 ~3h, M5 0h (absorbed). Within +25% buffer flagged at R0-M2. Detailed in `JOURNAL_R0.md`. |
-| R1 — Splash, camera, hardcoded breed-ID, Welcome screen | ~12 | — | — | New shape per D-017 |
+| R1 — Splash, camera, hardcoded breed-ID, Welcome screen | ~12 | **~1.5 (M1 only)** | — | M1 done at -50%. M2 blocked on design spike; M3 pending M2. |
 | R2 — Documents, hardcoded medcard, merged profile | ~12 | — | — | New shape per D-017 |
 | R3 — Survey, location, real plan, progress UI | ~15 | — | — | Real Claude Sonnet from R3 per D-018 |
 | R4 — Paywall + signin | ~12 | — | — | — |
 | R5 — Real AI swap-in (breed + medcard) | ~6 | — | — | New release per D-018 |
 | R6 — Localization | ~9 | — | — | Was R5 |
-| **MVP total** | **~80** | — | — | Re-shaped per D-018: was ~73 (R0-R5) |
+| **MVP total** | **~80** | **~18 committed** | — | Re-shaped per D-018. Design spike additive (2-4h, not in 80h estimate). |
 
 ---
 
@@ -56,6 +63,7 @@ After session 002 (R0-M2 close, validation-ladder re-shape D-017/D-018/D-019):
 | 002 — Petsona rename, R0-M2 EAS config, R0-M2 close | 2026-05-09 15:24 | 2026-05-11 18:32 | ~51 | ~9–10 | Rename PRs #3 + #4 (D-015, D-016); EAS PR #5 (D-019 hardcoded adapter concept locked); R0-M2 close + journals (D-017, D-018, D-019, R5/R6 reshape) | Two-day session across many short bursts. Wall-clock dominated by async (Apple/Google review queues, EAS build queues, sleep). Active time concentrated on EAS configuration agent prompt + Apple credential flow + Android splash hotfix + post-close doc batch. Three incidents logged in `07_TROUBLESHOOTING.md` (Apple soft-block, fork exhaustion, dev-client confusion). |
 | 003 — R0-M3 Supabase spine | 2026-05-11 18:32 | 2026-05-11 22:21 | ~3.8 | ~3 | PR #7 (D-002 amendment, D-020); manual link/push/deploy; smoke-test on iPhone + Pixel 7 | Clean execution. Agent's Phase 1 plan-review caught 3 codebase-vs-prompt mismatches (P-1/P-2/P-3) and proposed a security improvement (D-020 anon-key + forwarded-JWT). Production round-trip verified end-to-end on both platforms. R0-M3 closed at estimate (3h). |
 | 004 — R0-M4 telemetry + R0 close | 2026-05-11 22:21 | 2026-05-12 02:16 | ~3.9 | ~3 | PR #9 (telemetry code + D-021); EAS rebuilds for both platforms; smoke test on both devices; R0-M4 + R0-M5 + R0 close docs | R0-M4 code agent ~2h. Agent pushed back on logger → PostHog routing during Phase 1 (became D-021). Smoke test verified `Identify` → `app_launch` → `test_error_thrown` sequence on both devices in PostHog Activity feed; corresponding Sentry errors captured. R0-M5 absorbed into M3+M4 work (zero additional implementation needed). R0 closed at session end with comprehensive journal. |
+| 005 — R1-M1 breed-identify edge fn + smoke button | 2026-05-12 02:24 | 2026-05-12 16:37 | ~14.2 | ~3 | PR #11 (R1-M1 main: shared/types, _shared/ai/types, hardcoded adapter, logging, breed-identify fn + 32 Deno tests) merged as squash `7f178ec`; direct commit `938390b` (smoke button) — see process-miss below | R1-M1 code agent ~1.5h per Anton. Three Phase-1 pushbacks resolved (P-1 R0-status stale read, P-2 prompt-version semantics, P-3 service-role injection — agent was right on P-3 and corrected the architect prompt). Smoke add-on was a 30-min round-trip. End-to-end verified on iPhone + Pixel 7 AVD: `dog — Labrador Retriever (0.92)` rendered both sides; `ai_jobs` rows landed with all expected columns. **Process miss:** smoke-add-on agent committed directly to `main` and pushed; investigation revealed branch protection was never configured at R0-M1 despite checklist marking it done. No code damage; ~10 min doc work; action item in R0 follow-up. Logged in `07_TROUBLESHOOTING.md`. Wall-clock dominated by async (Anton testing, dashboard verification, sleep). |
 
 ---
 
@@ -65,10 +73,11 @@ After session 002 (R0-M2 close, validation-ladder re-shape D-017/D-018/D-019):
 |---|---|---|---|---|---|---|
 | R0-M0 — Local environment | 1.0 | 0.3 | 1.2 (Anton) | ~1.5 | +50% | fnm `~/.local/state` permissions, Node 25 displacement |
 | R0-M1 — Repo and tooling scaffold | 2.0 | 0.5 | ~2.5 (agent) | ~3.0 | +50% | Plan-review round-trip caught D-012/D-013 (~30 min); CI fix commit; disk-pressure recovery |
-| R0-M2 — Store identifiers + EAS | 3.0 | 1.5 | ~4.5 (Anton + agent) | ~6.0 | +100% | Apple soft-block on bare "Petsona" → rename cycle (~45 min); fork-exhaustion recovery (~45 min); Android splash drawable hotfix (~50 min build wall-clock + 15 min implementation); Google Play Console deferred. Play submit not done in this M2; deferred without re-estimating. |
-| R0-M3 — Supabase spine | 3.0 | 1.0 | ~2.0 (agent + Anton) | ~3.0 | 0% | First R0 milestone on-estimate. Agent Phase 1 plan-review caught P-1/P-2/P-3 codebase mismatches + proposed D-020 security improvement before any code was written. Manual link/push/deploy + smoke-test on both platforms ~1h. End-to-end production round-trip verified. |
-| R0-M4 — Telemetry | 2.0 | 1.0 | ~2.0 (agent) | ~3.0 | +50% | Agent Phase 1 pushback on logger → PostHog routing (became D-021) added ~30 min round-trip; net positive. EAS rebuilds for both platforms ~30 min wall-clock. Smoke verified on iPhone + Pixel 7 AVD in PostHog Activity feed + Sentry Issues page. |
-| R0-M5 — End-to-end smoke | 3.0 | 0 | 0 | 0 | -100% | Absorbed into R0-M3 + R0-M4 smoke tests. Validation criteria proven by earlier milestones' work; no additional implementation needed. Ladder design lesson logged. |
+| R0-M2 — Store identifiers + EAS | 3.0 | 1.5 | ~4.5 (Anton + agent) | ~6.0 | +100% | Apple soft-block on bare "Petsona" → rename cycle (~45 min); fork-exhaustion recovery (~45 min); Android splash drawable hotfix (~50 min build wall-clock + 15 min implementation); Google Play Console deferred |
+| R0-M3 — Supabase spine | 3.0 | 1.0 | ~2.0 (agent + Anton) | ~3.0 | 0% | First R0 milestone on-estimate. Agent Phase 1 plan-review caught P-1/P-2/P-3 codebase mismatches + proposed D-020 security improvement before any code was written |
+| R0-M4 — Telemetry | 2.0 | 1.0 | ~2.0 (agent) | ~3.0 | +50% | Agent Phase 1 pushback on logger → PostHog routing (became D-021) added ~30 min round-trip; net positive. EAS rebuilds ~30 min wall-clock |
+| R0-M5 — End-to-end smoke | 3.0 | 0 | 0 | 0 | -100% | Absorbed into R0-M3 + R0-M4 smoke tests. Ladder design lesson logged |
+| R1-M1 — breed-identify edge fn (hardcoded) + smoke button | 3.0 | 0.5 | ~1.0 (agent) | ~1.5 | **-50%** | First under-estimate. Tight prompt + 3 cheap Phase-1 pushbacks + clean Phase 2. Smoke add-on (+34 lines) rolled in. Process miss on branch protection: 10 min doc work, no code damage |
 
 ---
 
@@ -78,10 +87,11 @@ At every session close:
 
 1. Run `date "+%Y-%m-%d %H:%M %Z"` via bash to capture session end
 2. Compute wall-clock total
-3. Append a row to "Per-session log"
-4. If a release closed, update "Per-release totals" with the actual
-5. If multi-module session, append rows to "Per-module breakdown"
-6. Refresh "Pace observations" at the top with any new patterns
+3. **Ask Anton for active coding time** on the milestone(s) closed in this session (Anton's number is authoritative; architect-side estimate is a fallback)
+4. Append a row to "Per-session log"
+5. If a release closed, update "Per-release totals" with the actual
+6. If multi-module session, append rows to "Per-module breakdown"
+7. Refresh "Pace observations" at the top with any new patterns
 
 For backfill of prior sessions, use:
 ```

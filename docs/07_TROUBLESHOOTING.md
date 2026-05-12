@@ -192,3 +192,40 @@ First-time Anton reaction to a dev-client build is universally "is this broken?"
 **Time spent:** ~10 min Anton confusion + ~5 min explanation; <1 hour total but worth logging.
 
 ---
+
+## 2026-05-12 — Agent commits directly to `main`; branch protection wasn't enforced
+
+**Symptom**
+During R1-M1 close (the smoke-screen button add-on), the Claude Code agent committed `938390b feat(smoke): add breed-identify button to R0 smoke screen` directly to local `main` (not a feature branch) and Anton's subsequent `git push -u origin HEAD` succeeded against `origin/main`. Per CLAUDE.md, D-010, and R0-M1 close, `main` is supposed to be PR-only with passing-CI gating. The push should have been rejected.
+
+Additional symptom: when investigating, GitHub Settings → Branches showed "Classic branch protections have not been configured" and offered "Add branch ruleset" / "Add classic branch protection rule" buttons — i.e., no protection rule existed for `main`.
+
+**Cause**
+Two compounding issues:
+
+1. **The agent prompt did not explicitly require a feature branch.** The R1-M1-smoke prompt said "Single commit: feat(smoke): add breed-identify button to R0 smoke screen" without instructing the agent to create a new branch first. The agent followed the prompt literally and committed on the currently-checked-out branch, which happened to be `main`. (R1-M1 itself used a feature branch because the R1-M1 prompt mirrored the standard module template with "Pushed to a feature branch with a PR opened against `main` and CI green" in the Definition of Done.)
+2. **Branch protection was never configured at the GitHub side.** R0-M1's checklist in `04_BACKLOG.md` was marked `[x] First commit on `main`; protect `main` (require PR + passing CI)`, but only the first half ever happened. The "protect `main`" step was missed at R0-M1 close and not caught at R0 quality gate. The R0-M1 documentation lie went undetected for ~3 days until the agent's direct push exposed it.
+
+**Resolution (code damage):** None needed. The agent's commit is clean, passes all four verification commands (`pnpm typecheck`, `pnpm test`, `pnpm lint`, `npx expo-doctor`), and changes 2 files / +34 lines exactly as planned. The smoke verification on both platforms (iPhone + Pixel 7 AVD) succeeded; `ai_jobs` rows landed correctly. Leaving the commit on `main`; reverting would be process theater.
+
+**Resolution (process fix):**
+1. **Configure branch protection now.** GitHub → Settings → Branches → "Add branch ruleset" (or classic) for `main`. Required settings:
+   - Restrict deletions
+   - Require a pull request before merging (require approvals: 0 is fine for solo dev; the gate is "force a PR exists")
+   - Require status checks to pass before merging — select the CI workflow (`typecheck + test + lint`)
+   - Block force pushes
+   - Apply to administrators (otherwise Anton's own pushes bypass the rule)
+2. **Correct the R0-M1 documentation lie.** In `04_BACKLOG.md` the R0-M1 checkbox is updated from `[x]` to `[ ] ~~strikethrough~~` with a note pointing here. The action item moves to the R0 follow-up section.
+3. **Update the agent prompt template** going forward so module prompts explicitly say "create a new branch from `main` before committing; push the branch; open a PR." Adding to `01_AGENT_INSTRUCTIONS.md` in a follow-up doc pass.
+
+**Prevention**
+Three layers:
+
+- **Server-side enforcement** (the most reliable): GitHub branch protection rule on `main` will hard-reject direct pushes regardless of what the agent or Anton does locally. This is the fix; everything else is belt-and-suspenders.
+- **Prompt template**: explicit "new branch + push + PR" step in every module prompt. Cheap. Worth doing for clarity even after server-side protection is in place.
+- **R0-quality-gate audit**: future R0-like phases should include a "verify infra setup is real, not just documented" check. The R0 close docs noted protection was configured; the gate didn't test it. Lesson: for setup-style items, the close criterion should be "verified to work" not "marked done in checklist."
+
+**Affected modules / releases:** R0-M1 (documentation lie), R1-M1 close (process miss surfaced); referenced in `04_BACKLOG.md` R0 follow-up section.
+**Time spent:** ~10 min investigation + 5 min documentation. No recovery work needed because no code damage occurred. The action item to configure protection is ~5 min Anton-side, browser-only.
+
+---

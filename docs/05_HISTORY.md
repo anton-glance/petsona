@@ -81,6 +81,39 @@ End-to-end smoke verification on both platforms 2026-05-11: iPhone (user_id `21c
 
 **Issues logged:** 6 troubleshooting entries in `07_TROUBLESHOOTING.md` from R0 (disk pressure, Apple soft-block, dash in applicationId, fork exhaustion, Android splash drawable, dev-client UX confusion).
 
-**R1 — pending** (Splash, camera permission with force-settings recovery, pet face capture, hardcoded breed-identify edge function via D-019 adapter, "Welcome {petname}" profile screen).
+---
+
+## R1 — `[in progress]`
+
+R1 verdict pending. Detailed record will be in `JOURNAL_R1.md` when all R1 milestones close.
+
+### Milestone checkpoints
+
+**R1-M1 — `breed-identify` edge function (hardcoded provider) ✅** Closed 2026-05-12 via PR #11 (squash `7f178ec`) + direct-commit `938390b` (smoke-button addition, see note below). First capability function in the AI gateway. Establishes the patterns the R2+R3 capabilities will mirror.
+
+Code shipped (~1000 lines including tests):
+- `shared/types.ts` — first occupant; wire types `BreedIdentifyRequest`/`BreedIdentifyResponse`/`BreedIdentifyCandidate` shared client ↔ edge fn
+- `supabase/functions/_shared/ai/types.ts` — `VisionAIClient` interface, capability-segregated (R2 adds `OcrAIClient`; R3 adds `CompletionAIClient` to `claude.ts`)
+- `supabase/functions/_shared/ai/hardcoded.ts` — canned-response adapter (D-019). Returns `{ species: 'dog', candidates: [{ Labrador, 0.92 }, { Golden Retriever, 0.05 }, { Beagle, 0.03 }] }` regardless of input.
+- `supabase/functions/_shared/logging.ts` — `logAiJob()` writer. Service-role key referenced only here outside tests (AC-9 verified by grep). Telemetry-never-breaks-user-flow: every failure mode (factory throw, insert rejection, `{ error }` return) swallowed via `console.error`.
+- `supabase/functions/breed-identify/index.ts` — `handle(req, deps?)` mirroring `hello/index.ts` factory-injection pattern. `BREED_PROMPT_V = "2026-05-08-1"`. Validates `photo_path` format + user-prefix match before any AI work. Selects adapter via `MODEL_FOR_BREED` env (request-time read for testability). `error_code='misconfiguration'` written to `ai_jobs` when env is unset or unknown — so bad config is visible in monitoring without redeploying.
+- 32 new Deno tests (5 adapter + 7 logger + 20 function), including the explicit "adapter throws AND logger throws → 500, no exception escapes" test added during plan review.
+
+Three agent pushbacks during Phase 1, all resolved:
+- **P-1 (incorrect).** Agent flagged R0 as still open. Re-read of `05_HISTORY.md` confirmed R0 closed; agent had stale doc context. No code change.
+- **P-2 (architect call).** Agent asked whether to bump `BREED_PROMPT_V` to today's date. Held at `'2026-05-08-1'` exactly as AC-10 specified — the string is an identifier, not a build date; per D-007 it bumps when the prompt content changes.
+- **P-3 (correct).** Agent flagged that `SUPABASE_SERVICE_ROLE_KEY` is platform-injected by Supabase, not settable via `supabase secrets set`. Removed from the deploy step in the prompt. Correct catch.
+
+End-to-end verification 2026-05-12 on both platforms via a 5th smoke-screen button added in commit `938390b`. Tapped on iPhone (user `21cfa9a4-…`) and Pixel 7 AVD (user `a10a46c8-…`); both rendered `dog — Labrador Retriever (0.92)`; both wrote `ai_jobs` rows visible in the Supabase dashboard with `capability='breed-identify'`, `model='hardcoded'`, `prompt_version='2026-05-08-1'`, `status='success'`, `cost_usd=0`, distinct `user_id` columns matching each device's anonymous UUID.
+
+**Pace:** 3h estimate → 1.5h actual (-50%). First under-estimate of the project. Driver: tight prompt + Phase 1 agent plan was clean + no significant pushbacks during implementation. Smoke-button addition was a ~30 min round-trip rolled into the milestone.
+
+**Process miss — branch protection.** The smoke-button agent committed directly to `main` and pushed cleanly. Per CLAUDE.md / D-010 main is supposed to be PR-only. Investigation: R0-M1 close marked "protect `main`" as done in `04_BACKLOG.md`, but the GitHub Settings → Branches page showed "Classic branch protections have not been configured" — the protection was never actually wired up. Net damage: zero (code is good, CI ran locally, smoke passed). Documentation lie corrected in `04_BACKLOG.md` R0-M1 entry; action item to configure the rule logged as R0 follow-up; full Symptom + Cause + Resolution captured in `07_TROUBLESHOOTING.md` (2026-05-12 entry).
+
+**Architectural patterns established (no new ADRs; fall under D-006 + D-019):**
+- Capability-segregated `VisionAIClient` interface, NOT a growing `AIClient`. Each capability function depends only on what it needs.
+- Wire types live in `shared/types.ts` from the first capability — both edge fn and client import the same TypeScript types; the boundary is compile-time-checked.
+- `error_code='misconfiguration'` logged to `ai_jobs` so config errors surface in monitoring.
+- Deployed function follows the same `handle(req, deps?)` shape as `hello`. Future capability functions inherit the pattern.
 
 ---
