@@ -6,6 +6,14 @@
 
 ## Pace observations (refreshed at every session close)
 
+After session 004 (R0 closed):
+
+- **R0 closed at +18% over estimate (16.5h actual vs 14h estimate).** Within the +25% buffer flagged at R0-M2. M0-M2 ran +50% to +100% on one-time setup costs; M3-M4 hit close to estimate; M5 was 0 (absorbed into M3+M4). Net: setup costs are non-recurring; capability releases (R1+) should track close to estimate.
+- **R0-M5 absorption is a ladder-design lesson.** End-to-end smoke validation can be exercised by the milestone that introduces the last new capability rather than being a standalone milestone. Re-evaluate R1-R6 ladder for similar absorptions — particularly R5 "AI swap-in" which might absorb into R4's friends-and-family testing if both happen near the same time.
+- **Agent plan-review pushback is consistently worth the round-trip.** Across M1, M2, M3, M4: each milestone had at least one agent-proposed correction or improvement that prevented a refactor. D-012, D-013, D-014, D-020, D-021 all came from agent pushback. Keep this pattern.
+- **The "no test changes after red commit" rule needs nuance.** R0-M4 needed `lib/logger.test.ts` rewriting because the contract changed (D-021); the old tests tested the old behavior. Replacing them is correct. Modifying them mid-implementation to make passing implementations possible is not. The rule is: **no contract-changing test modifications during the green phase; full-contract-replacement during a red commit is fine.**
+- **Free-tier infrastructure cost: $0/month at R0 close.** Supabase, PostHog, Sentry, GitHub, EAS all free. Anthropic + Mistral not yet active (R1+).
+
 After session 003 (R0-M3 close):
 
 - **R0-M3 hit estimate cleanly.** ~3h actual vs 3h estimate, 0% variance. First milestone of R0 to match the number. Driver: agent's Phase 1 plan-review caught three preconditions in the architect-side prompt that contradicted the codebase (P-1 env var naming, P-2 .env file naming, P-3 lib/supabase.ts already existing), plus a security improvement (D-020 anon-key + forwarded-JWT vs. service-role for getUser). All four were flagged before any code touched. Eliminated likely refactor cycles. **Pattern to repeat: prompt the agent for the actual codebase state during Phase 1, not just the conceptual design.**
@@ -29,7 +37,7 @@ After session 002 (R0-M2 close, validation-ladder re-shape D-017/D-018/D-019):
 
 | Release | Estimate (h) | Actual (h) | Variance | Notes |
 |---|---|---|---|---|
-| R0 — Infra spine | ~14 | *(in progress, M0+M1+M2+M3 = ~13.5h)* | -4% | M0 1.5h, M1 3h, M2 ~6h, M3 ~3h. M3 first to hit estimate cleanly thanks to agent plan-review catching codebase mismatches. M4/M5 pending. |
+| R0 — Infra spine | ~14 | **~16.5 (closed)** | +18% | M0 1.5h, M1 3h, M2 ~6h, M3 ~3h, M4 ~3h, M5 0h (absorbed). Within +25% buffer flagged at R0-M2. Detailed in `JOURNAL_R0.md`. |
 | R1 — Splash, camera, hardcoded breed-ID, Welcome screen | ~12 | — | — | New shape per D-017 |
 | R2 — Documents, hardcoded medcard, merged profile | ~12 | — | — | New shape per D-017 |
 | R3 — Survey, location, real plan, progress UI | ~15 | — | — | Real Claude Sonnet from R3 per D-018 |
@@ -47,6 +55,7 @@ After session 002 (R0-M2 close, validation-ladder re-shape D-017/D-018/D-019):
 | 001 — Architecture, doc set, R0-M0, R0-M1 | 2026-05-09 03:17 | 2026-05-09 15:24 | 12.1 | ~5–6 | All foundation docs (00–08, README, CLAUDE.md), R0-M0 toolchain, R0-M1 scaffold | Project kickoff. Stack locked, validation ladder locked, D-001..D-014 logged. R0-M1 PR #1 merged as squash `39a3133`. Wall-clock includes async time. |
 | 002 — Petsona rename, R0-M2 EAS config, R0-M2 close | 2026-05-09 15:24 | 2026-05-11 18:32 | ~51 | ~9–10 | Rename PRs #3 + #4 (D-015, D-016); EAS PR #5 (D-019 hardcoded adapter concept locked); R0-M2 close + journals (D-017, D-018, D-019, R5/R6 reshape) | Two-day session across many short bursts. Wall-clock dominated by async (Apple/Google review queues, EAS build queues, sleep). Active time concentrated on EAS configuration agent prompt + Apple credential flow + Android splash hotfix + post-close doc batch. Three incidents logged in `07_TROUBLESHOOTING.md` (Apple soft-block, fork exhaustion, dev-client confusion). |
 | 003 — R0-M3 Supabase spine | 2026-05-11 18:32 | 2026-05-11 22:21 | ~3.8 | ~3 | PR #7 (D-002 amendment, D-020); manual link/push/deploy; smoke-test on iPhone + Pixel 7 | Clean execution. Agent's Phase 1 plan-review caught 3 codebase-vs-prompt mismatches (P-1/P-2/P-3) and proposed a security improvement (D-020 anon-key + forwarded-JWT). Production round-trip verified end-to-end on both platforms. R0-M3 closed at estimate (3h). |
+| 004 — R0-M4 telemetry + R0 close | 2026-05-11 22:21 | 2026-05-12 02:16 | ~3.9 | ~3 | PR #9 (telemetry code + D-021); EAS rebuilds for both platforms; smoke test on both devices; R0-M4 + R0-M5 + R0 close docs | R0-M4 code agent ~2h. Agent pushed back on logger → PostHog routing during Phase 1 (became D-021). Smoke test verified `Identify` → `app_launch` → `test_error_thrown` sequence on both devices in PostHog Activity feed; corresponding Sentry errors captured. R0-M5 absorbed into M3+M4 work (zero additional implementation needed). R0 closed at session end with comprehensive journal. |
 
 ---
 
@@ -58,6 +67,8 @@ After session 002 (R0-M2 close, validation-ladder re-shape D-017/D-018/D-019):
 | R0-M1 — Repo and tooling scaffold | 2.0 | 0.5 | ~2.5 (agent) | ~3.0 | +50% | Plan-review round-trip caught D-012/D-013 (~30 min); CI fix commit; disk-pressure recovery |
 | R0-M2 — Store identifiers + EAS | 3.0 | 1.5 | ~4.5 (Anton + agent) | ~6.0 | +100% | Apple soft-block on bare "Petsona" → rename cycle (~45 min); fork-exhaustion recovery (~45 min); Android splash drawable hotfix (~50 min build wall-clock + 15 min implementation); Google Play Console deferred. Play submit not done in this M2; deferred without re-estimating. |
 | R0-M3 — Supabase spine | 3.0 | 1.0 | ~2.0 (agent + Anton) | ~3.0 | 0% | First R0 milestone on-estimate. Agent Phase 1 plan-review caught P-1/P-2/P-3 codebase mismatches + proposed D-020 security improvement before any code was written. Manual link/push/deploy + smoke-test on both platforms ~1h. End-to-end production round-trip verified. |
+| R0-M4 — Telemetry | 2.0 | 1.0 | ~2.0 (agent) | ~3.0 | +50% | Agent Phase 1 pushback on logger → PostHog routing (became D-021) added ~30 min round-trip; net positive. EAS rebuilds for both platforms ~30 min wall-clock. Smoke verified on iPhone + Pixel 7 AVD in PostHog Activity feed + Sentry Issues page. |
+| R0-M5 — End-to-end smoke | 3.0 | 0 | 0 | 0 | -100% | Absorbed into R0-M3 + R0-M4 smoke tests. Validation criteria proven by earlier milestones' work; no additional implementation needed. Ladder design lesson logged. |
 
 ---
 

@@ -57,6 +57,30 @@ End-to-end production verification on both platforms 2026-05-11: iPhone (user_id
 
 **Known minor for R1-M2:** Android smoke screen had viewport cut-off (content extends below visible area on Pixel 7). Not blocking — smoke screen gets replaced by the real splash in R1-M2 — but R1-M2 must use `SafeAreaView` and verify on Pixel 7 AVD before merge.
 
-**R0-M4 — pending** (PostHog + Sentry wiring).
+**R0-M4 — Telemetry wired in ✅** Closed 2026-05-11 via PR #9, squash-merged as `7096a34`. PostHog (`Petsona` project, US Cloud) for product analytics with autocapture of screen views and app-lifecycle events; Sentry (`exicore` org, `petsona-mobile` project, React Native platform) for crash + error reporting with `tracesSampleRate: 0` (preserves 5k free-tier quota for errors), no replay integration, `environment` tag from `__DEV__`. Logger split per D-021: `logger.info`/`warn` console-only; `logger.error` → Sentry; PostHog reserved for explicit `Events.*` taxonomy. Three R0-M4 events defined: `app_launch` (with locale property), `screen_view` (autocaptured), `test_error_thrown` (smoke screen button). 54 Jest tests + 18/18 expo-doctor. Sentry Spike Protection + inbound filters enabled in dashboard.
+
+End-to-end smoke verification on both platforms 2026-05-11: iPhone (user_id `21cfa9a4-3eff-4ce0-b206-ab91df5ca5a2`) and Pixel 7 AVD (user_id `a10a46c8-78ac-483a-b9f6-b44875c40feb`) both show `Identify` → `app_launch` → `test_error_thrown` sequences in PostHog Activity feed with matching distinct_ids; corresponding test errors visible in Sentry Issues page with stack traces and `environment: development` tag.
+
+**D-021 added 2026-05-11.** Logger / telemetry rail split locked: console-only for info/warn, Sentry for error, PostHog for explicit `Events.*` only. Agent pushed back on the original architect-side prompt's "logger → PostHog" proposal during Phase 1; pushback was correct.
+
+**R0-M5 — End-to-end smoke ✅ (absorbed into M3+M4).** R0-M5's validation criteria (full R0 stack works on real devices) were proven by the combined R0-M3 + R0-M4 smoke tests. No separate code milestone; verification absorbed into the earlier milestones' work.
+
+---
+
+## R0 — Infrastructure spine ✅
+
+**Verdict:** Shipped 2026-05-11.
+
+**Validation question answered:** *Can we ship to TestFlight and Play Internal Testing reliably, with anonymous auth working and one round-trip to a Supabase Edge Function?* — **Yes.** Both platforms have installable EAS dev builds with anonymous Supabase auth, RLS-protected database writes, edge function calls, PostHog product analytics, and Sentry crash reporting all working end-to-end on real iOS hardware and Android emulator.
+
+**Detail:** See `JOURNAL_R0.md`.
+
+**Pace:** ~14h estimate → ~16.5h actual (+18% variance). Major drivers detailed in `JOURNAL_R0.md` and `08_TIME_LEDGER.md`.
+
+**Architecture:** 21 ADRs (D-001 through D-021) locked. No reversed decisions.
+
+**Issues logged:** 6 troubleshooting entries in `07_TROUBLESHOOTING.md` from R0 (disk pressure, Apple soft-block, dash in applicationId, fork exhaustion, Android splash drawable, dev-client UX confusion).
+
+**R1 — pending** (Splash, camera permission with force-settings recovery, pet face capture, hardcoded breed-identify edge function via D-019 adapter, "Welcome {petname}" profile screen).
 
 ---

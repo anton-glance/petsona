@@ -393,3 +393,40 @@ const { data: { user } } = await client.auth.getUser();
 **Reversal cost.** Low pre-R1. After R1+ functions start using the pattern, reversing means rewriting each function. Don't reverse.
 
 ---
+## D-021 — Logger / telemetry rail split: console-only for info/warn, Sentry for error, PostHog for explicit Events.* only
+
+**Date:** 2026-05-11
+**Status:** Accepted (during R0-M4 plan review)
+
+**Context.** R0-M4's original architect-side prompt proposed routing `logger.info` calls to PostHog as `log_info` events. The implementing agent pushed back during Phase 1 with cost-shape and conceptual-clarity arguments. The pushback was correct.
+
+**The two rails.**
+
+| Rail | Purpose | Source of writes |
+|---|---|---|
+| **Sentry** | "What broke" | `logger.error()` and uncaught exceptions |
+| **PostHog** | "What did the user do" | Explicit `track(Events.X)` calls only |
+| **Console** | "What's the developer trying to understand" | `logger.info`/`logger.warn` (dev console only, no telemetry) |
+
+**Decision.** Three discipline rules:
+
+1. **`logger.info(msg, ctx?)`** — `console.log` in dev; no-op in prod (console output is dropped on production builds; we don't ship logger.info to telemetry).
+2. **`logger.warn(msg, ctx?)`** — `console.warn` in dev; no-op in prod.
+3. **`logger.error(msg, errOrCtx?)`** — `console.error` in dev; **Sentry.captureException** in prod. No PostHog event for errors — Sentry is the error rail; PostHog is the product analytics rail.
+
+**Why.** Routing every info-level log line through PostHog would:
+- Burn 5-10x the event quota at scale (50k+ events/mo from logs at 1k MAU)
+- Pollute funnel/analytics streams so every product-event filter requires `NOT log_*` prefixes
+- Conflate operational logging (debug context) with product analytics (user behavior)
+
+If we later need cross-rail operational breadcrumbs (e.g., "user clicked X → API call took N ms → response had property Y"), Sentry provides `Sentry.addBreadcrumb()` for exactly that — it attaches to error reports without burning PostHog quota. We add that pattern when there's a real debugging need; R0-M4 deliberately doesn't.
+
+**Affected.**
+- `lib/logger.ts` — three-method signature, prod behavior per above
+- `lib/events.ts` — exports `Events` taxonomy; only product analytics events go here
+- `lib/telemetry.ts` — facade with `track()`, `captureException()`, `identify()`; the only file (outside `lib/posthog.ts` and `lib/sentry.ts`) that imports the SDKs
+- All R1+ feature code uses `logger.*` for diagnostics and `track(Events.X)` for product events; never imports PostHog/Sentry SDKs directly
+
+**Reversal cost.** Low pre-R3. Adding `log_info` → PostHog would be a 5-line change to `lib/logger.ts`; tests would need updating. Don't reverse without a real cross-rail debugging need.
+
+---

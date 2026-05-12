@@ -86,32 +86,44 @@
 
 **Estimate:** 3h. **Actual: ~3h** (agent Phase 1+2+3 ~2h, manual link/push/deploy + smoke test ~1h). On estimate — first milestone of R0 to hit the number cleanly. Driver: agent's plan-review caught the env-var-name issue (P-1) before any code was written, eliminating an otherwise-likely refactor cycle.
 
-#### R0-M4 — Telemetry
-- [ ] PostHog account, project for Petsona, install `posthog-react-native`
-- [ ] Sentry account, project for Petsona (separate iOS / Android / functions), install `@sentry/react-native`
-- [ ] Wire up: app launch event, screen view auto-capture, intentional test error
-- [ ] Verify events in PostHog dashboard, errors in Sentry dashboard
+#### R0-M4 — Telemetry ✅ shipped 2026-05-11
+- [x] PostHog account, project `Petsona` (US Cloud) created
+- [x] Sentry account, organization `exicore`, project `petsona-mobile` (React Native platform) created
+- [x] Install `posthog-react-native` (+ peer deps `expo-file-system`, `expo-application`, `expo-device`, `expo-localization`)
+- [x] Install `@sentry/react-native` with Expo config plugin in `app.json` (`organization: exicore`, `project: petsona-mobile`)
+- [x] Wire up: `app_launch` event with locale property, autocapture of screen views, `identify(userId)` after anon sign-in, `test_error_thrown` event + Sentry capture on smoke screen button
+- [x] Logger split per D-021: `logger.info`/`warn` console-only, `logger.error` routes to Sentry; PostHog reserved for explicit `Events.*` taxonomy
+- [x] Sentry config: `tracesSampleRate: 0`, `replaysSessionSampleRate: 0`, `replaysOnErrorSampleRate: 0`, `beforeSend` drops stackless events, `environment: __DEV__ ? 'development' : 'production'`, empty `integrations: []` (no replay)
+- [x] PostHog config: US host, `disableSessionRecording: true`, `captureAppLifecycleEvents: true`, `flushAt: 1` in `__DEV__`
+- [x] Sentry Spike Protection + inbound filters enabled in dashboard
+- [x] EAS env vars: `EXPO_PUBLIC_POSTHOG_API_KEY` (sensitive), `EXPO_PUBLIC_SENTRY_DSN` (sensitive) — both alongside Supabase vars from R0-M3
+- [x] EAS dev builds re-triggered for both platforms; installed and verified on iPhone + Pixel 7 AVD
+- [x] PostHog Activity feed shows `Identify` → `app_launch` → `test_error_thrown` events from both devices with distinct_ids matching their `auth.uid()` UUIDs
+- [x] Sentry Issues page shows test errors from both devices, tagged `environment: development`
+- [ ] Source-map upload via `SENTRY_AUTH_TOKEN` — **deferred to R3** (errors flow without it; stack traces are minified but readable for current test cases)
 
-**Estimate:** 2h.
+**Estimate:** 2h. **Actual: ~3h** (agent Phase 1+2 ~2h, EAS rebuilds ~30 min wall-clock, dashboard setup + smoke-test ~30 min). +50% variance driven by an extra round-trip in Phase 1 plan-review (P-1 logger semantics: agent pushed back on architect's prompt; agent's proposal was adopted — led to D-021).
 
-#### R0-M5 — End-to-end smoke test
-- [ ] Splash screen renders the Petsona logo (placeholder OK)
-- [ ] On launch: anonymous sign-in fires; `auth.uid()` printed via logger
-- [ ] One screen with a "Hello" button that calls the `hello` edge function and shows `user_id`
-- [ ] One screen that inserts a `pets` row and reads it back, displaying RLS in action (try inserting a row with a wrong `user_id` and confirm it's rejected)
-- [ ] Build both platforms via EAS, install, run end-to-end on real devices
-- [ ] Anton runs the test plan (will be provided by Claude.ai before this milestone starts)
+#### R0-M5 — End-to-end smoke test ✅ shipped 2026-05-11
+**Note:** The validation criteria for R0-M5 were proven by the combined R0-M3 + R0-M4 smoke tests. Listing the criteria here for completeness; no additional implementation needed.
 
-**Estimate:** 3h.
+- [x] Splash placeholder + smoke screen at `app/index.tsx` exercises the full R0 stack (verified by R0-M3 + R0-M4 smoke tests on iPhone + Pixel 7 AVD)
+- [x] On launch: anonymous sign-in fires; `auth.uid()` displayed on smoke screen (R0-M3, confirmed by user_id matching across smoke screen + hello function response + PostHog distinct_id)
+- [x] "Hello function" button: calls `hello` edge function and shows `user_id` (R0-M3)
+- [x] "Insert pets row" button: insert succeeds, returns row id (R0-M3); cross-user read attempt blocked by RLS, returns 0 rows (R0-M3)
+- [x] EAS dev builds installed on iPhone + Pixel 7 AVD across both R0-M3 and R0-M4 rebuilds (4 dev builds total during R0)
+- [x] Test plan: combined R0-M3 + R0-M4 smoke tests serve as the R0 acceptance test plan (documented in `JOURNAL_R0.md`)
 
-### R0 quality gate
-- [ ] All R0 milestones checked
-- [ ] `JOURNAL_R0.md` written with verdict + lessons + actuals
-- [ ] `05_HISTORY.md` updated
-- [ ] `08_TIME_LEDGER.md` updated with R0 actuals vs estimate
-- [ ] Both Anton and Claude.ai comfortable proceeding to R1
+**Estimate:** 3h. **Actual: ~0h** (proven by R0-M3 + R0-M4 work; no additional milestone-specific implementation required). Variance: -100% because R0-M5's validation was absorbed into earlier milestones. Lesson logged for future ladder planning.
 
-**R0 estimate total:** ~14 hours. This will likely run longer due to Apple/Google review wall-clock — plan for 3–5 calendar days.
+### R0 quality gate ✅
+- [x] All R0 milestones checked
+- [x] `JOURNAL_R0.md` written with verdict + lessons + actuals
+- [x] `05_HISTORY.md` updated
+- [x] `08_TIME_LEDGER.md` updated with R0 actuals vs estimate
+- [x] Both Anton and Claude.ai comfortable proceeding to R1
+
+**R0 estimate total:** ~14 hours. **Actual: ~16.5 hours** (+18% over estimate). Detailed breakdown in `JOURNAL_R0.md` + `08_TIME_LEDGER.md`. The +18% lands well within the +25% buffer flagged after R0-M2; the validation ladder is calibrating.
 
 ---
 
