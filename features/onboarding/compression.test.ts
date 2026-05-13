@@ -28,9 +28,9 @@ describe('compressImage', () => {
       height: 2048,
     });
     await compressImage('file:///source.heic', { width: 3000, height: 4000 });
-    const actions = ImageManipulator.manipulateAsync.mock.calls[0][1] as Array<{
+    const actions = ImageManipulator.manipulateAsync.mock.calls[0][1] as {
       resize: { width?: number; height?: number };
-    }>;
+    }[];
     expect(actions).toEqual([{ resize: { height: COMPRESSION_MAX_LONG_EDGE } }]);
   });
 
@@ -41,9 +41,9 @@ describe('compressImage', () => {
       height: 1536,
     });
     await compressImage('file:///source.jpg', { width: 4000, height: 3000 });
-    const actions = ImageManipulator.manipulateAsync.mock.calls[0][1] as Array<{
+    const actions = ImageManipulator.manipulateAsync.mock.calls[0][1] as {
       resize: { width?: number; height?: number };
-    }>;
+    }[];
     expect(actions).toEqual([{ resize: { width: COMPRESSION_MAX_LONG_EDGE } }]);
   });
 
@@ -54,9 +54,9 @@ describe('compressImage', () => {
       height: 2048,
     });
     await compressImage('file:///source.jpg', { width: 3000, height: 3000 });
-    const actions = ImageManipulator.manipulateAsync.mock.calls[0][1] as Array<{
+    const actions = ImageManipulator.manipulateAsync.mock.calls[0][1] as {
       resize: { width?: number; height?: number };
-    }>;
+    }[];
     expect(actions).toEqual([{ resize: { width: COMPRESSION_MAX_LONG_EDGE } }]);
   });
 

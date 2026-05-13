@@ -9,8 +9,10 @@ import {
 // All factories use require() inside per the jest.mock pattern documented in
 // lib/glass.test.tsx (NativeWind's transform hoists imports out of scope).
 jest.mock('expo-camera', () => ({
-  requestCameraPermissionsAsync: jest.fn(),
-  getCameraPermissionsAsync: jest.fn(),
+  Camera: {
+    requestCameraPermissionsAsync: jest.fn(),
+    getCameraPermissionsAsync: jest.fn(),
+  },
 }));
 jest.mock('expo-image-picker', () => ({
   requestMediaLibraryPermissionsAsync: jest.fn(),
@@ -20,10 +22,13 @@ jest.mock('expo-linking', () => ({
 }));
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports -- module mocks
-const Camera = require('expo-camera') as {
-  requestCameraPermissionsAsync: jest.Mock;
-  getCameraPermissionsAsync: jest.Mock;
+const CameraModule = require('expo-camera') as {
+  Camera: {
+    requestCameraPermissionsAsync: jest.Mock;
+    getCameraPermissionsAsync: jest.Mock;
+  };
 };
+const Camera = CameraModule.Camera;
 // eslint-disable-next-line @typescript-eslint/no-require-imports -- module mocks
 const ImagePicker = require('expo-image-picker') as {
   requestMediaLibraryPermissionsAsync: jest.Mock;
