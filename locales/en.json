@@ -44,6 +44,8 @@
     "capture": {
       "topPill": "Photo {{n}} of {{total}} · {{slot}}",
       "tipFront": "Front-facing photo · face and chest visible",
+      "tipSide": "Profile shot · full body if possible",
+      "tipDocument": "Lay flat · key details readable",
       "processing": "Processing your photo…",
       "aria": {
         "close": "Close",

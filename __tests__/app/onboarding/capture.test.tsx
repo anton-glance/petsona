@@ -105,8 +105,9 @@ describe('Capture — slot: front (R1 visual redo)', () => {
 
   it('renders viewfinder, top-pill, shutter, library button (testID), flip button', () => {
     const tree = render(<Capture />);
-    expect(tree.getByText(/Photo 1 of 3/i)).toBeTruthy();
-    expect(tree.getByText(/Front/i)).toBeTruthy();
+    // Full top-pill match — disambiguates from the tip text which also
+    // contains "Front-facing photo..." (getByText(/Front/) would multi-match).
+    expect(tree.getByText(/Photo 1 of 3.*Front/i)).toBeTruthy();
     expect(tree.getByLabelText('Capture')).toBeTruthy();
     expect(tree.getByTestId('capture-library-button')).toBeTruthy();
     expect(tree.getByLabelText('Flip camera')).toBeTruthy();
