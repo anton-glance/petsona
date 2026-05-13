@@ -23,7 +23,7 @@
  * `colors.ivory`.
  */
 import * as React from 'react';
-import { StyleSheet, View, type ViewStyle } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, Ellipse, Path } from 'react-native-svg';
 
 import { colors } from '../../lib/theme';

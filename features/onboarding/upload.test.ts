@@ -5,7 +5,6 @@ import { UploadError, uploadPetPhoto } from './upload';
 // B-1 fix: upload reads the local file via expo-file-system's File(uri).arrayBuffer().
 // Mock that API so tests don't hit the native filesystem.
 jest.mock('expo-file-system', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.mock factory
   const mockArrayBuffer = jest.fn(async () => new ArrayBuffer(8));
   return {
     File: jest.fn().mockImplementation((_uri: string) => ({

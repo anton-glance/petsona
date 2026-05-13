@@ -24,7 +24,7 @@ import {
   openSystemSettings,
 } from '../../features/onboarding/permissions';
 import { logger } from '../../lib/logger';
-import { colors, radii, shadow, spacing } from '../../lib/theme';
+import { colors, shadow, spacing } from '../../lib/theme';
 
 export default function CameraDenied(): React.JSX.Element {
   const { t } = useTranslation();

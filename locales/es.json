@@ -101,7 +101,8 @@
       "aiConfidence": "AI {{percent}}%",
       "cta": {
         "named": "Welcome {{name}}",
-        "empty": "Welcome your pet"
+        "empty": "Welcome your pet",
+        "saved": "Saved ✓"
       },
       "error": "We couldn't save your pet's profile. Please try again."
     }
