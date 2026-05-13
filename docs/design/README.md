@@ -145,9 +145,9 @@ Curated subset of the full brand library (which lives in `docs/design/brand/`).
 The full library has every iOS size, every Android density, every locale
 variant — the agent doesn't need all of them yet.
 
-**Expected destination in the repo:** the Expo standard `/assets/` directory
-at the project root (i.e., `petsona/assets/brand/`). Move or symlink this
-folder there.
+**Location in the repo:** moved at design-spike close (2026-05-12) to
+`/assets/brand/` at the project root. The source pool at `docs/design/brand/`
+is untouched — pull additional sizes from there if needed.
 
 ### Contents
 
