@@ -1,5 +1,12 @@
-import * as SplashScreen from 'expo-splash-screen';
+import {
+  DMSans_400Regular,
+  DMSans_500Medium,
+  DMSans_600SemiBold,
+  DMSans_700Bold,
+  useFonts,
+} from '@expo-google-fonts/dm-sans';
 import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { PostHogProvider } from 'posthog-react-native';
 import { useEffect, useState } from 'react';
 
@@ -24,6 +31,28 @@ void SplashScreen.preventAutoHideAsync().catch(() => {
 export default function RootLayout(): React.JSX.Element | null {
   const [ready, setReady] = useState(false);
   const setAuthUserId = useAppStore((s) => s.setAuthUserId);
+
+  // DM Sans 400/500/600/700 per identity.md §6. The four weights ship; 100/
+  // 200/300/800/900 are deliberately not loaded. On font-load failure we
+  // still render with the system fallback (D-021 logger.error routes to
+  // Sentry so the regression is monitored).
+  const [fontsLoaded, fontError] = useFonts({
+    DMSans_400Regular,
+    DMSans_500Medium,
+    DMSans_600SemiBold,
+    DMSans_700Bold,
+  });
+
+  useEffect(() => {
+    if (fontError) {
+      logger.error('DM Sans font load failed; falling back to system font', {
+        err: String(fontError),
+      });
+    }
+  }, [fontError]);
+
+  const fontsReady = fontsLoaded || fontError !== null;
+  const appReady = ready && fontsReady;
 
   useEffect(() => {
     let cancelled = false;
@@ -68,14 +97,14 @@ export default function RootLayout(): React.JSX.Element | null {
   }, [setAuthUserId]);
 
   useEffect(() => {
-    if (ready) {
+    if (appReady) {
       void SplashScreen.hideAsync().catch(() => {
         // Ignore.
       });
     }
-  }, [ready]);
+  }, [appReady]);
 
-  if (!ready) {
+  if (!appReady) {
     return null;
   }
 
