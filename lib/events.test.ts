@@ -52,4 +52,8 @@ describe('Events', () => {
     );
     expect(Events.onboarding_capture_completed).toBe('onboarding_capture_completed');
   });
+
+  it('exposes onboarding_welcome_confirmed (R1-M3)', () => {
+    expect(Events.onboarding_welcome_confirmed).toBe('onboarding_welcome_confirmed');
+  });
 });
