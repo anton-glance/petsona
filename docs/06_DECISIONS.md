@@ -469,3 +469,58 @@ The split is locked before any of kidem42's code lands. Roles are based on Anton
 **Reversal cost.** Low. To revert: delete `.github/CODEOWNERS`, remove kidem42 from the repo collaborators, undo the "Require review from Code Owners" toggle. None of these are baked into code or migrations. Branch-naming convention has no enforcement — it's a discipline rule, not a hook.
 
 ---
+
+## D-023 — Brand identity locked
+
+**Date:** 2026-05-12
+**Status:** Accepted
+
+**Context.** A complete onboarding design package landed via PR #13 at commit `424a435` on 2026-05-12. It provides: locked brand identity (`docs/design/identity.md`), 11 HTML mockups for the onboarding flow (`docs/design/01_splash.html` … `12_signin.html`) plus the camera-denied edge case `02b_permission_denied.html`, design tokens (`docs/design/tokens.css`), component primitive specs (`docs/design/components.css` + `components.html`), a curated brand-asset subset (`docs/design/assets/brand/`), and a source-of-truth asset pool (`docs/design/brand/`). Before this ADR, the Expo project had no theme system, no component library, and no brand assets wired into `app.json`.
+
+R1-M2 (splash, camera permission, photo capture) and every subsequent UI release need a stable substrate to build against. This ADR locks the substrate produced by the design spike (closed 2026-05-12 — see `JOURNAL_SPIKE_DESIGN.md`).
+
+**Decision.** The following are read-only authorities. Modifications require an ADR amendment, not a quick PR.
+
+| Surface | Canonical location | Authority |
+|---|---|---|
+| Brand identity (voice, name, logo rules, license) | `docs/design/identity.md` | Locked design (PR #13) |
+| Design tokens (color, type, spacing, radii, shadows, motion, glass) | `docs/design/tokens.css` | Locked design |
+| Component primitive specs | `docs/design/components.css` + `components.html` | Locked design |
+| Onboarding mockups | `docs/design/01_splash.html` … `12_signin.html` + `02b_permission_denied.html` | Locked design |
+| App-side typed token mirror | `lib/theme.ts` | This ADR |
+| App-side component library | `components/ui/` (15 primitives, all JSDoc'd) | This ADR |
+| Liquid Glass implementation | `lib/glass.tsx` (iOS BlurView, Android RGBA fill, both honor reduce-transparency) | This ADR |
+| Motion tokens + reduce-motion hook | `lib/motion.ts` | This ADR |
+| Brand assets shipped in the build | `assets/brand/` (moved from `docs/design/assets/brand/`) | This ADR |
+| Brand asset source pool | `docs/design/brand/` (full library — pull additional sizes as needed) | Locked design |
+| Tailwind extension mirror | `tailwind.config.js` `theme.extend` (drift-detected by `lib/theme.test.ts`) | This ADR |
+
+**Visual system summary.**
+
+- **Color.** Two-layer palette. Raw tokens (`honey`, `forest`, `ivory`, `terracotta`, ink, muted, rule, error, …) map to semantic aliases (`primary`, `surface`, `textDefault`, `border`, `statusDanger`, …). Primitives use semantic; raw is reserved for brand-specific picks (gradients, icons). Dual-exposed in `lib/theme.ts` and `tailwind.config.js` (with a sanity test asserting parity).
+- **Typography.** DM Sans family, four weights (400 / 500 / 600 / 700). Six pair-tokens (`displayXl`, `displayLg`, `displayMd`, `bodyLg`, `body`, `caption`) — each is a `{ fontSize, lineHeight, fontWeight }` triple to guarantee cross-platform parity. Letter-spacing on display sizes is `-0.015em` (converted to RN pixels at theme-build time); caption is `+0.06em`. Fonts load via `useFonts` in `app/_layout.tsx` and gate the render; on load failure we render with the system fallback and route the error to Sentry per D-021.
+- **Spacing + radii.** Standard scales: `4 / 8 / 12 / 16 / 24 / 32 / 48` and `6 / 10 / 14 / 20 / 28 / pill(999)`.
+- **Shadows.** RN-mapped: iOS uses `shadowColor + shadowOffset + shadowOpacity + shadowRadius`; Android uses `elevation`. The CSS multi-layer recipes (inset specular + outer cast) collapse to a single cast per node — documented gap in `JOURNAL_SPIKE_DESIGN.md`. Primitives consume `shadow(level)` from `lib/theme.ts`, never the raw recipe.
+- **Glass.** `<Glass material="thin|regular|thick" tone="neutral|honey|forest|terra" onDark={bool}>` from `lib/glass.tsx`. iOS uses `expo-blur` BlurView with brand-tint overlay. Android skips blur and renders the RGBA fill directly — RN's compositor handles alpha, so the result is pixel-equivalent to a pre-blend when the parent is ivory and correctly carries through forest/night parents. Both platforms flip to opaque-fill mode when the user has reduce-transparency on (matches `tokens.css @media (prefers-reduced-transparency)`).
+- **Motion.** Five duration tokens (`instant 60` / `fast 150` / `medium 260` / `slow 420` / `languid 700` ms) + two Reanimated-built easings (`primary`, `out`). `useReducedMotion()` hook flips durations to ~0 when reduce-motion is on. The Reanimated 4 + worklets babel plugin is auto-added by `babel-preset-expo` (verified in `node_modules/babel-preset-expo/build/index.js` lines 313-320); `babel.config.js` is NOT modified.
+- **Adaptive theming.** `lib/store.ts` carries a `species: 'cat' | 'dog' | 'unknown'` slice (default `'unknown'`) with a `setSpecies` setter and a `useSpecies()` selector. R1-M3 sets it from the breed-identify response; R2-R4 surfaces (pet-pattern background, hero silhouette, watch-chip copy on step 10, sign-in silhouette) consume it. The smoke screen at `app/index.tsx` carries a debug toggle so wiring can be verified before R1-M2 replaces the screen.
+
+**Deferred / explicitly out of scope.**
+
+- **`<BlurTargetView>`** (Expo SDK 55's new Android-12+ true blur API). Deferred: Petsona's design intent under reduced-transparency is already opaque; the per-surface wrapping overhead isn't justified at this stage; the `<Glass>` API surface lets us adopt later without breaking consumers.
+- **Dark-mode UI through MVP.** `tokens.css` has a dark-mode block; we mirror its values into `lib/theme.ts` but ship only light-mode primitives. Re-evaluate post-R6.
+- **Full iOS app-icon size matrix.** Curated subset in `assets/brand/` is enough through R5. Pull additional sizes from `docs/design/brand/app-icon/` if/when needed.
+- **Floating-thumb animation on `<Segmented>`.** Deferred to R1-M3 if it lands as a usability concern. At MVP the active state is a static background fill.
+
+**Cross-references.**
+
+- **D-006** — Multi-provider AI abstraction. The same adapter-shaped principle applies to the design system: `<Glass>` is one component with platform-split implementations behind a single API; the iOS-vs-Android details don't leak. Capability-segregation idea ports cleanly.
+- **D-008** — i18n strategy. Every label this spike adds (`smoke.species*`, `common.back`) lands in `locales/en.json` with matching keys in `es.json` and `ru.json` for R6 to fill. The component library has no hardcoded user-facing strings — consumers pass strings as props (e.g. `<Button>{t('paywall.unlock')}</Button>`).
+- **D-012** — Repo root is the Expo project root. Components live at `components/ui/`, theme at `lib/theme.ts`, assets at `assets/brand/`. No `/app/` wrapper.
+- **D-013** — Jest + `jest-expo` preset. The spike adds `@testing-library/react-native` (v13) for component tests, layered on the same preset. Edge-function tests continue to use Deno.
+- **D-021** — Logger / telemetry rail split. `useFonts` failures route through `logger.error` → Sentry. No font-load events go to PostHog.
+- **D-022** — Two-contributor model. CODEOWNERS routes `/components/`, `/lib/`, `/assets/`, `/locales/`, `/app/` review to `anton-glance`. AI-pipeline primitives (none in this spike) would route to `kidem42`.
+
+**Reversal cost.** Medium. A token rename = global find/replace across `lib/theme.ts` + `tailwind.config.js` + every primitive + every screen built post-spike. A design package replacement = re-running this spike. Locking now is the right tradeoff because every onboarding screen R1+ depends on these primitives — pre-spike was the cheap moment.
+
+---

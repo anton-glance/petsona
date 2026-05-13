@@ -47,3 +47,47 @@ jest.mock('@sentry/react-native', () => ({
   setUser: jest.fn(),
   setTag: jest.fn(),
 }));
+
+// Importing react-native-reanimated outside the RN runtime triggers
+// worklets-native init and crashes Jest. The library's own mock re-imports
+// the live module so it can't be used here. Instead provide a minimal mock
+// covering the surface that lib/motion.ts + components consume: Easing,
+// withTiming, useSharedValue, useAnimatedStyle, useDerivedValue.
+jest.mock('react-native-reanimated', () => {
+  const noop = (): void => undefined;
+  const identity = <T,>(x: T): T => x;
+  const bezier = (
+    _a: number,
+    _b: number,
+    _c: number,
+    _d: number,
+  ): ((t: number) => number) => identity;
+  const Easing = {
+    bezier,
+    linear: identity,
+    ease: identity,
+    inOut: (_fn: unknown) => identity,
+    out: (_fn: unknown) => identity,
+    in: (_fn: unknown) => identity,
+  };
+  const useSharedValue = <T,>(initial: T): { value: T } => ({ value: initial });
+  const useAnimatedStyle = (fn: () => unknown): unknown => fn();
+  const useDerivedValue = <T,>(fn: () => T): { value: T } => ({ value: fn() });
+  const withTiming = <T,>(toValue: T): T => toValue;
+  const withSpring = <T,>(toValue: T): T => toValue;
+  const withDelay = <T,>(_d: number, value: T): T => value;
+  return {
+    __esModule: true,
+    default: { View: 'Animated.View', Text: 'Animated.Text' },
+    Easing,
+    useSharedValue,
+    useAnimatedStyle,
+    useDerivedValue,
+    withTiming,
+    withSpring,
+    withDelay,
+    runOnJS: identity,
+    runOnUI: identity,
+    cancelAnimation: noop,
+  };
+});

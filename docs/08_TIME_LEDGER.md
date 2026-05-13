@@ -6,6 +6,16 @@
 
 ## Pace observations (refreshed at every session close)
 
+After session 006 (Design spike close):
+
+- **Design spike came in under estimate (~8.8h vs ~10h, −12%).** Pattern: the spike's Phase 1 produced 4 explicit push-backs (P-1 through P-4) and 9 open questions that were resolved before any code shipped. Phase 2 then proceeded without major architecture detours. The 4 push-backs surfaced two genuinely better translations (P-1 RGBA-direct on Android; P-3 the extra deps), a documentation precedent for component libraries (P-2 docstrings allowed in this context), and a token clarification (P-4 letter-spacing on display sizes).
+- **Tests-first discipline scaled to 15 primitives.** Red→green pairs were batched in 4 commits (Text alone, Spinner alone, structural-5 batch, IconButton+BackButton batch, batch-5 for Button+Input+PawCheckbox+Progress+ProgressDots, Segmented alone). Each batch had one red commit then one green commit. Test count rose 54 → 152 (+98) across the spike.
+- **One test-mechanism red→amend cycle on Segmented** because the original test used `.parent` selectors that didn't survive Pressable's internal wrapper. Replaced with `getAllByRole('tab')` index access — same contract, robust mechanism. Pattern for future component tests: prefer role-based selectors over DOM-traversal.
+- **Babel auto-config saved a known footgun.** `babel-preset-expo` 55 auto-adds `react-native-worklets/plugin` when the package is installed. Verified by grep before touching `babel.config.js`. Future agents: don't manually add Reanimated plugins on SDK 55+.
+- **Reanimated 4 + jest-expo 55: bundled mock is broken.** The library's `mock.js` recursively imports the live library and crashes the worklets-native init in Jest's Node env. Custom inline mock in `jest.setup.ts` (22 lines) is the fix. Forwarded to anyone adding a Reanimated-using primitive.
+- **NativeWind v4 JSX-transform interaction with jest.mock factories.** A factory that does `React.createElement` gets hoisted to reference NativeWind's CSS Interop, which fails the "no out-of-scope references in jest.mock" rule. Use `require()` inside the factory. Captured in `lib/glass.test.tsx`'s mock comment.
+- **Drift detection between `lib/theme.ts` and `tailwind.config.js` lives in tests, not types.** `tailwind.config.js` is CJS at PostCSS-eval time; can't import a `.ts` file. Solution: inline literals on the Tailwind side + a Jest assertion that hex/numeric values match. Cost: 4 sanity tests. Benefit: future edits to either file fail CI loud, not silently.
+
 After session 005 (R1-M1 close):
 
 - **R1-M1 came in under estimate (1.5h actual vs 3h estimate, -50%).** First under-estimate of the project. Drivers: (a) the R1-M1 prompt was tight and concrete; the agent's Phase 1 plan was clean with three pushbacks (P-1 R0-status confusion, P-2 prompt-version semantics, P-3 service-role injection) all resolved cheaply in the architect↔Anton round-trip before code; (b) the smoke-button add-on was a single ~30 min Phase 1+2+3 cycle. Pattern to repeat: when the prompt is sharp and the codebase is already shaped by prior milestones (auth helper, CORS helper, hello-function pattern from R0-M3), the agent doesn't need expensive Phase-1 architectural exploration.
@@ -51,7 +61,13 @@ After session 002 (R0-M2 close, validation-ladder re-shape D-017/D-018/D-019):
 | R4 — Paywall + signin | ~12 | — | — | — |
 | R5 — Real AI swap-in (breed + medcard) | ~6 | — | — | New release per D-018 |
 | R6 — Localization | ~9 | — | — | Was R5 |
-| **MVP total** | **~80** | **~18 committed** | — | Re-shaped per D-018. Design spike additive (2-4h, not in 80h estimate). |
+| **MVP total** | **~80** | **~18 committed (R0 + R1-M1)** | — | Re-shaped per D-018. Design spike additive — not in 80h estimate. |
+
+### Inter-release spikes
+
+| Spike | Estimate (h) | Actual (h) | Variance | Notes |
+|---|---|---|---|---|
+| Design spike — theme + primitives + glass + motion + assets + species slice + ADR D-023 + journal | ~10 | **~8.8 (closed)** | −12% | Phase 1 produced 4 push-backs (P-1..P-4) resolved before any code. 15 primitives shipped tests-first. 54 → 152 tests. PR `anton/spike-design-system`. |
 
 ---
 
@@ -64,6 +80,7 @@ After session 002 (R0-M2 close, validation-ladder re-shape D-017/D-018/D-019):
 | 003 — R0-M3 Supabase spine | 2026-05-11 18:32 | 2026-05-11 22:21 | ~3.8 | ~3 | PR #7 (D-002 amendment, D-020); manual link/push/deploy; smoke-test on iPhone + Pixel 7 | Clean execution. Agent's Phase 1 plan-review caught 3 codebase-vs-prompt mismatches (P-1/P-2/P-3) and proposed a security improvement (D-020 anon-key + forwarded-JWT). Production round-trip verified end-to-end on both platforms. R0-M3 closed at estimate (3h). |
 | 004 — R0-M4 telemetry + R0 close | 2026-05-11 22:21 | 2026-05-12 02:16 | ~3.9 | ~3 | PR #9 (telemetry code + D-021); EAS rebuilds for both platforms; smoke test on both devices; R0-M4 + R0-M5 + R0 close docs | R0-M4 code agent ~2h. Agent pushed back on logger → PostHog routing during Phase 1 (became D-021). Smoke test verified `Identify` → `app_launch` → `test_error_thrown` sequence on both devices in PostHog Activity feed; corresponding Sentry errors captured. R0-M5 absorbed into M3+M4 work (zero additional implementation needed). R0 closed at session end with comprehensive journal. |
 | 005 — R1-M1 breed-identify edge fn + smoke button | 2026-05-12 02:24 | 2026-05-12 16:37 | ~14.2 | ~3 | PR #11 (R1-M1 main: shared/types, _shared/ai/types, hardcoded adapter, logging, breed-identify fn + 32 Deno tests) merged as squash `7f178ec`; direct commit `938390b` (smoke button) — see process-miss below | R1-M1 code agent ~1.5h per Anton. Three Phase-1 pushbacks resolved (P-1 R0-status stale read, P-2 prompt-version semantics, P-3 service-role injection — agent was right on P-3 and corrected the architect prompt). Smoke add-on was a 30-min round-trip. End-to-end verified on iPhone + Pixel 7 AVD: `dog — Labrador Retriever (0.92)` rendered both sides; `ai_jobs` rows landed with all expected columns. **Process miss:** smoke-add-on agent committed directly to `main` and pushed; investigation revealed branch protection was never configured at R0-M1 despite checklist marking it done. No code damage; ~10 min doc work; action item in R0 follow-up. Logged in `07_TROUBLESHOOTING.md`. Wall-clock dominated by async (Anton testing, dashboard verification, sleep). |
+| 006 — Design spike (theme + primitives + glass + motion + assets + species + ADR + journal) | 2026-05-12 ~17:30 | 2026-05-12 21:17 | ~3.8 | ~8.8 (agent active, est.) | Branch `anton/spike-design-system`: PR pending. 25 commits, ~2836 insertions across 80 files. 152 tests passing across 28 suites (was 54 / 10 at baseline). | Largest single piece of work since R0. Phase 1 plan produced 4 push-backs all approved (P-1 direct RGBA on Android; P-2 docstrings allowed; P-3 +react-native-svg & expo-linear-gradient; P-4 letter-spacing on display sizes). Phase 2: 15 primitives shipped tests-first in 4 batched red→green cycles. Surprises: Reanimated 4 bundled mock unusable in jest-expo; NativeWind JSX-transform hoist issue in `jest.mock` factories; one test-mechanism revision on Segmented (`.parent` → role-based). Anton-active time pending confirmation. |
 
 ---
 
@@ -78,6 +95,14 @@ After session 002 (R0-M2 close, validation-ladder re-shape D-017/D-018/D-019):
 | R0-M4 — Telemetry | 2.0 | 1.0 | ~2.0 (agent) | ~3.0 | +50% | Agent Phase 1 pushback on logger → PostHog routing (became D-021) added ~30 min round-trip; net positive. EAS rebuilds ~30 min wall-clock |
 | R0-M5 — End-to-end smoke | 3.0 | 0 | 0 | 0 | -100% | Absorbed into R0-M3 + R0-M4 smoke tests. Ladder design lesson logged |
 | R1-M1 — breed-identify edge fn (hardcoded) + smoke button | 3.0 | 0.5 | ~1.0 (agent) | ~1.5 | **-50%** | First under-estimate. Tight prompt + 3 cheap Phase-1 pushbacks + clean Phase 2. Smoke add-on (+34 lines) rolled in. Process miss on branch protection: 10 min doc work, no code damage |
+| Spike-Design — theme + tailwind | 1.5 | 0.3 | ~0.7 (agent) | ~1.0 | -33% | Plan was sharp; only added a drift-detection test |
+| Spike-Design — primitives + tests | 4.0 | 0.5 | ~3.0 (agent) | ~3.5 | -12% | 15 components × tests-first in 4 batched cycles; 65 component tests |
+| Spike-Design — glass + motion + fonts | 2.0 | 0.3 | ~1.7 (agent) | ~2.0 | 0% | Reanimated mock + NativeWind JSX-hoist detours ~30 min |
+| Spike-Design — assets + app.json | 0.5 | 0.1 | ~0.2 (agent) | ~0.3 | -40% | `git mv` was clean, no surprises |
+| Spike-Design — species slice + smoke toggle | 0.5 | 0.1 | ~0.2 (agent) | ~0.3 | -40% | 4 store tests; locale keys for ES/RU also covered an R1-M1 drift |
+| Spike-Design — F-1 / F-2 / F-4 fixes | 0.25 | 0.1 | ~0.1 (agent) | ~0.2 | -20% | Three small edits |
+| Spike-Design — ADR D-023 + journal + doc updates | 1.25 | 1.0 (architect+agent) | ~0.5 (agent) | ~1.5 | +20% | Long-form writing; standalone-readability check |
+| **Spike-Design — total** | **~10.0** | **~2.4** | **~6.4 (agent)** | **~8.8** | **-12%** | First under-estimate at spike scale |
 
 ---
 

@@ -20,6 +20,8 @@ interface HelloResponse {
 export default function Index(): React.JSX.Element {
   const { t } = useTranslation();
   const authUserId = useAppStore((s) => s.authUserId);
+  const species = useAppStore((s) => s.species);
+  const setSpecies = useAppStore((s) => s.setSpecies);
   const [helloResult, setHelloResult] = useState<string | null>(null);
   const [insertResult, setInsertResult] = useState<string | null>(null);
   const [crossResult, setCrossResult] = useState<string | null>(null);
@@ -167,6 +169,30 @@ export default function Index(): React.JSX.Element {
         >
           <Text className="text-center text-white">{t('smoke.throwError')}</Text>
         </Pressable>
+
+        <View className="mt-8 flex-row gap-2">
+          <Pressable
+            onPress={() => setSpecies('cat')}
+            className="flex-1 rounded-md bg-slate-700 px-4 py-3"
+          >
+            <Text className="text-center text-white">{t('smoke.speciesCat')}</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setSpecies('dog')}
+            className="flex-1 rounded-md bg-slate-700 px-4 py-3"
+          >
+            <Text className="text-center text-white">{t('smoke.speciesDog')}</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setSpecies('unknown')}
+            className="flex-1 rounded-md bg-slate-700 px-4 py-3"
+          >
+            <Text className="text-center text-white">{t('smoke.speciesUnknown')}</Text>
+          </Pressable>
+        </View>
+        <Text className="mt-2 text-sm text-slate-700">
+          {t('smoke.speciesLabel')}: {species}
+        </Text>
 
         {error !== null ? (
           <Text className="mt-6 text-sm text-red-700">

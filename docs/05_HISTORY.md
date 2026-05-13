@@ -116,4 +116,8 @@ End-to-end verification 2026-05-12 on both platforms via a 5th smoke-screen butt
 - `error_code='misconfiguration'` logged to `ai_jobs` so config errors surface in monitoring.
 - Deployed function follows the same `handle(req, deps?)` shape as `hello`. Future capability functions inherit the pattern.
 
+**Design spike ✅** Closed 2026-05-12 on branch `anton/spike-design-system` (PR pending). Translates the merged design package (PR #13, commit `424a435`) into the app substrate: `lib/theme.ts` typed tokens, `tailwind.config.js` extension, `components/ui/` (15 primitives), `lib/glass.tsx` (platform-split Liquid Glass — iOS BlurView, Android RGBA fill, both honor reduce-transparency), `lib/motion.ts` (durations + easings + reduce-motion hook), `assets/brand/` (curated subset moved via `git mv` with history preserved), `app.json` brand wiring, DM Sans loaded via `useFonts` in `app/_layout.tsx`, `species` slice in `lib/store.ts` for R1-M3+ adaptive theming, plus F-1 / F-2 / F-4 doc fixes. **D-023 added** — brand identity locked. Detail: `JOURNAL_SPIKE_DESIGN.md`. Pace: ~10h estimate → ~8.8h actual. Tests: 54 → 152 across 28 suites.
+
+R1-M2 now unblocked.
+
 ---

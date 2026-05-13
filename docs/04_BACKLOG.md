@@ -170,9 +170,9 @@ These leaked out of R0 close. Captured here so they're not lost. Should clear be
 - `error_code = 'misconfiguration'` is logged to `ai_jobs` when `MODEL_FOR_BREED` is unset or unknown. The bad config is visible in monitoring without redeploying. R5 swap-in inherits this safety.
 - Service-role isolation verified: `grep -rn SERVICE_ROLE supabase/ shared/ lib/ app/` returns only two lines in `_shared/logging.ts`.
 
-#### R1-M2 — Splash, camera permission, photo capture [agent] ⏸ BLOCKED on design spike
+#### R1-M2 — Splash, camera permission, photo capture [agent]
 
-**Blocker:** Anton's designer is compiling a full brandbook + 11-screen HTML mockup + assets package. R1-M2 starts after that package lands and a Design Spike session produces `app/components/` primitives + `app/theme/tokens.ts` + tailwind extension. Building R1-M2 against NativeWind defaults would force a retrofit when the design package arrives; the timing makes that retrofit unnecessary.
+**Design substrate now in place.** Spike-Design closed 2026-05-12 (see `JOURNAL_SPIKE_DESIGN.md` and D-023). R1-M2 builds against `lib/theme.ts` typed tokens + `tailwind.config.js` extension, `components/ui/` (15 primitives: Button / Input / Card / Segmented / Pill / PawCheckbox / IconButton / BackButton / Progress / ProgressDots / Spinner / TopRow / ScreenContainer / CtaStack / Text), `lib/glass.tsx` (platform-split Liquid Glass), `lib/motion.ts` (durations + easings + `useReducedMotion()`), DM Sans loaded at boot, brand assets at `assets/brand/`. The 11 HTML mockups at `docs/design/01_splash.html` … `12_signin.html` are the visual spec.
 
 - [ ] Splash screen with [Get Started] (against real brand tokens + components)
 - [ ] Camera permission explanation screen → [Allow access] → iOS/Android system dialog → recovery screen with "Open Settings" deep-link if denied
@@ -473,21 +473,23 @@ These leaked out of R0 close. Captured here so they're not lost. Should clear be
 
 These are bounded, off-ladder tracks earning their own `JOURNAL_SPIKE_*.md` entries.
 
-### Design spike — incoming before R1-M2
+### Design spike ✅ shipped 2026-05-12
 
-**Trigger:** Anton's designer is compiling a complete onboarding-flow design package: full brandbook + assets + HTML mockup of all 11 screens (per D-017).
+Design package landed via PR #13 (squash `424a435`). Spike implementation shipped on branch `anton/spike-design-system`. See [`JOURNAL_SPIKE_DESIGN.md`](JOURNAL_SPIKE_DESIGN.md) for the full record and D-023 for the lock.
 
-**Definition of done:**
-- `app/components/` populated with the primitives the design demands (Button, Input, Card, ScreenContainer, etc.)
-- `app/theme/tokens.ts` exports brand color, typography, spacing, radius tokens
-- `tailwind.config.js` extended with the tokens so NativeWind classes match the design
-- `docs/design/` populated with the 11 HTML mockups + a README mapping each mockup to its flow step
-- Agent-prompt template addition: "when implementing a screen, reference `docs/design/{step}_{name}.html` and `app/components/`"
-- `JOURNAL_SPIKE_DESIGN.md` written
+**Outputs:**
+- `lib/theme.ts` — typed tokens (colors raw + semantic, typography pair-tokens, spacing, radii, glass materials, shadow helper, font family + i18n slack)
+- `tailwind.config.js` — `theme.extend` mirror with drift detection in `lib/theme.test.ts`
+- `components/ui/` — 15 primitives + barrel: Button, Input, Card, Segmented, Pill, PawCheckbox, IconButton, BackButton, Progress, ProgressDots, Spinner, TopRow, ScreenContainer, CtaStack, Text
+- `lib/glass.tsx` — `<Glass>` (platform-split iOS BlurView / Android RGBA fill, reduce-transparency honored)
+- `lib/motion.ts` — duration + easing tokens, `useReducedMotion()` hook
+- `assets/brand/` — curated brand asset subset moved via `git mv` (history preserved)
+- `app.json` — brand icon, splash, adaptive icon wired
+- `app/_layout.tsx` — DM Sans loaded via `useFonts`, render gates on fonts ready
+- `lib/store.ts` — `species` slice with `setSpecies` + `useSpecies()` for R1-M3+ adaptive theming
+- F-1 / F-2 / F-4 findings fixed
 
-**Estimate:** 2-4h once the package lands.
-
-**Sequence:** R1-M1 closed → design spike (pending design-package handoff) → R1-M2 starts against the spike's outputs.
+**Pace:** ~10h estimate → ~8.8h actual (-12%, pending Anton confirmation). 152 tests passing across 28 suites (was 54 / 10).
 
 ---
 

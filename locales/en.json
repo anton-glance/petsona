@@ -19,6 +19,13 @@
     "callBreedIdentify": "Call breed-identify (R1-M1 smoke)",
     "callBreedIdentifyResult": "Function returned",
     "throwError": "Throw test error",
-    "error": "Error"
+    "error": "Error",
+    "speciesLabel": "Species",
+    "speciesCat": "Cat",
+    "speciesDog": "Dog",
+    "speciesUnknown": "Unknown"
+  },
+  "common": {
+    "back": "Back"
   }
 }

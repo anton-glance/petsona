@@ -220,4 +220,4 @@ docs/design/
 
 ---
 
-_Last updated: 2026-05-11. See `docs/06_DECISIONS.md` D-013 for the locked direction._
+_Last updated: 2026-05-12. See `docs/06_DECISIONS.md` D-023 for the locked direction._

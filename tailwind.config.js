@@ -1,3 +1,7 @@
+// DO NOT EDIT in isolation — mirrored from lib/theme.ts (the typed source of
+// truth, locked by D-023). If a value drifts between the two files, the
+// sanity test in lib/theme.test.ts fails CI. Update both atomically.
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -7,7 +11,84 @@ module.exports = {
   ],
   presets: [require('nativewind/preset')],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        // Raw palette
+        honey: '#D4A248',
+        'honey-dark': '#A77E2F',
+        'honey-soft': '#EAD6A0',
+        'honey-tint': '#F5E8C4',
+        forest: '#2D4F3C',
+        'forest-dark': '#1F3A2A',
+        'forest-soft': '#79A38A',
+        terracotta: '#C97B5C',
+        'terracotta-dark': '#A35E42',
+        'terracotta-soft': '#E5B8A6',
+        ivory: '#FBF7EE',
+        'ivory-dim': '#F4EEDE',
+        night: '#15130E',
+        'night-elev': '#1E1B14',
+        ink: '#262522',
+        'ink-soft': '#45433D',
+        muted: '#6E6A5F',
+        'muted-soft': '#93907F',
+        rule: '#EAE2CE',
+        'rule-soft': '#F2EBD8',
+        error: '#A8442A',
+        'error-bg': '#FBEFE7',
+        // Semantic aliases
+        primary: '#2D4F3C',
+        'primary-pressed': '#1F3A2A',
+        'primary-on-dark': '#79A38A',
+        accent: '#D4A248',
+        'accent-pressed': '#A77E2F',
+        'accent-on-dark': '#E0B25E',
+        surface: '#FBF7EE',
+        'surface-elev': '#FFFFFF',
+        'surface-dim': '#F4EEDE',
+        'surface-inverse': '#15130E',
+        'text-default': '#262522',
+        'text-soft': '#45433D',
+        'text-muted': '#6E6A5F',
+        'text-inverse': '#FBF7EE',
+        'text-on-primary': '#FBF7EE',
+        border: '#EAE2CE',
+        'border-soft': '#F2EBD8',
+        'status-danger': '#A8442A',
+        'status-danger-bg': '#FBEFE7',
+      },
+      spacing: {
+        s1: 4,
+        s2: 8,
+        s3: 12,
+        s4: 16,
+        s5: 24,
+        s6: 32,
+        s7: 48,
+      },
+      borderRadius: {
+        xs: 6,
+        sm: 10,
+        md: 14,
+        lg: 20,
+        xl: 28,
+        pill: 999,
+      },
+      fontFamily: {
+        ui: ['DMSans_400Regular'],
+        'ui-medium': ['DMSans_500Medium'],
+        'ui-semi': ['DMSans_600SemiBold'],
+        'ui-bold': ['DMSans_700Bold'],
+      },
+      fontSize: {
+        'display-xl': ['32px', { lineHeight: '38px', fontWeight: '600' }],
+        'display-lg': ['24px', { lineHeight: '30px', fontWeight: '600' }],
+        'display-md': ['19px', { lineHeight: '26px', fontWeight: '600' }],
+        'body-lg': ['16px', { lineHeight: '24px', fontWeight: '400' }],
+        body: ['14px', { lineHeight: '21px', fontWeight: '400' }],
+        caption: ['12px', { lineHeight: '16px', fontWeight: '600' }],
+      },
+    },
   },
   plugins: [],
 };

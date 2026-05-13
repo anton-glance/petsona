@@ -145,9 +145,9 @@ Curated subset of the full brand library (which lives in `docs/design/brand/`).
 The full library has every iOS size, every Android density, every locale
 variant — the agent doesn't need all of them yet.
 
-**Expected destination in the repo:** the Expo standard `/assets/` directory
-at the project root (i.e., `petsona/assets/brand/`). Move or symlink this
-folder there.
+**Location in the repo:** moved at design-spike close (2026-05-12) to
+`/assets/brand/` at the project root. The source pool at `docs/design/brand/`
+is untouched — pull additional sizes from there if needed.
 
 ### Contents
 
@@ -314,7 +314,7 @@ implement these behaviors.
 5. **Build the primitives** in `src/components/ui/` per the map in §4.
 6. **Move `assets/brand/`** to the repo's `/assets/` directory and wire `app.json` per §5.
 7. **Implement screens 01–12 + 02b** consuming the primitives. Use the interaction notes in §6 — they are the spec.
-8. **D-013 in `docs/06_DECISIONS.md`** confirms the locked direction. Update that decision when the implementation is complete.
+8. **D-023 in `docs/06_DECISIONS.md`** confirms the locked direction. Update that decision when the implementation is complete.
 
 ---
 
@@ -322,4 +322,4 @@ implement these behaviors.
 
 - DM Sans — SIL Open Font License 1.1.
 - Lucide / Phosphor icon glyphs (only the paw, fish, bone, heart, cat-head, dog-head shapes are used) — open-source.
-- Logo, wordmark, app icon, splash — © Petsona. All rights reserved. Source: `logo_mockup.png`. Locked direction: D-013.
+- Logo, wordmark, app icon, splash — © Petsona. All rights reserved. Source: `logo_mockup.png`. Locked direction: D-023.
