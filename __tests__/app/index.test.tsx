@@ -1,14 +1,14 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import * as React from 'react';
 
-import { initI18n } from '../i18n';
-import { Events } from '../lib/events';
-import Splash from './index';
+import { initI18n } from '../../i18n';
+import { Events } from '../../lib/events';
+import Splash from '../../app/index';
 
 const mockTrack = jest.fn();
 const mockPush = jest.fn();
 
-jest.mock('../lib/telemetry', () => ({
+jest.mock('../../lib/telemetry', () => ({
   track: (...args: unknown[]) => mockTrack(...args),
   identify: jest.fn(),
   captureException: jest.fn(),

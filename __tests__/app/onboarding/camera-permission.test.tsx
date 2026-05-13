@@ -1,9 +1,9 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import * as React from 'react';
 
-import { initI18n } from '../../i18n';
-import { Events } from '../../lib/events';
-import CameraPermission from './camera-permission';
+import { initI18n } from '../../../i18n';
+import { Events } from '../../../lib/events';
+import CameraPermission from '../../../app/onboarding/camera-permission';
 
 const mockTrack = jest.fn();
 const mockPush = jest.fn();
@@ -11,7 +11,7 @@ const mockReplace = jest.fn();
 const mockRequestCameraPermission = jest.fn();
 const mockLoggerError = jest.fn();
 
-jest.mock('../../lib/telemetry', () => ({
+jest.mock('../../../lib/telemetry', () => ({
   track: (...args: unknown[]) => mockTrack(...args),
   identify: jest.fn(),
   captureException: jest.fn(),
@@ -20,13 +20,13 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush, replace: mockReplace, back: jest.fn() }),
   router: { push: mockPush, replace: mockReplace, back: jest.fn() },
 }));
-jest.mock('../../features/onboarding/permissions', () => ({
+jest.mock('../../../features/onboarding/permissions', () => ({
   requestCameraPermission: (...args: unknown[]) => mockRequestCameraPermission(...args),
   getCameraPermission: jest.fn(),
   requestPhotoLibraryPermission: jest.fn(),
   openSystemSettings: jest.fn(),
 }));
-jest.mock('../../lib/logger', () => ({
+jest.mock('../../../lib/logger', () => ({
   logger: {
     debug: jest.fn(),
     info: jest.fn(),

@@ -1,11 +1,11 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import * as React from 'react';
 
-import { initI18n } from '../../i18n';
-import { Events } from '../../lib/events';
-import { useAppStore } from '../../lib/store';
-import type { BreedIdentifyResponse } from '../../shared/types';
-import Welcome from './welcome';
+import { initI18n } from '../../../i18n';
+import { Events } from '../../../lib/events';
+import { useAppStore } from '../../../lib/store';
+import type { BreedIdentifyResponse } from '../../../shared/types';
+import Welcome from '../../../app/onboarding/welcome';
 
 const mockTrack = jest.fn();
 const mockPush = jest.fn();
@@ -13,7 +13,7 @@ const mockReplace = jest.fn();
 const mockInsertPet = jest.fn();
 const mockLoggerError = jest.fn();
 
-jest.mock('../../lib/telemetry', () => ({
+jest.mock('../../../lib/telemetry', () => ({
   track: (...args: unknown[]) => mockTrack(...args),
   identify: jest.fn(),
   captureException: jest.fn(),
@@ -22,16 +22,16 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush, replace: mockReplace, back: jest.fn() }),
   router: { push: mockPush, replace: mockReplace, back: jest.fn() },
 }));
-jest.mock('../../features/onboarding/persistPet', () => {
+jest.mock('../../../features/onboarding/persistPet', () => {
   // Re-expose PersistPetError as the real class so `instanceof` checks in
   // the screen work against the mock's rejections.
-  const actual = jest.requireActual('../../features/onboarding/persistPet');
+  const actual = jest.requireActual('../../../features/onboarding/persistPet');
   return {
     ...actual,
     insertPet: (...args: unknown[]) => mockInsertPet(...args),
   };
 });
-jest.mock('../../lib/logger', () => ({
+jest.mock('../../../lib/logger', () => ({
   logger: {
     debug: jest.fn(),
     info: jest.fn(),
@@ -209,7 +209,7 @@ describe('Welcome (R1-M3 step 05)', () => {
 
   it('upsert failure: error surfaces via i18n, CTA re-enables, setSpecies NOT called, event NOT fired', async () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime import for type-safe construction
-    const { PersistPetError } = require('../../features/onboarding/persistPet') as typeof import('../../features/onboarding/persistPet');
+    const { PersistPetError } = require('../../../features/onboarding/persistPet') as typeof import('../../../features/onboarding/persistPet');
     mockInsertPet.mockRejectedValue(new PersistPetError('network error'));
     const tree = render(<Welcome />);
     fireEvent.changeText(tree.getByTestId('welcome-name-input'), 'Mochi');

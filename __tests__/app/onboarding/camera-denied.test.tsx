@@ -1,8 +1,8 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import * as React from 'react';
 
-import { initI18n } from '../../i18n';
-import CameraDenied from './camera-denied';
+import { initI18n } from '../../../i18n';
+import CameraDenied from '../../../app/onboarding/camera-denied';
 
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
@@ -13,7 +13,7 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush, replace: mockReplace, back: jest.fn() }),
   router: { push: mockPush, replace: mockReplace, back: jest.fn() },
 }));
-jest.mock('../../features/onboarding/permissions', () => ({
+jest.mock('../../../features/onboarding/permissions', () => ({
   getCameraPermission: (...args: unknown[]) => mockGetCameraPermission(...args),
   openSystemSettings: (...args: unknown[]) => mockOpenSystemSettings(...args),
   requestCameraPermission: jest.fn(),

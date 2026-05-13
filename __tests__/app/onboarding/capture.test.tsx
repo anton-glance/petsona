@@ -1,10 +1,10 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import * as React from 'react';
 
-import { initI18n } from '../../i18n';
-import { Events } from '../../lib/events';
-import type { BreedIdentifyResponse } from '../../shared/types';
-import Capture from './capture';
+import { initI18n } from '../../../i18n';
+import { Events } from '../../../lib/events';
+import type { BreedIdentifyResponse } from '../../../shared/types';
+import Capture from '../../../app/onboarding/capture';
 
 const mockTrack = jest.fn();
 const mockPush = jest.fn();
@@ -15,7 +15,7 @@ const mockGetCameraPermission = jest.fn();
 const mockLoggerError = jest.fn();
 const mockLaunchImageLibrary = jest.fn();
 
-jest.mock('../../lib/telemetry', () => ({
+jest.mock('../../../lib/telemetry', () => ({
   track: (...args: unknown[]) => mockTrack(...args),
   identify: jest.fn(),
   captureException: jest.fn(),
@@ -35,10 +35,10 @@ jest.mock('expo-router', () => {
     },
   };
 });
-jest.mock('../../features/onboarding/capturePipeline', () => ({
+jest.mock('../../../features/onboarding/capturePipeline', () => ({
   runCapturePipeline: (...args: unknown[]) => mockRunCapturePipeline(...args),
 }));
-jest.mock('../../features/onboarding/permissions', () => ({
+jest.mock('../../../features/onboarding/permissions', () => ({
   requestPhotoLibraryPermission: (...args: unknown[]) =>
     mockRequestPhotoLibraryPermission(...args),
   getCameraPermission: (...args: unknown[]) => mockGetCameraPermission(...args),
@@ -69,7 +69,7 @@ jest.mock('expo-camera', () => {
 jest.mock('expo-image-picker', () => ({
   launchImageLibraryAsync: (...args: unknown[]) => mockLaunchImageLibrary(...args),
 }));
-jest.mock('../../lib/logger', () => ({
+jest.mock('../../../lib/logger', () => ({
   logger: {
     debug: jest.fn(),
     info: jest.fn(),
@@ -125,7 +125,7 @@ describe('Capture (R1-M2 step 03)', () => {
 
     // The R1-M3 contract: the captureSession slice now carries the breed.
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime read of fresh store
-    const { useAppStore } = require('../../lib/store') as typeof import('../../lib/store');
+    const { useAppStore } = require('../../../lib/store') as typeof import('../../../lib/store');
     expect(useAppStore.getState().captureSession.breed).toEqual(breedFixture);
     expect(useAppStore.getState().captureSession.photoUri).toBe('file:///compressed.jpg');
     expect(useAppStore.getState().captureSession.photoPath).toBe('user-aaa/abc.jpg');
@@ -179,7 +179,7 @@ describe('Capture (R1-M2 step 03)', () => {
 
   it('CompressionError surfaces an error message and logger.error is called', async () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime import for type-safe construction
-    const { CompressionError } = require('../../features/onboarding/compression') as typeof import('../../features/onboarding/compression');
+    const { CompressionError } = require('../../../features/onboarding/compression') as typeof import('../../../features/onboarding/compression');
     mockRunCapturePipeline.mockRejectedValue(new CompressionError('decode fail'));
     const tree = render(<Capture />);
     await act(async () => {
@@ -191,7 +191,7 @@ describe('Capture (R1-M2 step 03)', () => {
 
   it('UploadError surfaces an error message and Retry is available', async () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime import
-    const { UploadError } = require('../../features/onboarding/upload') as typeof import('../../features/onboarding/upload');
+    const { UploadError } = require('../../../features/onboarding/upload') as typeof import('../../../features/onboarding/upload');
     mockRunCapturePipeline.mockRejectedValue(new UploadError('storage 403'));
     const tree = render(<Capture />);
     await act(async () => {
@@ -203,7 +203,7 @@ describe('Capture (R1-M2 step 03)', () => {
 
   it('BreedIdentifyError surfaces an error message and Retry re-runs the pipeline', async () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime import
-    const { BreedIdentifyError } = require('../../features/onboarding/breedIdentify') as typeof import('../../features/onboarding/breedIdentify');
+    const { BreedIdentifyError } = require('../../../features/onboarding/breedIdentify') as typeof import('../../../features/onboarding/breedIdentify');
     mockRunCapturePipeline.mockRejectedValueOnce(new BreedIdentifyError('edge fn 500'));
     mockRunCapturePipeline.mockResolvedValueOnce({
       photoUri: 'file:///c.jpg',
