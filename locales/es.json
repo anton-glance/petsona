@@ -104,6 +104,11 @@
         "empty": "Welcome your pet",
         "saved": "Saved ✓"
       },
+      "vet": {
+        "label": "From vet card",
+        "rabies": "Rabies · —",
+        "microchip": "Microchip · —"
+      },
       "error": "We couldn't save your pet's profile. Please try again."
     }
   }

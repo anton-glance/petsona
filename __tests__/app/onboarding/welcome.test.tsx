@@ -130,11 +130,15 @@ describe('Welcome (R1-M3 step 05)', () => {
     expect(tree.getByText('Color')).toBeTruthy();
   });
 
-  it('does NOT render the "From vet card" section', () => {
+  it('renders the "From vet card" section with placeholder Rabies + Microchip rows (R2 OCR fills in)', () => {
+    // F-1 fix from R1 visual redo review: the vet-card section IS in the
+    // mockup (05_ai_review.html lines 76-86). Stays visible with placeholder
+    // dashes until R2's medcard OCR populates the data.
     const tree = render(<Welcome />);
-    expect(tree.queryByText(/from vet card/i)).toBeNull();
-    expect(tree.queryByText(/Rabies/)).toBeNull();
-    expect(tree.queryByText(/Microchip/i)).toBeNull();
+    expect(tree.getByTestId('welcome-vet-section')).toBeTruthy();
+    expect(tree.getByText(/From vet card/i)).toBeTruthy();
+    expect(tree.getByText(/Rabies/)).toBeTruthy();
+    expect(tree.getByText(/Microchip/i)).toBeTruthy();
   });
 
   it('Gender, Age, Weight, Color rows are non-interactive (tap fires no handler)', () => {

@@ -28,6 +28,7 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dimensions, Image, ScrollView, StyleSheet, View } from 'react-native';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 import {
   Button,
@@ -192,6 +193,50 @@ export default function Welcome(): React.JSX.Element | null {
             <View style={styles.previewValue} />
           </CompactField>
         </View>
+
+        <View style={styles.vetSection} testID="welcome-vet-section">
+          <Text variant="caption" tone="muted" style={styles.vetLabel}>
+            {t('onboarding.welcome.vet.label')}
+          </Text>
+          <View style={styles.vetRow}>
+            <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+              <Path
+                d="M14 4l6 6"
+                stroke={colors.honeyDark}
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <Path
+                d="M11 7l6 6-7 7H4v-6Z"
+                stroke={colors.honeyDark}
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <Path
+                d="M9 9l6 6"
+                stroke={colors.honeyDark}
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
+            <Text variant="body" style={styles.vetRowText}>
+              {t('onboarding.welcome.vet.rabies')}
+            </Text>
+          </View>
+          <View style={styles.vetRow}>
+            <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+              <Circle cx={12} cy={12} r={10} stroke={colors.honeyDark} strokeWidth={2} fill="none" />
+              <Path d="M12 16v-4" stroke={colors.honeyDark} strokeWidth={2} strokeLinecap="round" />
+              <Path d="M12 8h.01" stroke={colors.honeyDark} strokeWidth={2} strokeLinecap="round" />
+            </Svg>
+            <Text variant="body" style={styles.vetRowText}>
+              {t('onboarding.welcome.vet.microchip')}
+            </Text>
+          </View>
+        </View>
       </ScrollView>
 
       {errorVisible ? (
@@ -283,6 +328,23 @@ const styles = StyleSheet.create({
   },
   breedText: { flex: 1, fontWeight: '500' },
   previewValue: { height: 22 },
+  vetSection: {
+    paddingTop: spacing.s2,
+    gap: 6,
+  },
+  vetLabel: {
+    fontSize: 9.5,
+    letterSpacing: 0.06,
+    fontWeight: '600',
+    color: colors.honeyDark,
+  },
+  vetRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 4,
+  },
+  vetRowText: { fontSize: 12, color: colors.honeyDark, fontWeight: '500' },
   errorText: { marginTop: spacing.s3, color: colors.statusDanger, textAlign: 'center' },
   ctaLabel: { color: colors.textOnPrimary, fontWeight: '600', fontSize: 15 },
 });

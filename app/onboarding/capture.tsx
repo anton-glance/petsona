@@ -276,9 +276,18 @@ export default function Capture(): React.JSX.Element {
         ) : (
           <Image source={{ uri: previewUri }} style={styles.cameraPreview} resizeMode="cover" />
         )}
-        <View style={styles.silhouetteOverlay} pointerEvents="none">
-          <SpeciesSilhouette species={slot === 'document' ? 'cat' : 'cat'} tint="rgba(212,162,72,0.22)" />
-        </View>
+        {/* F-2 fix: silhouette is a framing aid for live pet capture.
+            - front: species unknown at this point → omit the silhouette
+            - side: front's breed-identify has already run; use that species
+            - document: not a pet photo → omit the silhouette */}
+        {slot === 'side' && session.breed !== null ? (
+          <View style={styles.silhouetteOverlay} pointerEvents="none">
+            <SpeciesSilhouette
+              species={session.breed.species}
+              tint="rgba(212,162,72,0.22)"
+            />
+          </View>
+        ) : null}
         <CornerBrackets />
       </View>
 
