@@ -38,4 +38,18 @@ describe('Events', () => {
     expect(Events.screen_view).toBe('screen_view');
     expect(Events.test_error_thrown).toBe('test_error_thrown');
   });
+
+  it('exposes the five R1-M2 onboarding funnel events', () => {
+    expect(Events.onboarding_started).toBe('onboarding_started');
+    expect(Events.onboarding_camera_permission_requested).toBe(
+      'onboarding_camera_permission_requested',
+    );
+    expect(Events.onboarding_camera_permission_granted).toBe(
+      'onboarding_camera_permission_granted',
+    );
+    expect(Events.onboarding_camera_permission_denied).toBe(
+      'onboarding_camera_permission_denied',
+    );
+    expect(Events.onboarding_capture_completed).toBe('onboarding_capture_completed');
+  });
 });
