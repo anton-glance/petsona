@@ -62,6 +62,25 @@
       "front": "Front",
       "side": "Side",
       "document": "Document"
+    },
+    "welcome": {
+      "hey": "Hey 👋",
+      "subtitle": "Here's what we read from your photos.",
+      "fields": {
+        "breed": "Breed",
+        "name": "Name",
+        "gender": "Gender",
+        "age": "Age",
+        "weight": "Weight",
+        "color": "Color"
+      },
+      "nameInputPlaceholder": "Your pet's name",
+      "aiConfidence": "AI {{percent}}%",
+      "cta": {
+        "named": "Welcome {{name}}",
+        "empty": "Welcome your pet"
+      },
+      "error": "We couldn't save your pet's profile. Please try again."
     }
   }
 }

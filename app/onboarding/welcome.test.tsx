@@ -25,7 +25,6 @@ jest.mock('expo-router', () => ({
 jest.mock('../../features/onboarding/persistPet', () => {
   // Re-expose PersistPetError as the real class so `instanceof` checks in
   // the screen work against the mock's rejections.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.mock factory
   const actual = jest.requireActual('../../features/onboarding/persistPet');
   return {
     ...actual,
