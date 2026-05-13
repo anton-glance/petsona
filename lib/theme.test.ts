@@ -35,7 +35,8 @@ describe('theme tokens — typography pair tokens', () => {
 
   it('caption is uppercase with positive letter-spacing', () => {
     expect(typography.caption.textTransform).toBe('uppercase');
-    expect(typography.caption.letterSpacing).toBeCloseTo(0.72);
+    // 0.08em × 12px = 0.96px per components.css line 47.
+    expect(typography.caption.letterSpacing).toBeCloseTo(0.96);
   });
 });
 

@@ -202,6 +202,23 @@ These weren't in the plan but cost time and shape future work:
 
 ---
 
+## Standalone-readability map
+
+Per the spike's Documentation principle ("every artifact produced is readable as a standalone document by a contributor with no prior context on this project"), here is what a cold reader learns from each artifact alone:
+
+| Artifact | What a cold reader learns from it alone |
+|---|---|
+| **ADR D-023** (`docs/06_DECISIONS.md`) | The brand-identity lock points, the canonical files, the visual-system summary (color/typography/spacing/shadows/glass/motion/adaptive), what's deferred, and how D-023 relates to D-006/D-008/D-012/D-013/D-021/D-022. |
+| **JOURNAL_SPIKE_DESIGN.md** (this file) | The glass strategy (iOS path, Android path, reduce-transparency), the motion strategy (durations, easings, reduce-motion, verified babel auto-config), the theme structure (incl. shadow gap), the component library conventions, the cat/dog adaptive groundwork with R1-M3+ handoff, and the implementation surprises. |
+| **`lib/theme.ts`** | The two-layer color model, pair-typography rationale, shadow gap and helper, glass fill semantics, and the drift-detection mechanism. |
+| **`lib/glass.tsx`** | iOS path / Android path / reduce-transparency flip / why `<BlurTargetView>` is deferred — all on the export's JSDoc. |
+| **`lib/motion.ts`** | Each duration constant's intended use, the bezier curves with source values, the verified babel auto-config. |
+| **Each `components/ui/*.tsx` file** | Its variants, intended use per variant, tokens consumed, and the CSS class from `components.css` it mirrors. |
+
+This table is the durable record of standalone-readability — the equivalent verification in the PR description is dropped by squash-merge.
+
+---
+
 ## Time accounting
 
 | Module | Estimate | Actual | Notes |

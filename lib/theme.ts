@@ -97,8 +97,8 @@ export type ColorKey = keyof typeof colors;
  * can spread the whole object as a `TextStyle`.
  *
  * Letter-spacing on display sizes is `-0.015em` per `components.css` line
- * 30, converted to RN pixels at this build-time. Caption is `+0.06em` per
- * line 45 (here as 0.72 = 0.06 × 12).
+ * 30, converted to RN pixels at build-time. Caption is `+0.08em` per
+ * line 47 (here as 0.96 = 0.08 × 12).
  */
 export const typography = {
   displayXl: {
@@ -133,7 +133,7 @@ export const typography = {
     fontSize: 12,
     lineHeight: 16,
     fontWeight: '600',
-    letterSpacing: 0.72, // = 0.06 × 12
+    letterSpacing: 0.96, // = 0.08 × 12 per components.css line 47
     textTransform: 'uppercase',
   },
 } as const;
