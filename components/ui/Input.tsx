@@ -64,8 +64,8 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     fontSize: 14.5,
     fontWeight: '500',
+    lineHeight: typography.body.lineHeight,
     color: colors.textDefault,
-    ...typography.body,
   },
   inputError: {
     borderColor: colors.statusDanger,
