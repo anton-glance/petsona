@@ -91,7 +91,7 @@
   --s6: 32px;
   --s7: 48px;
 
-  /* Legacy/short alias (matches Tailwind/RN spacing convention) */
+  /* Short alias for the UI font family; retained for legacy template strings. */
   --ui: var(--font-family-ui);
 
   /* ---------- Radii ---------- */
