@@ -41,7 +41,11 @@ pnpm lint
 For Expo work also:
 ```
 npx expo-doctor
+npx expo export --platform android -c
+npx expo export --platform ios -c
 ```
+
+The two `expo export -c` invocations run Metro for real and are the ONLY way to catch Expo Router `require.context` bundle errors at PR time. `typecheck`, `test`, `lint`, and `expo-doctor` don't invoke Metro — they pass cleanly even when the device bundle is broken. The `-c` flag clears Metro's cache so a stale bundle from before a fix can't mask the failure. This gate is load-bearing: without it, a class of bugs (test files inside `app/`, missing dependencies, native-module misconfiguration) only surfaces after an EAS dev rebuild + on-device install — far too late. See `07_TROUBLESHOOTING.md` 2026-05-13 entry for the precedent.
 
 For edge function work also:
 ```
@@ -64,6 +68,7 @@ If any of these fail, fix before continuing. Do not proceed with red tests.
 8. **No `console.log` in production code.** Use the project logger.
 9. **No commented-out code.**
 10. **Async cleanup.** Every `useEffect` with a subscription, timer, or async work returns a cleanup function. Edge functions clean up open streams on error.
+11. **No test files inside `app/`.** Expo Router scans the entire `app/` directory via `require.context` and treats every file as a route or layout. Test files (`*.test.{ts,tsx}`, `*.spec.{ts,tsx}`) inside `app/` get pulled into the Metro bundle, import `@testing-library/react-native`, which imports Node's `console` — unavailable in the React Native runtime. The bundle fails to compile and the app can't boot. Place tests under `__tests__/` (mirror tree allowed: `__tests__/app/onboarding/welcome.test.tsx` mirrors the route at `app/onboarding/welcome.tsx`), or alongside non-route code (`components/`, `lib/`, `features/`). Enforced by the regression-guard test at `__tests__/expo-router-no-test-files-in-app.test.ts`. See `07_TROUBLESHOOTING.md` 2026-05-13 entry.
 
 ---
 

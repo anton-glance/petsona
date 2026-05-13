@@ -229,3 +229,65 @@ Three layers:
 **Time spent:** ~10 min investigation + 5 min documentation. No recovery work needed because no code damage occurred. The action item to configure protection is ~5 min Anton-side, browser-only.
 
 ---
+
+## 2026-05-13 — Pixel 7 stuck on splash; Metro bundle failed on Expo Router scanning test files
+
+**Symptom**
+After EAS dev rebuild for R1-M2 + R1-M3, the Android dev install on Pixel 7 AVD booted to the OS splash and never reached the app's splash screen. iPhone behaved the same way. The Metro dev menu surfaced the bundle compile error:
+
+```
+The package at "node_modules/@testing-library/react-native/build/helpers/logger.js"
+attempted to import the Node standard library module "console".
+It failed because the native React runtime does not include the Node standard library.
+
+Import stack:
+ node_modules/@testing-library/react-native/build/helpers/logger.js
+ node_modules/@testing-library/react-native/build/index.js
+ app/index.test.tsx
+ app (require.context)
+```
+
+All four pre-flight verification commands (`pnpm typecheck`, `pnpm test`, `pnpm lint`, `npx expo-doctor`) ran green on the same commit. None caught it.
+
+**Cause**
+Expo Router scans the entire `app/` directory via `require.context` and treats every file as a route or layout. The R1-M2 + R1-M3 prompts placed test files inside `app/` (`app/index.test.tsx`, `app/onboarding/{camera-permission,camera-denied,capture,welcome}.test.tsx` — five files in total). Expo Router pulled them into the bundle. They import `@testing-library/react-native`, which imports Node's `console` module — unavailable in the React Native runtime. Bundle compilation fails. The app can't load any JS, so the OS splash never hands off to the React tree.
+
+**This is documented official guidance from Expo** (https://docs.expo.dev/router/reference/testing/): *"When using Expo Router, do not put your test files inside the app directory. All files inside your app directory must be either routes or layout files."* The R1-M2 + R1-M3 agent prompts didn't reference this constraint and the agent didn't surface it during plan review.
+
+The systemic gap: `typecheck`, `test`, `lint`, and `expo-doctor` don't know about Expo Router's `require.context` resolution. **Metro is the only tool that surfaces this — and Metro only runs at device-bundle time.** None of the standard agent verification commands invoke Metro.
+
+**Resolution**
+Five test files moved out of `app/` via `git mv`:
+
+```
+app/index.test.tsx                              → __tests__/app/index.test.tsx
+app/onboarding/camera-permission.test.tsx       → __tests__/app/onboarding/camera-permission.test.tsx
+app/onboarding/camera-denied.test.tsx           → __tests__/app/onboarding/camera-denied.test.tsx
+app/onboarding/capture.test.tsx                 → __tests__/app/onboarding/capture.test.tsx
+app/onboarding/welcome.test.tsx                 → __tests__/app/onboarding/welcome.test.tsx
+```
+
+Relative imports inside each shifted by one `../` (depth +1). `jest.config.js`'s `testMatch: ['**/*.test.ts', '**/*.test.tsx']` already matches the new paths — no config change required.
+
+Component, feature-module, edge-function, and root-level tests were already correctly placed outside `app/` and are unaffected.
+
+**Prevention**
+Three layers:
+
+1. **Regression-guard test** at `__tests__/expo-router-no-test-files-in-app.test.ts` asserts via `fast-glob` that no `*.test.{ts,tsx}` or `*.spec.{ts,tsx}` files exist under `app/`. Pre-fail at PR time, before any bundle attempt.
+
+2. **Verification commands extended.** `CLAUDE.md` and `docs/01_AGENT_INSTRUCTIONS.md` now require these for Expo work after every meaningful change:
+   ```
+   npx expo export --platform android -c
+   npx expo export --platform ios -c
+   ```
+   The `-c` flag (alias for `--clear`) flushes Metro's cache so a stale bundle from before a fix can't mask the failure. These run Metro for real and would have caught this regression at PR time instead of after an EAS dev rebuild + on-device install.
+
+3. **Hard rule 11 in CLAUDE.md** (and equivalent in `01_AGENT_INSTRUCTIONS.md`): no test files inside `app/`. Expo Router's `require.context` makes every file in `app/` a route or layout; test files break the bundle.
+
+Splash dark-mode degradation note: the splash plugin's `dark` block was dropped in the same fixup commit (the dark asset was a portrait phone mockup, not a square logo). SDK 55 falls back to the light-mode splash on dark-mode devices — ivory background with the forest logo. Known visual degradation through R1; pending a square dark-mode asset from design (tracked in `docs/design/PENDING_REGEN.md`).
+
+**Affected modules / releases:** R1-M2 (4 test files placed in app/), R1-M3 (1 test file). Verification gap surfaced systemically.
+**Time spent:** ~2-3 hours on-device debug + bundle-trace + fix design + verification-chain documentation.
+
+---

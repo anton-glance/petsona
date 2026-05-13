@@ -45,6 +45,7 @@ Petsona — a cross-platform iOS + Android app for dog and cat owners. Photo-bas
 8. No `console.log` in production code.
 9. No commented-out code.
 10. Async cleanup in every `useEffect` and edge function.
+11. No test files inside `app/`. Expo Router's `require.context` scans every file in `app/` and treats it as a route or layout; tests pull `@testing-library/react-native` into the Metro bundle and break compilation on device. Place tests under `__tests__/` (mirror tree allowed: `__tests__/app/...`) or alongside non-route code (`components/`, `lib/`, `features/`). See `07_TROUBLESHOOTING.md` 2026-05-13 entry. Enforced by `__tests__/expo-router-no-test-files-in-app.test.ts`.
 
 ---
 
@@ -56,7 +57,14 @@ pnpm test
 pnpm lint
 ```
 
-For Expo work: `npx expo-doctor`.
+For Expo work:
+```
+npx expo-doctor
+npx expo export --platform android -c
+npx expo export --platform ios -c
+```
+Both `expo export -c` invocations run Metro for real (the `-c` clears cache so a stale bundle can't mask the failure). They're the ONLY way to catch Expo Router `require.context` bundle errors at PR time — `typecheck`/`test`/`lint`/`expo-doctor` won't.
+
 For edge functions: `deno test --allow-net --allow-env --allow-read supabase/functions/`.
 
 If any fails, fix before continuing.
