@@ -22,6 +22,9 @@ describe('PetPattern', () => {
   it('respects the opacity prop on the root element', () => {
     const tree = render(<PetPattern species="cat" opacity={0.5} testID="pp" />);
     const root = tree.getByTestId('pp');
-    expect(root.props.style).toEqual(expect.objectContaining({ opacity: 0.5 }));
+    // Style is an array because the root composes absoluteFillObject + opacity prop.
+    expect(root.props.style).toEqual(
+      expect.arrayContaining([expect.objectContaining({ opacity: 0.5 })]),
+    );
   });
 });
