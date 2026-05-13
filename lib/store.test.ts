@@ -26,4 +26,27 @@ describe('useAppStore', () => {
     useAppStore.getState().setAuthUserId(null);
     expect(useAppStore.getState().authUserId).toBeNull();
   });
+
+  it("default species is 'unknown'", () => {
+    jest.isolateModules(() => {
+      const fresh = jest.requireActual<typeof import('./store')>('./store');
+      expect(fresh.useAppStore.getState().species).toBe('unknown');
+    });
+  });
+
+  it("setSpecies updates to 'cat'", () => {
+    useAppStore.getState().setSpecies('cat');
+    expect(useAppStore.getState().species).toBe('cat');
+  });
+
+  it("setSpecies updates to 'dog'", () => {
+    useAppStore.getState().setSpecies('dog');
+    expect(useAppStore.getState().species).toBe('dog');
+  });
+
+  it("setSpecies updates back to 'unknown'", () => {
+    useAppStore.getState().setSpecies('dog');
+    useAppStore.getState().setSpecies('unknown');
+    expect(useAppStore.getState().species).toBe('unknown');
+  });
 });
