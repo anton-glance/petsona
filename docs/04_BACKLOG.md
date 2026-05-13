@@ -185,14 +185,20 @@ These leaked out of R0 close. Captured here so they're not lost. Should clear be
 
 **Estimate:** 5h (separate from the design spike — which earns its own `JOURNAL_SPIKE_DESIGN.md`).
 
+**Compression note (2026-05-13).** R1-M2 and R1-M3 ship in a single combined PR titled `R1-M2 + R1-M3: splash → camera → Welcome {petname}`. They retain separate agent prompts (one module per prompt per `00_CLAUDE_INSTRUCTIONS.md`) and separate Phase 1 plans, and each milestone earns its own pass on the M-1 → M-3 sequence below: R1-M2 is verified green on the agent's side (typecheck + test + lint + expo-doctor) before the R1-M3 prompt is issued in the same session against M2's working tree. Rationale: the seam between M2 and M3 is one network call (the `breed-identify` response handed from M2 to M3); shipping them in one PR avoids paying PR-review overhead twice while keeping validation tight at the milestone boundary. Anton runs the end-of-R1 on-device test plan against the combined PR. The two milestones get separate journal verdicts in `JOURNAL_R1.md`.
+
 #### R1-M3 — "Welcome {petname}" profile screen [agent]
 - [ ] Result screen showing photo, species, breed, editable name field
 - [ ] User confirms or edits any field
 - [ ] On confirm: insert/update `pets` row with collected fields
 - [ ] All strings in `en.json`
-- [ ] `@testing-library/react-native` added; first component tests land here (per CLAUDE.md note)
+- [ ] Sets `species` from the confirmed breed-identify response (per the spike journal's handoff for R1-M3+)
+
+**Note (2026-05-13).** `@testing-library/react-native` is already a devDep as of the spike close (component tests already exist for the 15 primitives; +98 tests). R1-M3's screen-level component tests are an additional layer, not a first.
 
 **Estimate:** 4h.
+
+**Compression note (2026-05-13).** R1-M3 is the second milestone in the combined R1-M2 + R1-M3 PR. Separate agent prompt, separate Phase 1 plan, separate verdict in `JOURNAL_R1.md`. The R1-M3 prompt is issued only after R1-M2 is verified green on the agent's side (typecheck + test + lint + expo-doctor) in the same session. R1-M3 consumes the `BreedIdentifyResponse` produced by R1-M2 via the handoff mechanism chosen in M2's Phase 1 (router params or Zustand slice). The branch is shared (`anton/r1-m2-camera-onboarding` or equivalent); the PR is opened only after both milestones land.
 
 ### R1 quality gate
 - [ ] Anton runs at least 5 onboarding flows on the dev-client build, all complete without crash
@@ -210,6 +216,10 @@ These leaked out of R0 close. Captured here so they're not lost. Should clear be
 **Validation question:** *Does the document scan + merged profile UI feel useful enough for the user to continue?*
 
 **Flow steps covered:** 4 (side photo + documents capture), 5 (merged profile completion — pet name + breed + DOB + weight + vaccinations).
+
+### R2 prerequisites (from R1 visual redo close)
+
+- [ ] **Migration: add nullable `pets.side_photo_path` and `pets.doc_photo_path` columns.** R1's visual redo captures front + side + (optional) document photos and uploads each to Storage. The `pets` row currently persists only the front photo's `photo_path`. Side and doc paths live in the `captureSession` slice (in-memory, gone after a kill-restart). R2's combined-prompt VLM needs these paths to find the uploaded images; without DB columns, R2 has to `list-objects` on the user's bucket prefix to discover them. Two-line migration: `alter table pets add column side_photo_path text; alter table pets add column doc_photo_path text;` plus `persistPet.ts` update to write the side/doc paths from the slice on Welcome-screen confirm. Estimate: 5 min migration + ~10 min `persistPet.ts` update + 1 test addition.
 
 **Definition of done:**
 - User can capture a side photo of their pet (camera + gallery picker, reusing R1's camera component)
