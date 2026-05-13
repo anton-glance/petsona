@@ -52,6 +52,19 @@
           "project": "petsona-mobile"
         }
       ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Petsona uses your camera to identify your pet's breed and digitize their records.",
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Petsona accesses your photos so you can pick an existing photo of your pet."
+        }
+      ],
       "expo-build-properties"
     ],
     "experiments": {

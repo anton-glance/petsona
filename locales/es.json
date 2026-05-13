@@ -3,29 +3,65 @@
     "name": "Petsona"
   },
   "splash": {
-    "tagline": "Every pet has a Petsona"
-  },
-  "smoke": {
-    "title": "Backend smoke check",
-    "subtitle": "R0-M3 verification",
-    "authPending": "Signing in…",
-    "authUserId": "Anonymous user_id",
-    "callHello": "Call hello function",
-    "callHelloResult": "Function returned user_id",
-    "insertPet": "Insert pets row",
-    "insertPetResult": "Inserted pets.id",
-    "crossUserRead": "Try to read another user's pets",
-    "crossUserResult": "Rows visible across users",
-    "callBreedIdentify": "Call breed-identify (R1-M1 smoke)",
-    "callBreedIdentifyResult": "Function returned",
-    "throwError": "Throw test error",
-    "error": "Error",
-    "speciesLabel": "Species",
-    "speciesCat": "Cat",
-    "speciesDog": "Dog",
-    "speciesUnknown": "Unknown"
+    "tagline": "Every pet has a Petsona",
+    "welcome": "Welcome to Petsona",
+    "body": "Every pet has a Petsona. Let's capture yours — breed, vitals, vet records, and a care plan tuned to them.",
+    "cta": "Get started",
+    "termsLead": "By continuing, you agree to our",
+    "termsOfUse": "Terms of Use",
+    "termsAnd": "and",
+    "privacyPolicy": "Privacy Policy"
   },
   "common": {
-    "back": "Back"
+    "back": "Back",
+    "retry": "Try again"
+  },
+  "onboarding": {
+    "cameraPermission": {
+      "stepCap": "Step 1 of 3",
+      "title": "Petsona needs your camera.",
+      "intro": "Two ways your camera makes Petsona work:",
+      "benefit1": {
+        "title": "Quick check-up of anything off",
+        "body": "Snap a photo when something looks wrong. We tell you if it's calm, watch, or urgent."
+      },
+      "benefit2": {
+        "title": "A timeline that builds itself",
+        "body": "Photos, receipts, vet documents — all auto-filed to your pet's story."
+      },
+      "cta": "Allow access"
+    },
+    "cameraDenied": {
+      "smallCap": "Camera access needed",
+      "title": "Petsona can't continue without camera.",
+      "body": "Enable camera in Settings — Petsona needs it to identify your pet and digitize records.",
+      "step1": "Open the Settings app",
+      "step2": "Find Petsona in the app list",
+      "step3": "Toggle Camera on",
+      "openSettings": "Open Settings",
+      "tryAgain": "Already granted. Try again"
+    },
+    "capture": {
+      "topPill": "Photo {{n}} of {{total}} · {{slot}}",
+      "tipFront": "Front-facing photo · face and chest visible",
+      "processing": "Processing your photo…",
+      "aria": {
+        "close": "Close",
+        "shutter": "Capture",
+        "library": "Photo library",
+        "flip": "Flip camera"
+      }
+    },
+    "errors": {
+      "compressionFailed": "We couldn't process that photo. Please try again.",
+      "uploadFailed": "Photo upload failed. Please check your connection and try again.",
+      "identifyFailed": "We couldn't identify the breed. Please try again.",
+      "libraryDenied": "Photo library access is needed to pick a photo."
+    },
+    "slot": {
+      "front": "Front",
+      "side": "Side",
+      "document": "Document"
+    }
   }
 }
