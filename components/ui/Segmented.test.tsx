@@ -19,8 +19,11 @@ describe('Segmented', () => {
 
   it('marks the active option as selected', () => {
     const tree = render(<Segmented options={[...OPTIONS]} value="b" onChange={() => undefined} />);
-    const node = tree.getByText('Beta').parent;
-    expect(node?.props.accessibilityState).toEqual(expect.objectContaining({ selected: true }));
+    const tabs = tree.getAllByRole('tab');
+    expect(tabs).toHaveLength(3);
+    expect(tabs[0]?.props.accessibilityState).toEqual(expect.objectContaining({ selected: false }));
+    expect(tabs[1]?.props.accessibilityState).toEqual(expect.objectContaining({ selected: true }));
+    expect(tabs[2]?.props.accessibilityState).toEqual(expect.objectContaining({ selected: false }));
   });
 
   it('fires onChange when a non-active option is pressed', () => {
