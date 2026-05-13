@@ -56,4 +56,10 @@ describe('Events', () => {
   it('exposes onboarding_welcome_confirmed (R1-M3)', () => {
     expect(Events.onboarding_welcome_confirmed).toBe('onboarding_welcome_confirmed');
   });
+
+  it('exposes side / document capture + skip events (R1 visual redo)', () => {
+    expect(Events.onboarding_side_captured).toBe('onboarding_side_captured');
+    expect(Events.onboarding_document_captured).toBe('onboarding_document_captured');
+    expect(Events.onboarding_document_skipped).toBe('onboarding_document_skipped');
+  });
 });

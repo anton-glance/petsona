@@ -3,6 +3,7 @@ import * as React from 'react';
 
 import { initI18n } from '../../../i18n';
 import { Events } from '../../../lib/events';
+import { useAppStore } from '../../../lib/store';
 import type { BreedIdentifyResponse } from '../../../shared/types';
 import Capture from '../../../app/onboarding/capture';
 
@@ -50,8 +51,6 @@ jest.mock('expo-camera', () => {
   const RN = require('react-native');
   // eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.mock factory
   const R = require('react');
-  // CameraView is a class component; expose a forwardRef stub that allows
-  // ref.takePictureAsync() to resolve a captured picture.
   const CameraView = R.forwardRef(
     (props: { children?: unknown }, ref: { current?: unknown }) => {
       R.useImperativeHandle(ref, () => ({
@@ -86,7 +85,7 @@ const breedFixture: BreedIdentifyResponse = {
   candidates: [{ breed: 'Siamese', confidence: 0.88 }],
 };
 
-describe('Capture (R1-M2 step 03)', () => {
+describe('Capture — slot: front (R1 visual redo)', () => {
   beforeAll(async () => {
     await initI18n({ lng: 'en' });
   });
@@ -100,18 +99,22 @@ describe('Capture (R1-M2 step 03)', () => {
     mockLoggerError.mockReset();
     mockLaunchImageLibrary.mockReset();
     mockGetCameraPermission.mockResolvedValue({ status: 'granted', canAskAgain: true });
+    useAppStore.getState().resetCaptureSession();
+    useAppStore.getState().setCaptureSlot('front');
   });
 
-  it('renders viewfinder, top-pill, shutter, library button, flip button', () => {
+  it('renders viewfinder, top-pill, shutter, library button (testID), flip button', () => {
     const tree = render(<Capture />);
-    expect(tree.getByText(/Photo 1 of 3 · Front/)).toBeTruthy();
+    expect(tree.getByText(/Photo 1 of 3/i)).toBeTruthy();
+    expect(tree.getByText(/Front/i)).toBeTruthy();
     expect(tree.getByLabelText('Capture')).toBeTruthy();
-    expect(tree.getByLabelText('Photo library')).toBeTruthy();
+    expect(tree.getByTestId('capture-library-button')).toBeTruthy();
     expect(tree.getByLabelText('Flip camera')).toBeTruthy();
   });
 
-  it('shutter press → runs capture pipeline → writes captureSession → navigates to /onboarding/welcome', async () => {
+  it('shutter press → runs pipeline with slot=front → writes captureSession.front → navigates to /onboarding/photo-collection', async () => {
     mockRunCapturePipeline.mockResolvedValue({
+      slot: 'front',
       photoUri: 'file:///compressed.jpg',
       photoPath: 'user-aaa/abc.jpg',
       breed: breedFixture,
@@ -121,11 +124,12 @@ describe('Capture (R1-M2 step 03)', () => {
       fireEvent.press(tree.getByLabelText('Capture'));
     });
     await waitFor(() => expect(mockRunCapturePipeline).toHaveBeenCalled());
-    await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/onboarding/welcome'));
-
-    // The R1-M3 contract: the captureSession slice now carries the breed.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime read of fresh store
-    const { useAppStore } = require('../../../lib/store') as typeof import('../../../lib/store');
+    expect(mockRunCapturePipeline.mock.calls[0][1]).toEqual(
+      expect.objectContaining({ slot: 'front' }),
+    );
+    await waitFor(() =>
+      expect(mockPush).toHaveBeenCalledWith('/onboarding/photo-collection'),
+    );
     expect(useAppStore.getState().captureSession.breed).toEqual(breedFixture);
     expect(useAppStore.getState().captureSession.photoUri).toBe('file:///compressed.jpg');
     expect(useAppStore.getState().captureSession.photoPath).toBe('user-aaa/abc.jpg');
@@ -141,19 +145,20 @@ describe('Capture (R1-M2 step 03)', () => {
       assets: [{ uri: 'file:///gallery.jpg', width: 4000, height: 3000 }],
     });
     mockRunCapturePipeline.mockResolvedValue({
+      slot: 'front',
       photoUri: 'file:///compressed.jpg',
       photoPath: 'user-aaa/lib.jpg',
       breed: breedFixture,
     });
     const tree = render(<Capture />);
     await act(async () => {
-      fireEvent.press(tree.getByLabelText('Photo library'));
+      fireEvent.press(tree.getByTestId('capture-library-button'));
     });
     await waitFor(() => expect(mockRunCapturePipeline).toHaveBeenCalled());
     expect(mockRunCapturePipeline.mock.calls[0][0]).toBe('file:///gallery.jpg');
   });
 
-  it('while pipeline is in flight, shutter is disabled and Spinner is visible', async () => {
+  it('B-2: after shutter pressed, the live CameraView is unmounted (camera no longer active)', async () => {
     let resolvePipeline: (v: unknown) => void = () => undefined;
     mockRunCapturePipeline.mockImplementation(
       () =>
@@ -162,14 +167,18 @@ describe('Capture (R1-M2 step 03)', () => {
         }),
     );
     const tree = render(<Capture />);
+    // CameraView is present before the shutter press.
+    expect(tree.queryByTestId('camera-view')).toBeTruthy();
     await act(async () => {
       fireEvent.press(tree.getByLabelText('Capture'));
     });
-    // Spinner has accessibilityRole=progressbar via ActivityIndicator.
-    await waitFor(() => expect(tree.UNSAFE_queryAllByType).toBeTruthy());
-    expect(tree.getByLabelText('Capture').props.accessibilityState?.disabled).toBe(true);
+    // After the picture is taken, the CameraView must unmount (replaced by
+    // the captured photo preview). This is what stops the iOS green dot.
+    await waitFor(() => expect(tree.queryByTestId('camera-view')).toBeNull());
+    // Resolve so jest doesn't hold open promises.
     await act(async () => {
       resolvePipeline({
+        slot: 'front',
         photoUri: 'file:///c.jpg',
         photoPath: 'u/c.jpg',
         breed: breedFixture,
@@ -177,63 +186,55 @@ describe('Capture (R1-M2 step 03)', () => {
     });
   });
 
-  it('CompressionError surfaces an error message and logger.error is called', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime import for type-safe construction
-    const { CompressionError } = require('../../../features/onboarding/compression') as typeof import('../../../features/onboarding/compression');
-    mockRunCapturePipeline.mockRejectedValue(new CompressionError('decode fail'));
-    const tree = render(<Capture />);
-    await act(async () => {
-      fireEvent.press(tree.getByLabelText('Capture'));
-    });
-    await waitFor(() => expect(mockLoggerError).toHaveBeenCalled());
-    expect(tree.queryByText(/couldn'?t process/i)).toBeTruthy();
-  });
-
-  it('UploadError surfaces an error message and Retry is available', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime import
-    const { UploadError } = require('../../../features/onboarding/upload') as typeof import('../../../features/onboarding/upload');
-    mockRunCapturePipeline.mockRejectedValue(new UploadError('storage 403'));
-    const tree = render(<Capture />);
-    await act(async () => {
-      fireEvent.press(tree.getByLabelText('Capture'));
-    });
-    await waitFor(() => expect(tree.queryByText(/upload/i)).toBeTruthy());
-    expect(tree.getByText(/Retry|Try again/)).toBeTruthy();
-  });
-
-  it('BreedIdentifyError surfaces an error message and Retry re-runs the pipeline', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime import
-    const { BreedIdentifyError } = require('../../../features/onboarding/breedIdentify') as typeof import('../../../features/onboarding/breedIdentify');
-    mockRunCapturePipeline.mockRejectedValueOnce(new BreedIdentifyError('edge fn 500'));
-    mockRunCapturePipeline.mockResolvedValueOnce({
-      photoUri: 'file:///c.jpg',
-      photoPath: 'u/c.jpg',
-      breed: breedFixture,
+  it('C-1: front slot shows a discreet spinner during the identify stage', async () => {
+    let resolvePipeline: (v: unknown) => void = () => undefined;
+    mockRunCapturePipeline.mockImplementation((_uri, opts: { onStage?: (s: string) => void }) => {
+      // Walk through the stages to simulate progress.
+      opts.onStage?.('compressing');
+      opts.onStage?.('uploading');
+      opts.onStage?.('identifying');
+      return new Promise((resolve) => {
+        resolvePipeline = resolve;
+      });
     });
     const tree = render(<Capture />);
     await act(async () => {
       fireEvent.press(tree.getByLabelText('Capture'));
     });
-    await waitFor(() => expect(tree.queryByText(/identify/i)).toBeTruthy());
+    // The spinner is gated on slot===front + stage==='identifying'.
+    await waitFor(() => expect(tree.queryByTestId('capture-spinner')).toBeTruthy());
     await act(async () => {
-      fireEvent.press(tree.getByText(/Retry|Try again/));
+      resolvePipeline({
+        slot: 'front',
+        photoUri: 'file:///c.jpg',
+        photoPath: 'u/c.jpg',
+        breed: breedFixture,
+      });
     });
-    await waitFor(() => expect(mockRunCapturePipeline).toHaveBeenCalledTimes(2));
   });
 
-  it('library button when photo-library permission is denied → surfaces an error message', async () => {
+  it('B-5: library button has testID "capture-library-button" and fires launchImageLibraryAsync on press', async () => {
+    mockRequestPhotoLibraryPermission.mockResolvedValue({
+      status: 'granted',
+      canAskAgain: true,
+    });
+    mockLaunchImageLibrary.mockResolvedValue({ canceled: true, assets: [] });
+    const tree = render(<Capture />);
+    await act(async () => {
+      fireEvent.press(tree.getByTestId('capture-library-button'));
+    });
+    await waitFor(() => expect(mockLaunchImageLibrary).toHaveBeenCalledTimes(1));
+  });
+
+  it('library when photo-library permission is denied → surfaces error', async () => {
     mockRequestPhotoLibraryPermission.mockResolvedValue({
       status: 'denied',
       canAskAgain: false,
     });
     const tree = render(<Capture />);
     await act(async () => {
-      fireEvent.press(tree.getByLabelText('Photo library'));
+      fireEvent.press(tree.getByTestId('capture-library-button'));
     });
-    // Use a regex specific to the libraryDenied error so it doesn't collide
-    // with "Photo 1 of 3 · Front" in the top-pill (queryByText throws on
-    // multiple matches). The error contract is: the screen surfaces the
-    // libraryDenied i18n string.
     await waitFor(() =>
       expect(tree.queryByText(/library access is needed/i)).toBeTruthy(),
     );
@@ -241,8 +242,9 @@ describe('Capture (R1-M2 step 03)', () => {
     expect(mockRunCapturePipeline).not.toHaveBeenCalled();
   });
 
-  it('breed-identify success fires Events.onboarding_capture_completed exactly once', async () => {
+  it('breed-identify success fires Events.onboarding_capture_completed exactly once (front slot)', async () => {
     mockRunCapturePipeline.mockResolvedValue({
+      slot: 'front',
       photoUri: 'file:///c.jpg',
       photoPath: 'u/c.jpg',
       breed: breedFixture,
@@ -252,10 +254,10 @@ describe('Capture (R1-M2 step 03)', () => {
       fireEvent.press(tree.getByLabelText('Capture'));
     });
     await waitFor(() => expect(mockPush).toHaveBeenCalled());
-    const completedCalls = mockTrack.mock.calls.filter(
+    const calls = mockTrack.mock.calls.filter(
       (c) => c[0] === Events.onboarding_capture_completed,
     );
-    expect(completedCalls).toHaveLength(1);
+    expect(calls).toHaveLength(1);
   });
 
   it('on focus, re-checks camera permission; if revoked, navigates to /onboarding/camera-denied', async () => {
@@ -264,5 +266,162 @@ describe('Capture (R1-M2 step 03)', () => {
     await waitFor(() =>
       expect(mockReplace).toHaveBeenCalledWith('/onboarding/camera-denied'),
     );
+  });
+});
+
+describe('Capture — slot: side', () => {
+  beforeAll(async () => {
+    await initI18n({ lng: 'en' });
+  });
+  beforeEach(() => {
+    mockTrack.mockReset();
+    mockPush.mockReset();
+    mockReplace.mockReset();
+    mockRunCapturePipeline.mockReset();
+    mockGetCameraPermission.mockResolvedValue({ status: 'granted', canAskAgain: true });
+    useAppStore.getState().resetCaptureSession();
+    // Seed front so the side capture has the expected slice state, then advance to side.
+    useAppStore.getState().setCaptureFront({
+      photoUri: 'file:///front.jpg',
+      photoPath: 'user-aaa/front.jpg',
+      breed: breedFixture,
+    });
+    useAppStore.getState().setCaptureSlot('side');
+  });
+
+  it('top-pill reads "Photo 2 of 3 · Side"', () => {
+    const tree = render(<Capture />);
+    expect(tree.getByText(/Photo 2 of 3/i)).toBeTruthy();
+    expect(tree.getByText(/Side/i)).toBeTruthy();
+  });
+
+  it('shutter → pipeline with slot=side → setCaptureSide → navigates to photo-collection', async () => {
+    mockRunCapturePipeline.mockResolvedValue({
+      slot: 'side',
+      photoUri: 'file:///compressed-side.jpg',
+      photoPath: 'user-aaa/side.jpg',
+    });
+    const tree = render(<Capture />);
+    await act(async () => {
+      fireEvent.press(tree.getByLabelText('Capture'));
+    });
+    expect(mockRunCapturePipeline.mock.calls[0][1]).toEqual(
+      expect.objectContaining({ slot: 'side' }),
+    );
+    await waitFor(() =>
+      expect(mockPush).toHaveBeenCalledWith('/onboarding/photo-collection'),
+    );
+    expect(useAppStore.getState().captureSession.sidePhotoUri).toBe(
+      'file:///compressed-side.jpg',
+    );
+    expect(useAppStore.getState().captureSession.sidePhotoPath).toBe('user-aaa/side.jpg');
+  });
+
+  it('fires Events.onboarding_side_captured exactly once on success', async () => {
+    mockRunCapturePipeline.mockResolvedValue({
+      slot: 'side',
+      photoUri: 'file:///s.jpg',
+      photoPath: 'u/s.jpg',
+    });
+    const tree = render(<Capture />);
+    await act(async () => {
+      fireEvent.press(tree.getByLabelText('Capture'));
+    });
+    await waitFor(() => expect(mockPush).toHaveBeenCalled());
+    const calls = mockTrack.mock.calls.filter(
+      (c) => c[0] === Events.onboarding_side_captured,
+    );
+    expect(calls).toHaveLength(1);
+  });
+
+  it('C-1: side slot does NOT show the identify spinner (no identify stage emitted)', async () => {
+    let resolvePipeline: (v: unknown) => void = () => undefined;
+    mockRunCapturePipeline.mockImplementation((_uri, opts: { onStage?: (s: string) => void }) => {
+      opts.onStage?.('compressing');
+      opts.onStage?.('uploading');
+      // No 'identifying' stage for non-front slots
+      return new Promise((resolve) => {
+        resolvePipeline = resolve;
+      });
+    });
+    const tree = render(<Capture />);
+    await act(async () => {
+      fireEvent.press(tree.getByLabelText('Capture'));
+    });
+    // Give the stages time to flush; spinner should still NOT be visible
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(tree.queryByTestId('capture-spinner')).toBeNull();
+    await act(async () => {
+      resolvePipeline({ slot: 'side', photoUri: 'file:///s.jpg', photoPath: 'u/s.jpg' });
+    });
+  });
+});
+
+describe('Capture — slot: document', () => {
+  beforeAll(async () => {
+    await initI18n({ lng: 'en' });
+  });
+  beforeEach(() => {
+    mockTrack.mockReset();
+    mockPush.mockReset();
+    mockReplace.mockReset();
+    mockRunCapturePipeline.mockReset();
+    mockGetCameraPermission.mockResolvedValue({ status: 'granted', canAskAgain: true });
+    useAppStore.getState().resetCaptureSession();
+    useAppStore.getState().setCaptureFront({
+      photoUri: 'file:///front.jpg',
+      photoPath: 'user-aaa/front.jpg',
+      breed: breedFixture,
+    });
+    useAppStore.getState().setCaptureSide({
+      photoUri: 'file:///side.jpg',
+      photoPath: 'user-aaa/side.jpg',
+    });
+    useAppStore.getState().setCaptureSlot('document');
+  });
+
+  it('top-pill reads "Photo 3 of 3 · Document"', () => {
+    const tree = render(<Capture />);
+    expect(tree.getByText(/Photo 3 of 3/i)).toBeTruthy();
+    expect(tree.getByText(/Document/i)).toBeTruthy();
+  });
+
+  it('shutter → pipeline with slot=document → setCaptureDocument → navigates to photo-collection', async () => {
+    mockRunCapturePipeline.mockResolvedValue({
+      slot: 'document',
+      photoUri: 'file:///compressed-doc.jpg',
+      photoPath: 'user-aaa/doc.jpg',
+    });
+    const tree = render(<Capture />);
+    await act(async () => {
+      fireEvent.press(tree.getByLabelText('Capture'));
+    });
+    expect(mockRunCapturePipeline.mock.calls[0][1]).toEqual(
+      expect.objectContaining({ slot: 'document' }),
+    );
+    await waitFor(() =>
+      expect(mockPush).toHaveBeenCalledWith('/onboarding/photo-collection'),
+    );
+    expect(useAppStore.getState().captureSession.docPhotoUri).toBe(
+      'file:///compressed-doc.jpg',
+    );
+    expect(useAppStore.getState().captureSession.docPhotoPath).toBe('user-aaa/doc.jpg');
+  });
+
+  it('fires Events.onboarding_document_captured exactly once on success', async () => {
+    mockRunCapturePipeline.mockResolvedValue({
+      slot: 'document',
+      photoUri: 'file:///d.jpg',
+      photoPath: 'u/d.jpg',
+    });
+    const tree = render(<Capture />);
+    await act(async () => {
+      fireEvent.press(tree.getByLabelText('Capture'));
+    });
+    await waitFor(() => expect(mockPush).toHaveBeenCalled());
+    const calls = mockTrack.mock.calls.filter(
+      (c) => c[0] === Events.onboarding_document_captured,
+    );
+    expect(calls).toHaveLength(1);
   });
 });

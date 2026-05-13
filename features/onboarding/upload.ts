@@ -7,8 +7,16 @@
  * live `auth.uid()` from the JWT (R0-M3 migration + D-020). A stale mirror
  * would surface as a 403, not a logic bug; pulling the canonical value
  * removes the failure mode.
+ *
+ * B-1 fix: uses `expo-file-system`'s modern `new File(uri).arrayBuffer()`
+ * API to read the local JPEG as a real ArrayBuffer. The previous
+ * `fetch(uri).blob()` approach broke on Android because RN's blob polyfill
+ * is opaque (returns `{ blobId, offset, size }` rather than bytes) and
+ * Supabase Storage's upload helper serialized that opaque shape to JSON
+ * instead of sending the file. Documented in `07_TROUBLESHOOTING.md`.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { File } from 'expo-file-system';
 
 import { supabase as defaultClient } from '../../lib/supabase';
 
@@ -56,10 +64,9 @@ export async function uploadPetPhoto(
   }
   const path = `${userId}/${randomId()}.jpg`;
 
-  let blob: Blob;
+  let buffer: ArrayBuffer;
   try {
-    const response = await fetch(localUri);
-    blob = await response.blob();
+    buffer = await new File(localUri).arrayBuffer();
   } catch (err) {
     throw new UploadError(
       `failed to read local file ${localUri}: ${err instanceof Error ? err.message : String(err)}`,
@@ -67,7 +74,7 @@ export async function uploadPetPhoto(
     );
   }
 
-  const { error } = await client.storage.from(PET_PHOTOS_BUCKET).upload(path, blob, {
+  const { error } = await client.storage.from(PET_PHOTOS_BUCKET).upload(path, buffer, {
     contentType: 'image/jpeg',
     upsert: false,
   });

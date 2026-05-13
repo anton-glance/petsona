@@ -51,7 +51,7 @@ describe('useAppStore', () => {
     expect(useAppStore.getState().species).toBe('unknown');
   });
 
-  it("captureSession defaults to { currentSlot: 'front', photoUri: null, photoPath: null, breed: null }", () => {
+  it("captureSession defaults to currentSlot='front' with all photo + breed fields null", () => {
     jest.isolateModules(() => {
       const fresh = jest.requireActual<typeof import('./store')>('./store');
       expect(fresh.useAppStore.getState().captureSession).toEqual({
@@ -59,6 +59,10 @@ describe('useAppStore', () => {
         photoUri: null,
         photoPath: null,
         breed: null,
+        sidePhotoUri: null,
+        sidePhotoPath: null,
+        docPhotoUri: null,
+        docPhotoPath: null,
       });
     });
   });
@@ -82,7 +86,7 @@ describe('useAppStore', () => {
     expect(session.currentSlot).toBe('front');
   });
 
-  it('resetCaptureSession clears photoUri/photoPath/breed and resets slot to front', () => {
+  it('resetCaptureSession clears photoUri/photoPath/breed and resets slot to front (R1-M3 boundary)', () => {
     const breed: BreedIdentifyResponse = {
       species: 'cat',
       breed: 'Maine Coon',
@@ -100,6 +104,10 @@ describe('useAppStore', () => {
       photoUri: null,
       photoPath: null,
       breed: null,
+      sidePhotoUri: null,
+      sidePhotoPath: null,
+      docPhotoUri: null,
+      docPhotoPath: null,
     });
   });
 
@@ -119,6 +127,111 @@ describe('useAppStore', () => {
         breed,
       });
       expect(fresh.useAppStore.getState().species).toBe(speciesBefore);
+    });
+  });
+
+  it('captureSession initial state includes side + doc fields as null (R1 visual redo)', () => {
+    jest.isolateModules(() => {
+      const fresh = jest.requireActual<typeof import('./store')>('./store');
+      const session = fresh.useAppStore.getState().captureSession;
+      expect(session.sidePhotoUri).toBeNull();
+      expect(session.sidePhotoPath).toBeNull();
+      expect(session.docPhotoUri).toBeNull();
+      expect(session.docPhotoPath).toBeNull();
+    });
+  });
+
+  it('setCaptureSide writes only sidePhotoUri + sidePhotoPath', () => {
+    jest.isolateModules(() => {
+      const fresh = jest.requireActual<typeof import('./store')>('./store');
+      fresh.useAppStore.getState().setCaptureSide({
+        photoUri: 'file:///side.jpg',
+        photoPath: 'user-aaa/side.jpg',
+      });
+      const session = fresh.useAppStore.getState().captureSession;
+      expect(session.sidePhotoUri).toBe('file:///side.jpg');
+      expect(session.sidePhotoPath).toBe('user-aaa/side.jpg');
+      // Front + doc untouched
+      expect(session.photoUri).toBeNull();
+      expect(session.photoPath).toBeNull();
+      expect(session.breed).toBeNull();
+      expect(session.docPhotoUri).toBeNull();
+      expect(session.docPhotoPath).toBeNull();
+    });
+  });
+
+  it('setCaptureDocument writes only docPhotoUri + docPhotoPath', () => {
+    jest.isolateModules(() => {
+      const fresh = jest.requireActual<typeof import('./store')>('./store');
+      fresh.useAppStore.getState().setCaptureDocument({
+        photoUri: 'file:///doc.jpg',
+        photoPath: 'user-aaa/doc.jpg',
+      });
+      const session = fresh.useAppStore.getState().captureSession;
+      expect(session.docPhotoUri).toBe('file:///doc.jpg');
+      expect(session.docPhotoPath).toBe('user-aaa/doc.jpg');
+      expect(session.photoUri).toBeNull();
+      expect(session.sidePhotoUri).toBeNull();
+    });
+  });
+
+  it('setCaptureSlot updates currentSlot and leaves all photo fields untouched', () => {
+    jest.isolateModules(() => {
+      const fresh = jest.requireActual<typeof import('./store')>('./store');
+      fresh.useAppStore.getState().setCaptureSlot('side');
+      expect(fresh.useAppStore.getState().captureSession.currentSlot).toBe('side');
+      fresh.useAppStore.getState().setCaptureSlot('document');
+      expect(fresh.useAppStore.getState().captureSession.currentSlot).toBe('document');
+      fresh.useAppStore.getState().setCaptureSlot('front');
+      expect(fresh.useAppStore.getState().captureSession.currentSlot).toBe('front');
+    });
+  });
+
+  it('resetCaptureSession clears ALL slot fields (front + side + doc) and resets currentSlot', () => {
+    jest.isolateModules(() => {
+      const fresh = jest.requireActual<typeof import('./store')>('./store');
+      const breed: BreedIdentifyResponse = {
+        species: 'cat',
+        breed: 'Tabby',
+        confidence: 0.91,
+        candidates: [{ breed: 'Tabby', confidence: 0.91 }],
+      };
+      fresh.useAppStore.getState().setCaptureFront({
+        photoUri: 'file:///f.jpg',
+        photoPath: 'user/f.jpg',
+        breed,
+      });
+      fresh.useAppStore.getState().setCaptureSide({
+        photoUri: 'file:///s.jpg',
+        photoPath: 'user/s.jpg',
+      });
+      fresh.useAppStore.getState().setCaptureDocument({
+        photoUri: 'file:///d.jpg',
+        photoPath: 'user/d.jpg',
+      });
+      fresh.useAppStore.getState().setCaptureSlot('document');
+      fresh.useAppStore.getState().resetCaptureSession();
+      const session = fresh.useAppStore.getState().captureSession;
+      expect(session.currentSlot).toBe('front');
+      expect(session.photoUri).toBeNull();
+      expect(session.photoPath).toBeNull();
+      expect(session.breed).toBeNull();
+      expect(session.sidePhotoUri).toBeNull();
+      expect(session.sidePhotoPath).toBeNull();
+      expect(session.docPhotoUri).toBeNull();
+      expect(session.docPhotoPath).toBeNull();
+    });
+  });
+
+  it('setCaptureSide does NOT touch species (boundary guard, mirrors setCaptureFront)', () => {
+    jest.isolateModules(() => {
+      const fresh = jest.requireActual<typeof import('./store')>('./store');
+      fresh.useAppStore.getState().setSpecies('cat');
+      fresh.useAppStore.getState().setCaptureSide({
+        photoUri: 'file:///s.jpg',
+        photoPath: 'user/s.jpg',
+      });
+      expect(fresh.useAppStore.getState().species).toBe('cat');
     });
   });
 });

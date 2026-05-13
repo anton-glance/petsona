@@ -13,28 +13,47 @@ export type Locale = 'en' | 'es' | 'ru';
 export type Species = 'cat' | 'dog' | 'unknown';
 
 /**
- * The R1-M2 → R1-M3 handoff. R1-M2 captures the front photo and writes the
- * breed-identify response here; R1-M3's Welcome screen reads it. R2 extends
- * this by advancing `currentSlot` and adding side/document data — without
- * touching the capture screen's code.
+ * Capture slot state machine. R1's onboarding captures three photos in
+ * sequence: front (drives breed-identify per D-019), side (R2 OCR input),
+ * document (optional, R2 OCR input). The Welcome screen reads only the
+ * front photo + breed; the photo-collection screen reads all three.
  *
- * Router params were the alternative; rejected because typed routes serialize
- * `BreedIdentifyResponse.candidates[]` into the URL, which leaks into PostHog
- * screen autocapture.
+ * Router params were the alternative; rejected because typed routes
+ * serialize `BreedIdentifyResponse.candidates[]` into the URL, which leaks
+ * into PostHog screen autocapture.
  */
 export type CaptureSlot = 'front' | 'side' | 'document';
 
 export interface CaptureSessionState {
   currentSlot: CaptureSlot;
+  /** Front photo: local compressed JPEG URI. */
   photoUri: string | null;
+  /** Front photo: Storage path under pet-photos/{auth.uid()}/... */
   photoPath: string | null;
+  /** Hardcoded BreedIdentifyResponse for the front photo (D-019). */
   breed: BreedIdentifyResponse | null;
+  /** Side photo: local URI + Storage path. R2's combined-prompt VLM input. */
+  sidePhotoUri: string | null;
+  sidePhotoPath: string | null;
+  /** Document photo: optional. R2's OCR input. */
+  docPhotoUri: string | null;
+  docPhotoPath: string | null;
 }
 
 export interface CaptureFrontPayload {
   photoUri: string;
   photoPath: string;
   breed: BreedIdentifyResponse;
+}
+
+export interface CaptureSidePayload {
+  photoUri: string;
+  photoPath: string;
+}
+
+export interface CaptureDocumentPayload {
+  photoUri: string;
+  photoPath: string;
 }
 
 export interface AppState {
@@ -46,6 +65,9 @@ export interface AppState {
   setSpecies: (species: Species) => void;
   captureSession: CaptureSessionState;
   setCaptureFront: (payload: CaptureFrontPayload) => void;
+  setCaptureSide: (payload: CaptureSidePayload) => void;
+  setCaptureDocument: (payload: CaptureDocumentPayload) => void;
+  setCaptureSlot: (slot: CaptureSlot) => void;
   resetCaptureSession: () => void;
 }
 
@@ -54,6 +76,10 @@ const INITIAL_CAPTURE_SESSION: CaptureSessionState = {
   photoUri: null,
   photoPath: null,
   breed: null,
+  sidePhotoUri: null,
+  sidePhotoPath: null,
+  docPhotoUri: null,
+  docPhotoPath: null,
 };
 
 export const useAppStore = create<AppState>((set) => ({
@@ -67,12 +93,30 @@ export const useAppStore = create<AppState>((set) => ({
   setCaptureFront: (payload) =>
     set((s) => ({
       captureSession: {
-        currentSlot: s.captureSession.currentSlot,
+        ...s.captureSession,
         photoUri: payload.photoUri,
         photoPath: payload.photoPath,
         breed: payload.breed,
       },
     })),
+  setCaptureSide: (payload) =>
+    set((s) => ({
+      captureSession: {
+        ...s.captureSession,
+        sidePhotoUri: payload.photoUri,
+        sidePhotoPath: payload.photoPath,
+      },
+    })),
+  setCaptureDocument: (payload) =>
+    set((s) => ({
+      captureSession: {
+        ...s.captureSession,
+        docPhotoUri: payload.photoUri,
+        docPhotoPath: payload.photoPath,
+      },
+    })),
+  setCaptureSlot: (slot) =>
+    set((s) => ({ captureSession: { ...s.captureSession, currentSlot: slot } })),
   resetCaptureSession: () => set({ captureSession: INITIAL_CAPTURE_SESSION }),
 }));
 

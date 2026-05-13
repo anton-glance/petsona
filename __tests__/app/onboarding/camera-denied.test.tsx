@@ -75,4 +75,57 @@ describe('CameraDenied (R1-M2 step 02b)', () => {
     expect(mockPush).not.toHaveBeenCalled();
     expect(mockReplace).not.toHaveBeenCalled();
   });
+
+  it('B-4: AppState becomes active → permission re-checked → if granted, auto-advance to capture', async () => {
+    // Capture the AppState listener so the test can fire it synchronously.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime import
+    const RN = require('react-native') as typeof import('react-native');
+    let appStateListener: ((state: string) => void) | null = null;
+    const addEventListenerSpy = jest
+      .spyOn(RN.AppState, 'addEventListener')
+      .mockImplementation((event, cb) => {
+        if (event === 'change') {
+          appStateListener = cb as (s: string) => void;
+        }
+        return { remove: jest.fn() } as unknown as ReturnType<
+          typeof RN.AppState.addEventListener
+        >;
+      });
+
+    mockGetCameraPermission.mockResolvedValue({ status: 'granted', canAskAgain: true });
+    render(<CameraDenied />);
+    expect(appStateListener).not.toBeNull();
+    await act(async () => {
+      appStateListener?.('active');
+    });
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/onboarding/capture'));
+
+    addEventListenerSpy.mockRestore();
+  });
+
+  it('B-4: AppState becomes active but permission still denied → no navigation', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime import
+    const RN = require('react-native') as typeof import('react-native');
+    let appStateListener: ((state: string) => void) | null = null;
+    const addEventListenerSpy = jest
+      .spyOn(RN.AppState, 'addEventListener')
+      .mockImplementation((event, cb) => {
+        if (event === 'change') {
+          appStateListener = cb as (s: string) => void;
+        }
+        return { remove: jest.fn() } as unknown as ReturnType<
+          typeof RN.AppState.addEventListener
+        >;
+      });
+
+    mockGetCameraPermission.mockResolvedValue({ status: 'denied', canAskAgain: false });
+    render(<CameraDenied />);
+    await act(async () => {
+      appStateListener?.('active');
+    });
+    await waitFor(() => expect(mockGetCameraPermission).toHaveBeenCalled());
+    expect(mockReplace).not.toHaveBeenCalled();
+
+    addEventListenerSpy.mockRestore();
+  });
 });

@@ -59,4 +59,19 @@ describe('Splash (R1-M2 step 01)', () => {
     // We assert the headline still mounts (smoke).
     expect(tree.getByText('Welcome to Petsona')).toBeTruthy();
   });
+
+  it('renders the linear-gradient background (visual redo)', () => {
+    const tree = render(<Splash />);
+    expect(tree.getByTestId('splash-gradient')).toBeTruthy();
+  });
+
+  it('renders the paw-pattern overlay (visual redo)', () => {
+    const tree = render(<Splash />);
+    expect(tree.getByTestId('splash-paw-pattern')).toBeTruthy();
+  });
+
+  it('renders the brand logo (170×170) (visual redo)', () => {
+    const tree = render(<Splash />);
+    expect(tree.getByTestId('splash-logo')).toBeTruthy();
+  });
 });

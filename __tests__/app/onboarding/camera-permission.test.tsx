@@ -56,6 +56,18 @@ describe('CameraPermission (R1-M2 step 02)', () => {
     expect(tree.getByText('Allow access')).toBeTruthy();
   });
 
+  it('renders the camera-preview block and two forest icon-marks (visual redo)', () => {
+    const tree = render(<CameraPermission />);
+    expect(tree.getByTestId('camera-preview-block')).toBeTruthy();
+    expect(tree.getByTestId('benefit-icon-1')).toBeTruthy();
+    expect(tree.getByTestId('benefit-icon-2')).toBeTruthy();
+  });
+
+  it('renders the "Step 1 of 3" small-cap label (visual redo)', () => {
+    const tree = render(<CameraPermission />);
+    expect(tree.getByText(/Step 1 of 3/i)).toBeTruthy();
+  });
+
   it("on 'granted' navigates to /onboarding/capture and tracks granted event", async () => {
     mockRequestCameraPermission.mockResolvedValue({ status: 'granted', canAskAgain: true });
     const tree = render(<CameraPermission />);

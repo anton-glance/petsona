@@ -232,4 +232,23 @@ describe('Welcome (R1-M3 step 05)', () => {
     render(<Welcome />);
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/'));
   });
+
+  it("B-3: after insertPet resolves, CTA label changes to 'Saved ✓' and stays disabled (loading=false)", async () => {
+    mockInsertPet.mockResolvedValue({ id: 'pet-uuid-xyz' });
+    const tree = render(<Welcome />);
+    fireEvent.changeText(tree.getByTestId('welcome-name-input'), 'Mochi');
+    await act(async () => {
+      fireEvent.press(tree.getByText('Welcome Mochi'));
+    });
+    await waitFor(() => expect(tree.queryByText(/Saved/)).toBeTruthy());
+    // The CTA is found by the new "Saved ✓" label. Asserting it has
+    // accessibilityState.disabled=true confirms the post-success state per B-3.
+    const cta = tree.getByLabelText(/Saved/);
+    expect(cta.props.accessibilityState?.disabled).toBe(true);
+    // A second press doesn't fire insertPet again (still gated by savedOk).
+    await act(async () => {
+      fireEvent.press(cta);
+    });
+    expect(mockInsertPet).toHaveBeenCalledTimes(1);
+  });
 });

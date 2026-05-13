@@ -7,10 +7,12 @@ export { CtaStack, type CtaStackPosition, type CtaStackProps } from './CtaStack'
 export { IconButton, type IconButtonProps, type IconButtonTone } from './IconButton';
 export { Input, type InputProps } from './Input';
 export { PawCheckbox, type PawCheckboxProps, type PawCheckboxShape } from './PawCheckbox';
+export { PetPattern, type PetPatternProps } from './PetPattern';
 export { Pill, type PillProps, type PillSize, type PillTone } from './Pill';
 export { Progress, type ProgressProps } from './Progress';
 export { ProgressDots, type ProgressDotsProps } from './ProgressDots';
 export { ScreenContainer, type ScreenContainerProps, type ScreenTone } from './ScreenContainer';
+export { SpeciesSilhouette, type SpeciesSilhouetteProps } from './SpeciesSilhouette';
 export {
   Segmented,
   type SegmentedOption,

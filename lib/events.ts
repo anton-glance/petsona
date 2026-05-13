@@ -2,7 +2,8 @@
 //
 // Discipline: add a key here only when the corresponding user action exists in
 // the app. R0-M4 ships the three below; R1-M2 adds the onboarding funnel;
-// R1-M3 adds the welcome-confirmation rung.
+// R1-M3 adds the welcome-confirmation rung. R1 visual redo adds three more
+// rungs for side / document capture and document skip.
 //
 // Naming: snake_case, domain_action_state, lowercase. Domain prefixes allowed:
 // app_, screen_, test_, onboarding_, plan_, paywall_, auth_.
@@ -15,6 +16,9 @@ export const Events = {
   onboarding_camera_permission_granted: 'onboarding_camera_permission_granted',
   onboarding_camera_permission_denied: 'onboarding_camera_permission_denied',
   onboarding_capture_completed: 'onboarding_capture_completed',
+  onboarding_side_captured: 'onboarding_side_captured',
+  onboarding_document_captured: 'onboarding_document_captured',
+  onboarding_document_skipped: 'onboarding_document_skipped',
   onboarding_welcome_confirmed: 'onboarding_welcome_confirmed',
 } as const;
 
