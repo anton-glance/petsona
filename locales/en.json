@@ -65,6 +65,27 @@
       "side": "Side",
       "document": "Document"
     },
+    "collection": {
+      "titleState1": "Now, a side view.",
+      "titleState2": "Got a document?",
+      "titleState3": "Everything captured.",
+      "bodyState1": "Different angles help us read breed traits accurately.",
+      "bodyState2": "Vet passport, DNA test, or any record — speeds up your profile.",
+      "bodyState3": "Ready to read what these photos tell us about your pet.",
+      "frontTitle": "Front photo",
+      "frontSubDone": "Captured · face and chest visible",
+      "frontSubActive": "Face and chest visible",
+      "sideTitle": "Side photo",
+      "sideSubDone": "Captured",
+      "sideSubActive": "Profile shot · full body if possible",
+      "docTitle": "Vet passport / DNA test",
+      "docSubDone": "Captured",
+      "docSubActive": "Any document with breed, vitals, or vaccinations",
+      "ctaCaptureSide": "Capture side photo",
+      "ctaCaptureDocument": "Capture document",
+      "ctaSkipDocs": "Skip vet docs",
+      "ctaMeet": "Meet your pet"
+    },
     "welcome": {
       "hey": "Hey 👋",
       "subtitle": "Here's what we read from your photos.",

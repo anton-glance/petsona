@@ -79,12 +79,16 @@ describe('PhotoCollection (R1 visual redo — step 04)', () => {
 
     it('renders all three photo cards: front=done, side=active, doc=optional', () => {
       const tree = render(<PhotoCollection />);
+      // Asserting via testID is more robust than text — "Side photo" also
+      // appears in the "Capture side photo" CTA, and /Side photo/i would
+      // multi-match getByText. The testIDs are unambiguous.
       expect(tree.getByTestId('photo-card-front')).toBeTruthy();
       expect(tree.getByTestId('photo-card-side')).toBeTruthy();
       expect(tree.getByTestId('photo-card-document')).toBeTruthy();
-      expect(tree.getByText(/Front photo/i)).toBeTruthy();
-      expect(tree.getByText(/Side photo/i)).toBeTruthy();
-      expect(tree.getByText(/Vet passport|Vet document|DNA test/i)).toBeTruthy();
+      // Each card renders its title; getAllByText accommodates the CTA collision.
+      expect(tree.getAllByText(/Front photo/i).length).toBeGreaterThanOrEqual(1);
+      expect(tree.getAllByText(/Side photo/i).length).toBeGreaterThanOrEqual(1);
+      expect(tree.getAllByText(/Vet passport|Vet document|DNA test/i).length).toBeGreaterThanOrEqual(1);
     });
 
     it('renders "Capture side photo" CTA', () => {
