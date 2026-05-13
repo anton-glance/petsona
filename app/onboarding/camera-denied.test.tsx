@@ -1,45 +1,49 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import * as React from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { initI18n } from '../../i18n';
 import CameraDenied from './camera-denied';
 
-const pushMock = jest.fn();
-const replaceMock = jest.fn();
-const getCameraPermissionMock = jest.fn();
-const openSystemSettingsMock = jest.fn();
+const mockPush = jest.fn();
+const mockReplace = jest.fn();
+const mockGetCameraPermission = jest.fn();
+const mockOpenSystemSettings = jest.fn();
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: pushMock, replace: replaceMock, back: jest.fn() }),
-  router: { push: pushMock, replace: replaceMock, back: jest.fn() },
+  useRouter: () => ({ push: mockPush, replace: mockReplace, back: jest.fn() }),
+  router: { push: mockPush, replace: mockReplace, back: jest.fn() },
 }));
 jest.mock('../../features/onboarding/permissions', () => ({
-  getCameraPermission: (...args: unknown[]) => getCameraPermissionMock(...args),
-  openSystemSettings: (...args: unknown[]) => openSystemSettingsMock(...args),
+  getCameraPermission: (...args: unknown[]) => mockGetCameraPermission(...args),
+  openSystemSettings: (...args: unknown[]) => mockOpenSystemSettings(...args),
   requestCameraPermission: jest.fn(),
   requestPhotoLibraryPermission: jest.fn(),
 }));
-
-function wrap(ui: React.ReactElement): React.ReactElement {
-  return <SafeAreaProvider>{ui}</SafeAreaProvider>;
-}
 
 describe('CameraDenied (R1-M2 step 02b)', () => {
   beforeAll(async () => {
     await initI18n({ lng: 'en' });
   });
   beforeEach(() => {
-    pushMock.mockReset();
-    replaceMock.mockReset();
-    getCameraPermissionMock.mockReset();
-    openSystemSettingsMock.mockReset();
+    mockPush.mockReset();
+    mockReplace.mockReset();
+    mockGetCameraPermission.mockReset();
+    mockOpenSystemSettings.mockReset();
+    // openSystemSettings' public contract is Promise<void>; the screen
+    // chains .catch() on the result. The default jest.fn() returns
+    // undefined, which violates the contract — reset to a resolved
+    // promise so the call site behaves as in production.
+    mockOpenSystemSettings.mockResolvedValue(undefined);
   });
 
   it('renders title, 3 numbered steps, [Open Settings], [Try again]', () => {
-    const tree = render(wrap(<CameraDenied />));
+    const tree = render(<CameraDenied />);
     expect(tree.getByText(/Petsona can't continue without camera/)).toBeTruthy();
-    expect(tree.getByText(/Open .*Settings/)).toBeTruthy();
+    // Step 1's wording was deliberately tightened to "Open the Settings app"
+    // so the test can distinguish it from the [Open Settings] CTA below
+    // (both contain "Open" and "Settings"; bare /Open .*Settings/ would
+    // collide via getByText's multi-match rule).
+    expect(tree.getByText('Open the Settings app')).toBeTruthy();
     expect(tree.getByText(/Find .*Petsona.* in the app list/)).toBeTruthy();
     expect(tree.getByText(/Toggle .*Camera.* on/)).toBeTruthy();
     expect(tree.getByText('Open Settings')).toBeTruthy();
@@ -47,28 +51,28 @@ describe('CameraDenied (R1-M2 step 02b)', () => {
   });
 
   it('[Open Settings] calls openSystemSettings', () => {
-    const tree = render(wrap(<CameraDenied />));
+    const tree = render(<CameraDenied />);
     fireEvent.press(tree.getByText('Open Settings'));
-    expect(openSystemSettingsMock).toHaveBeenCalledTimes(1);
+    expect(mockOpenSystemSettings).toHaveBeenCalledTimes(1);
   });
 
   it("[Try again] re-checks permission; on 'granted' navigates to /onboarding/capture", async () => {
-    getCameraPermissionMock.mockResolvedValue({ status: 'granted', canAskAgain: true });
-    const tree = render(wrap(<CameraDenied />));
+    mockGetCameraPermission.mockResolvedValue({ status: 'granted', canAskAgain: true });
+    const tree = render(<CameraDenied />);
     await act(async () => {
       fireEvent.press(tree.getByText(/Try again/));
     });
-    await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/onboarding/capture'));
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/onboarding/capture'));
   });
 
   it('[Try again] on still-denied stays on the same screen (no navigation)', async () => {
-    getCameraPermissionMock.mockResolvedValue({ status: 'denied', canAskAgain: false });
-    const tree = render(wrap(<CameraDenied />));
+    mockGetCameraPermission.mockResolvedValue({ status: 'denied', canAskAgain: false });
+    const tree = render(<CameraDenied />);
     await act(async () => {
       fireEvent.press(tree.getByText(/Try again/));
     });
-    await waitFor(() => expect(getCameraPermissionMock).toHaveBeenCalled());
-    expect(pushMock).not.toHaveBeenCalled();
-    expect(replaceMock).not.toHaveBeenCalled();
+    await waitFor(() => expect(mockGetCameraPermission).toHaveBeenCalled());
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockReplace).not.toHaveBeenCalled();
   });
 });

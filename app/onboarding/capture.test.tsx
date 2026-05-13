@@ -1,44 +1,47 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import * as React from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { initI18n } from '../../i18n';
 import { Events } from '../../lib/events';
 import type { BreedIdentifyResponse } from '../../shared/types';
 import Capture from './capture';
 
-const trackMock = jest.fn();
-const pushMock = jest.fn();
-const replaceMock = jest.fn();
-const runCapturePipelineMock = jest.fn();
-const requestPhotoLibraryPermissionMock = jest.fn();
-const getCameraPermissionMock = jest.fn();
-const loggerErrorMock = jest.fn();
-const launchImageLibraryMock = jest.fn();
+const mockTrack = jest.fn();
+const mockPush = jest.fn();
+const mockReplace = jest.fn();
+const mockRunCapturePipeline = jest.fn();
+const mockRequestPhotoLibraryPermission = jest.fn();
+const mockGetCameraPermission = jest.fn();
+const mockLoggerError = jest.fn();
+const mockLaunchImageLibrary = jest.fn();
 
 jest.mock('../../lib/telemetry', () => ({
-  track: (...args: unknown[]) => trackMock(...args),
+  track: (...args: unknown[]) => mockTrack(...args),
   identify: jest.fn(),
   captureException: jest.fn(),
 }));
-jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: pushMock, replace: replaceMock, back: jest.fn() }),
-  router: { push: pushMock, replace: replaceMock, back: jest.fn() },
-  useFocusEffect: (cb: () => unknown) => {
-    // Run once synchronously to mirror screen-focus.
-    React.useEffect(() => {
-      const cleanup = cb();
-      return typeof cleanup === 'function' ? (cleanup as () => void) : undefined;
-    }, []);
-  },
-}));
+jest.mock('expo-router', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.mock factory
+  const R = require('react');
+  return {
+    useRouter: () => ({ push: mockPush, replace: mockReplace, back: jest.fn() }),
+    router: { push: mockPush, replace: mockReplace, back: jest.fn() },
+    useFocusEffect: (cb: () => unknown) => {
+      // Run once synchronously on mount to mirror screen-focus.
+      R.useEffect(() => {
+        const cleanup = cb();
+        return typeof cleanup === 'function' ? (cleanup as () => void) : undefined;
+      }, []);
+    },
+  };
+});
 jest.mock('../../features/onboarding/capturePipeline', () => ({
-  runCapturePipeline: (...args: unknown[]) => runCapturePipelineMock(...args),
+  runCapturePipeline: (...args: unknown[]) => mockRunCapturePipeline(...args),
 }));
 jest.mock('../../features/onboarding/permissions', () => ({
   requestPhotoLibraryPermission: (...args: unknown[]) =>
-    requestPhotoLibraryPermissionMock(...args),
-  getCameraPermission: (...args: unknown[]) => getCameraPermissionMock(...args),
+    mockRequestPhotoLibraryPermission(...args),
+  getCameraPermission: (...args: unknown[]) => mockGetCameraPermission(...args),
   requestCameraPermission: jest.fn(),
   openSystemSettings: jest.fn(),
 }));
@@ -64,21 +67,17 @@ jest.mock('expo-camera', () => {
   return { CameraView };
 });
 jest.mock('expo-image-picker', () => ({
-  launchImageLibraryAsync: (...args: unknown[]) => launchImageLibraryMock(...args),
+  launchImageLibraryAsync: (...args: unknown[]) => mockLaunchImageLibrary(...args),
 }));
 jest.mock('../../lib/logger', () => ({
   logger: {
     debug: jest.fn(),
     info: jest.fn(),
     warn: jest.fn(),
-    error: (...args: unknown[]) => loggerErrorMock(...args),
+    error: (...args: unknown[]) => mockLoggerError(...args),
   },
   createLogger: jest.fn(),
 }));
-
-function wrap(ui: React.ReactElement): React.ReactElement {
-  return <SafeAreaProvider>{ui}</SafeAreaProvider>;
-}
 
 const breedFixture: BreedIdentifyResponse = {
   species: 'cat',
@@ -92,19 +91,19 @@ describe('Capture (R1-M2 step 03)', () => {
     await initI18n({ lng: 'en' });
   });
   beforeEach(() => {
-    trackMock.mockReset();
-    pushMock.mockReset();
-    replaceMock.mockReset();
-    runCapturePipelineMock.mockReset();
-    requestPhotoLibraryPermissionMock.mockReset();
-    getCameraPermissionMock.mockReset();
-    loggerErrorMock.mockReset();
-    launchImageLibraryMock.mockReset();
-    getCameraPermissionMock.mockResolvedValue({ status: 'granted', canAskAgain: true });
+    mockTrack.mockReset();
+    mockPush.mockReset();
+    mockReplace.mockReset();
+    mockRunCapturePipeline.mockReset();
+    mockRequestPhotoLibraryPermission.mockReset();
+    mockGetCameraPermission.mockReset();
+    mockLoggerError.mockReset();
+    mockLaunchImageLibrary.mockReset();
+    mockGetCameraPermission.mockResolvedValue({ status: 'granted', canAskAgain: true });
   });
 
   it('renders viewfinder, top-pill, shutter, library button, flip button', () => {
-    const tree = render(wrap(<Capture />));
+    const tree = render(<Capture />);
     expect(tree.getByText(/Photo 1 of 3 · Front/)).toBeTruthy();
     expect(tree.getByLabelText('Capture')).toBeTruthy();
     expect(tree.getByLabelText('Photo library')).toBeTruthy();
@@ -112,17 +111,17 @@ describe('Capture (R1-M2 step 03)', () => {
   });
 
   it('shutter press → runs capture pipeline → writes captureSession → navigates to /onboarding/welcome', async () => {
-    runCapturePipelineMock.mockResolvedValue({
+    mockRunCapturePipeline.mockResolvedValue({
       photoUri: 'file:///compressed.jpg',
       photoPath: 'user-aaa/abc.jpg',
       breed: breedFixture,
     });
-    const tree = render(wrap(<Capture />));
+    const tree = render(<Capture />);
     await act(async () => {
       fireEvent.press(tree.getByLabelText('Capture'));
     });
-    await waitFor(() => expect(runCapturePipelineMock).toHaveBeenCalled());
-    await waitFor(() => expect(pushMock).toHaveBeenCalledWith('/onboarding/welcome'));
+    await waitFor(() => expect(mockRunCapturePipeline).toHaveBeenCalled());
+    await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/onboarding/welcome'));
 
     // The R1-M3 contract: the captureSession slice now carries the breed.
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime read of fresh store
@@ -133,36 +132,36 @@ describe('Capture (R1-M2 step 03)', () => {
   });
 
   it('library button → permission granted → picks image → runs SAME pipeline as shutter', async () => {
-    requestPhotoLibraryPermissionMock.mockResolvedValue({
+    mockRequestPhotoLibraryPermission.mockResolvedValue({
       status: 'granted',
       canAskAgain: true,
     });
-    launchImageLibraryMock.mockResolvedValue({
+    mockLaunchImageLibrary.mockResolvedValue({
       canceled: false,
       assets: [{ uri: 'file:///gallery.jpg', width: 4000, height: 3000 }],
     });
-    runCapturePipelineMock.mockResolvedValue({
+    mockRunCapturePipeline.mockResolvedValue({
       photoUri: 'file:///compressed.jpg',
       photoPath: 'user-aaa/lib.jpg',
       breed: breedFixture,
     });
-    const tree = render(wrap(<Capture />));
+    const tree = render(<Capture />);
     await act(async () => {
       fireEvent.press(tree.getByLabelText('Photo library'));
     });
-    await waitFor(() => expect(runCapturePipelineMock).toHaveBeenCalled());
-    expect(runCapturePipelineMock.mock.calls[0][0]).toBe('file:///gallery.jpg');
+    await waitFor(() => expect(mockRunCapturePipeline).toHaveBeenCalled());
+    expect(mockRunCapturePipeline.mock.calls[0][0]).toBe('file:///gallery.jpg');
   });
 
   it('while pipeline is in flight, shutter is disabled and Spinner is visible', async () => {
     let resolvePipeline: (v: unknown) => void = () => undefined;
-    runCapturePipelineMock.mockImplementation(
+    mockRunCapturePipeline.mockImplementation(
       () =>
         new Promise((resolve) => {
           resolvePipeline = resolve;
         }),
     );
-    const tree = render(wrap(<Capture />));
+    const tree = render(<Capture />);
     await act(async () => {
       fireEvent.press(tree.getByLabelText('Capture'));
     });
@@ -181,20 +180,20 @@ describe('Capture (R1-M2 step 03)', () => {
   it('CompressionError surfaces an error message and logger.error is called', async () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime import for type-safe construction
     const { CompressionError } = require('../../features/onboarding/compression') as typeof import('../../features/onboarding/compression');
-    runCapturePipelineMock.mockRejectedValue(new CompressionError('decode fail'));
-    const tree = render(wrap(<Capture />));
+    mockRunCapturePipeline.mockRejectedValue(new CompressionError('decode fail'));
+    const tree = render(<Capture />);
     await act(async () => {
       fireEvent.press(tree.getByLabelText('Capture'));
     });
-    await waitFor(() => expect(loggerErrorMock).toHaveBeenCalled());
+    await waitFor(() => expect(mockLoggerError).toHaveBeenCalled());
     expect(tree.queryByText(/couldn'?t process/i)).toBeTruthy();
   });
 
   it('UploadError surfaces an error message and Retry is available', async () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime import
     const { UploadError } = require('../../features/onboarding/upload') as typeof import('../../features/onboarding/upload');
-    runCapturePipelineMock.mockRejectedValue(new UploadError('storage 403'));
-    const tree = render(wrap(<Capture />));
+    mockRunCapturePipeline.mockRejectedValue(new UploadError('storage 403'));
+    const tree = render(<Capture />);
     await act(async () => {
       fireEvent.press(tree.getByLabelText('Capture'));
     });
@@ -205,13 +204,13 @@ describe('Capture (R1-M2 step 03)', () => {
   it('BreedIdentifyError surfaces an error message and Retry re-runs the pipeline', async () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime import
     const { BreedIdentifyError } = require('../../features/onboarding/breedIdentify') as typeof import('../../features/onboarding/breedIdentify');
-    runCapturePipelineMock.mockRejectedValueOnce(new BreedIdentifyError('edge fn 500'));
-    runCapturePipelineMock.mockResolvedValueOnce({
+    mockRunCapturePipeline.mockRejectedValueOnce(new BreedIdentifyError('edge fn 500'));
+    mockRunCapturePipeline.mockResolvedValueOnce({
       photoUri: 'file:///c.jpg',
       photoPath: 'u/c.jpg',
       breed: breedFixture,
     });
-    const tree = render(wrap(<Capture />));
+    const tree = render(<Capture />);
     await act(async () => {
       fireEvent.press(tree.getByLabelText('Capture'));
     });
@@ -219,45 +218,51 @@ describe('Capture (R1-M2 step 03)', () => {
     await act(async () => {
       fireEvent.press(tree.getByText(/Retry|Try again/));
     });
-    await waitFor(() => expect(runCapturePipelineMock).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mockRunCapturePipeline).toHaveBeenCalledTimes(2));
   });
 
   it('library button when photo-library permission is denied → surfaces an error message', async () => {
-    requestPhotoLibraryPermissionMock.mockResolvedValue({
+    mockRequestPhotoLibraryPermission.mockResolvedValue({
       status: 'denied',
       canAskAgain: false,
     });
-    const tree = render(wrap(<Capture />));
+    const tree = render(<Capture />);
     await act(async () => {
       fireEvent.press(tree.getByLabelText('Photo library'));
     });
-    await waitFor(() => expect(tree.queryByText(/photo/i)).toBeTruthy());
-    expect(launchImageLibraryMock).not.toHaveBeenCalled();
-    expect(runCapturePipelineMock).not.toHaveBeenCalled();
+    // Use a regex specific to the libraryDenied error so it doesn't collide
+    // with "Photo 1 of 3 · Front" in the top-pill (queryByText throws on
+    // multiple matches). The error contract is: the screen surfaces the
+    // libraryDenied i18n string.
+    await waitFor(() =>
+      expect(tree.queryByText(/library access is needed/i)).toBeTruthy(),
+    );
+    expect(mockLaunchImageLibrary).not.toHaveBeenCalled();
+    expect(mockRunCapturePipeline).not.toHaveBeenCalled();
   });
 
   it('breed-identify success fires Events.onboarding_capture_completed exactly once', async () => {
-    runCapturePipelineMock.mockResolvedValue({
+    mockRunCapturePipeline.mockResolvedValue({
       photoUri: 'file:///c.jpg',
       photoPath: 'u/c.jpg',
       breed: breedFixture,
     });
-    const tree = render(wrap(<Capture />));
+    const tree = render(<Capture />);
     await act(async () => {
       fireEvent.press(tree.getByLabelText('Capture'));
     });
-    await waitFor(() => expect(pushMock).toHaveBeenCalled());
-    const completedCalls = trackMock.mock.calls.filter(
+    await waitFor(() => expect(mockPush).toHaveBeenCalled());
+    const completedCalls = mockTrack.mock.calls.filter(
       (c) => c[0] === Events.onboarding_capture_completed,
     );
     expect(completedCalls).toHaveLength(1);
   });
 
   it('on focus, re-checks camera permission; if revoked, navigates to /onboarding/camera-denied', async () => {
-    getCameraPermissionMock.mockResolvedValue({ status: 'denied', canAskAgain: false });
-    render(wrap(<Capture />));
+    mockGetCameraPermission.mockResolvedValue({ status: 'denied', canAskAgain: false });
+    render(<Capture />);
     await waitFor(() =>
-      expect(replaceMock).toHaveBeenCalledWith('/onboarding/camera-denied'),
+      expect(mockReplace).toHaveBeenCalledWith('/onboarding/camera-denied'),
     );
   });
 });
