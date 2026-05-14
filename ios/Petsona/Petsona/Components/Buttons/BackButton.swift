@@ -9,18 +9,24 @@ public struct BackButton: View {
 
     public var body: some View {
         Button(action: action) {
-            Image(systemName: "chevron.left")
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(Color.colorTextDefault)
-                .frame(width: 44, height: 44)
-                .background(
-                    Circle().fill(Color.colorSurfaceDim)
-                )
+            HStack(spacing: 4) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 12, weight: .medium))
+                Text("Back")
+                    .font(.custom("DM Sans", size: 14).weight(.medium))
+            }
+            .foregroundStyle(Color.inkSoft)
+            .padding(.leading, 8)
+            .padding(.trailing, 12)
+            .padding(.vertical, 6)
+            .glassBackground(tier: .thin, shape: Capsule(style: .continuous))
         }
+        .buttonStyle(.plain)
     }
 }
 
 #Preview {
     BackButton {}
         .padding()
+        .background(Color.colorSurface)
 }

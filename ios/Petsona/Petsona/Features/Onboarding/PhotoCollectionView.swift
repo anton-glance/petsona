@@ -16,20 +16,36 @@ struct PhotoCollectionView: View {
     var body: some View {
         ScreenContainer {
             VStack(spacing: 0) {
+                // Header: back | progress dots | "N / 3"
+                HStack {
+                    BackButton { coordinator.path.removeLast() }
+                    Spacer()
+                    progressDots
+                    Spacer()
+                    Text("\(collectionState) / 3")
+                        .font(.custom("DM Sans", size: 11).weight(.semibold))
+                        .foregroundStyle(Color.colorTextMuted)
+                        .textCase(.uppercase)
+                        .kerning(0.08 * 11)
+                }
+                .padding(.horizontal, Spacing.s4)
+                .padding(.top, 4)
+                .padding(.bottom, Spacing.s3)
+
                 ScrollView {
-                    VStack(alignment: .leading, spacing: Spacing.s5) {
-                        VStack(alignment: .leading, spacing: Spacing.s2) {
+                    VStack(alignment: .leading, spacing: Spacing.s4) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(headline)
-                                .petsona(.displayMd)
-                                .foregroundStyle(Color.colorTextDefault)
+                                .petsona(.displayLg)
+                                .foregroundStyle(Color.colorPrimary)
                             Text(subline)
-                                .petsona(.body)
-                                .foregroundStyle(Color.colorTextSoft)
+                                .font(.custom("DM Sans", size: 13))
+                                .foregroundStyle(Color.colorTextMuted)
                         }
-                        .padding(.top, Spacing.s6)
+                        .padding(.top, Spacing.s1)
 
                         // Photo cards
-                        VStack(spacing: Spacing.s3) {
+                        VStack(spacing: Spacing.s2) {
                             photoRow(
                                 slot: .front,
                                 title: "Front photo",
@@ -38,6 +54,7 @@ struct PhotoCollectionView: View {
                                     : "Face and chest visible",
                                 isCaptured: coordinator.capturedPhotos.front != nil,
                                 isActive: coordinator.capturedPhotos.front == nil,
+                                isOptional: false,
                                 accessibilityID: "front-photo-row"
                             )
                             photoRow(
@@ -48,6 +65,7 @@ struct PhotoCollectionView: View {
                                     : "Profile shot · full body if possible",
                                 isCaptured: coordinator.capturedPhotos.side != nil,
                                 isActive: coordinator.capturedPhotos.front != nil && coordinator.capturedPhotos.side == nil,
+                                isOptional: false,
                                 accessibilityID: "side-photo-row"
                             )
                             photoRow(
@@ -58,11 +76,12 @@ struct PhotoCollectionView: View {
                                     : "Any document with breed, vitals, or vaccinations",
                                 isCaptured: coordinator.capturedPhotos.document != nil,
                                 isActive: collectionState == 2,
+                                isOptional: true,
                                 accessibilityID: "vet-photo-row"
                             )
                         }
                     }
-                    .padding(.horizontal, Spacing.s5)
+                    .padding(.horizontal, Spacing.s4)
                 }
 
                 CtaStack {
@@ -73,7 +92,7 @@ struct PhotoCollectionView: View {
                         PrimaryButton("Capture document") {
                             coordinator.navigateToCamera(slot: .document)
                         }
-                        SecondaryButton("Skip vet docs") {
+                        TextButton("Skip vet docs") {
                             coordinator.skipDocument()
                         }
                     } else {
@@ -90,6 +109,40 @@ struct PhotoCollectionView: View {
                 hasTriggeredAdvance = true
                 Task { await coordinator.advanceFromCollection() }
             }
+        }
+    }
+
+    // MARK: - Progress dots
+
+    private var progressDots: some View {
+        HStack(spacing: 6) {
+            ForEach(0..<3, id: \.self) { index in
+                let state = dotState(index: index)
+                Capsule(style: .continuous)
+                    .fill(dotColor(state: state))
+                    .frame(width: state == .active ? 34 : 22, height: 4)
+                    .shadow(
+                        color: state == .active ? Color.colorPrimary.opacity(0.35) : .clear,
+                        radius: 4
+                    )
+                    .animation(.easeInOut(duration: 0.2), value: collectionState)
+            }
+        }
+    }
+
+    private enum DotState { case inactive, done, active }
+
+    private func dotState(index: Int) -> DotState {
+        if index < collectionState - 1 { return .done }
+        if index == collectionState - 1 { return .active }
+        return .inactive
+    }
+
+    private func dotColor(state: DotState) -> Color {
+        switch state {
+        case .inactive: return Color.ink.opacity(0.10)
+        case .done:     return Color.forestSoft
+        case .active:   return Color.colorPrimary
         }
     }
 
@@ -120,6 +173,7 @@ struct PhotoCollectionView: View {
         subtitle: String,
         isCaptured: Bool,
         isActive: Bool,
+        isOptional: Bool,
         accessibilityID: String
     ) -> some View {
         Button {
@@ -127,51 +181,122 @@ struct PhotoCollectionView: View {
                 coordinator.navigateToCamera(slot: slot)
             }
         } label: {
-            HStack(spacing: Spacing.s4) {
-                // Thumbnail or placeholder
-                Group {
-                    if let image = coordinator.capturedPhotos[slot] {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFill()
-                    } else {
-                        Color.colorBorderSoft
-                    }
-                }
-                .frame(width: 52, height: 52)
-                .clipShape(RoundedRectangle(cornerRadius: BorderRadius.sm, style: .continuous))
-                .opacity(isActive || isCaptured ? 1 : 0.4)
+            HStack(spacing: Spacing.s3) {
+                thumbnail(slot: slot, isCaptured: isCaptured, isActive: isActive)
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 1) {
                     Text(title)
-                        .petsona(.bodyLg)
-                        .foregroundStyle(isActive || isCaptured ? Color.colorTextDefault : Color.colorTextMuted)
+                        .font(.custom("DM Sans", size: 14).weight(.semibold))
+                        .foregroundStyle(Color.colorTextDefault)
                     Text(subtitle)
-                        .petsona(.caption)
-                        .foregroundStyle(Color.colorTextSoft)
+                        .font(.custom("DM Sans", size: 11.5))
+                        .foregroundStyle(Color.colorTextMuted)
+                        .lineLimit(1)
                 }
                 Spacer()
                 if isCaptured {
                     Button("Retake") {
                         coordinator.retake(slot: slot)
                     }
-                    .petsona(.caption)
-                    .foregroundStyle(Color.colorTextMuted)
+                    .font(.custom("DM Sans", size: 12.5).weight(.medium))
+                    .foregroundStyle(Color.honeyDk)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
                 } else if isActive {
                     Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(Color.colorTextMuted)
                 }
             }
-            .padding(Spacing.s4)
-            .background(
-                RoundedRectangle(cornerRadius: BorderRadius.md, style: .continuous)
-                    .fill(Color.colorSurfaceElev)
-                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
-            )
+            .padding(.vertical, 10)
+            .padding(.horizontal, 12)
+            .background(cardBackground(isCaptured: isCaptured, isActive: isActive, isOptional: isOptional))
+            .overlay(alignment: .topTrailing) {
+                if isOptional {
+                    cornerPill(isActive: isActive, isCaptured: isCaptured)
+                        .padding(.top, 6)
+                        .padding(.trailing, 8)
+                }
+            }
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(accessibilityID)
         .disabled(!isActive && !isCaptured)
+    }
+
+    @ViewBuilder
+    private func thumbnail(slot: PhotoSlot, isCaptured: Bool, isActive: Bool) -> some View {
+        ZStack {
+            if let image = coordinator.capturedPhotos[slot], isCaptured {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .background(Color.colorPrimary)
+            } else if isActive {
+                Color.honeyTint
+                Image(systemName: "camera")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundStyle(Color.honeyDk)
+            } else {
+                Color.ivoryDim
+                Image(systemName: "doc")
+                    .font(.system(size: 16, weight: .regular))
+                    .foregroundStyle(Color.mutedSoft)
+            }
+        }
+        .frame(width: 48, height: 48)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay {
+            if isCaptured {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color.colorPrimary)
+                    .overlay {
+                        Image(systemName: "pawprint.fill")
+                            .font(.system(size: 18))
+                            .foregroundStyle(Color.honey)
+                    }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func cardBackground(isCaptured: Bool, isActive: Bool, isOptional: Bool) -> some View {
+        if isActive {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(.regularMaterial)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .fill(Color.honey.opacity(0.22))
+                }
+        } else if isCaptured {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(.ultraThinMaterial)
+        } else {
+            // inactive optional
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(.regularMaterial)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .strokeBorder(
+                            style: StrokeStyle(lineWidth: 1, dash: [4, 3])
+                        )
+                        .foregroundStyle(Color.colorBorder.opacity(0.7))
+                }
+        }
+    }
+
+    private func cornerPill(isActive: Bool, isCaptured: Bool) -> some View {
+        Text("Optional")
+            .font(.custom("DM Sans", size: 9).weight(.semibold))
+            .textCase(.uppercase)
+            .kerning(0.04 * 9)
+            .foregroundStyle(isActive || isCaptured ? Color.honeyDk : Color.colorTextMuted)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background {
+                Capsule(style: .continuous)
+                    .fill(isActive || isCaptured ? Color.honeyTint : Color.colorSurfaceDim.opacity(0.8))
+            }
     }
 }
 

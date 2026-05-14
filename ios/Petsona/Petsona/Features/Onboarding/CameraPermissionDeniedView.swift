@@ -14,13 +14,20 @@ struct CameraPermissionDeniedView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: Spacing.s5) {
-                        Image(systemName: "camera.slash")
-                            .font(.system(size: 64))
-                            .foregroundStyle(Color.colorStatusDanger)
-                            .padding(.top, Spacing.s7)
+                        // Icon: 130×130 circle, ivoryDim bg, mutedSoft icon
+                        ZStack {
+                            Circle()
+                                .fill(Color.ivoryDim)
+                                .frame(width: 130, height: 130)
+                            Image(systemName: "camera.slash")
+                                .font(.system(size: 130 * 0.42, weight: .regular))
+                                .foregroundStyle(Color.mutedSoft)
+                        }
+                        .padding(.top, Spacing.s7)
 
                         VStack(spacing: Spacing.s3) {
-                            SmallCap("Camera access needed")
+                            // Error-colored small cap
+                            SmallCap("Camera access needed", color: Color.colorStatusDanger)
                             Text("Petsona can't continue without camera.")
                                 .petsona(.displayMd)
                                 .foregroundStyle(Color.colorTextDefault)
@@ -31,25 +38,30 @@ struct CameraPermissionDeniedView: View {
                                 .multilineTextAlignment(.center)
                         }
 
-                        VStack(alignment: .leading, spacing: Spacing.s3) {
+                        // Instruction steps with glass card styling
+                        VStack(spacing: Spacing.s4) {
                             ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
                                 HStack(alignment: .top, spacing: Spacing.s3) {
+                                    // Forest-filled number badge
                                     ZStack {
                                         Circle()
-                                            .fill(Color.colorAccent.opacity(0.15))
-                                            .frame(width: 28, height: 28)
+                                            .fill(Color.colorPrimary)
+                                            .frame(width: 22, height: 22)
                                         Text("\(index + 1)")
-                                            .petsona(.caption)
-                                            .foregroundStyle(Color.colorAccent)
+                                            .font(.custom("DM Sans", size: 11).weight(.bold))
+                                            .foregroundStyle(Color.ivory)
                                     }
                                     Text(step)
-                                        .petsona(.body)
-                                        .foregroundStyle(Color.colorTextDefault)
-                                        .padding(.top, 4)
+                                        .font(.custom("DM Sans", size: 12.5))
+                                        .foregroundStyle(Color.inkSoft)
+                                        .lineSpacing(3)
+                                        .padding(.top, 2)
+                                    Spacer()
                                 }
+                                .padding(Spacing.s3)
+                                .glassBackground(tier: .regular, cornerRadius: 16)
                             }
                         }
-                        .padding(.horizontal, Spacing.s2)
                     }
                     .padding(.horizontal, Spacing.s5)
                 }
@@ -60,7 +72,7 @@ struct CameraPermissionDeniedView: View {
                             UIApplication.shared.open(url)
                         }
                     }
-                    SecondaryButton("Already granted. Try again") {
+                    TextButton("Already granted. Try again") {
                         Task { await coordinator.requestCameraPermission() }
                     }
                 }

@@ -49,7 +49,7 @@ struct CameraCaptureView: View {
                     Spacer()
                     Pill(pillText)
                     Spacer()
-                    IconButton(systemName: "camera.rotate") {}
+                    Color.clear.frame(width: 36, height: 36)
                 }
                 .padding(.horizontal, Spacing.s4)
                 .padding(.top, Spacing.s3)

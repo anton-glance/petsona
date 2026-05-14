@@ -14,17 +14,27 @@ public struct PrimaryButton: View {
     public var body: some View {
         Button(action: action) {
             Text(label)
-                .petsona(.body)
-                .fontWeight(.semibold)
+                .font(.custom("DM Sans", size: 15).weight(.semibold))
                 .foregroundStyle(Color.colorTextOnPrimary)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, Spacing.s4)
-                .padding(.horizontal, Spacing.s5)
+                .padding(.vertical, 14)
+                .padding(.horizontal, 22)
         }
-        .background(
-            RoundedRectangle(cornerRadius: BorderRadius.xl, style: .continuous)
+        .background {
+            Capsule(style: .continuous)
                 .fill(isEnabled ? Color.colorPrimary : Color.colorTextMuted)
-        )
+                .overlay {
+                    // Specular top-edge gloss
+                    Capsule(style: .continuous)
+                        .fill(LinearGradient(
+                            colors: [Color.white.opacity(0.22), .clear],
+                            startPoint: .top,
+                            endPoint: .center
+                        ))
+                }
+        }
+        .shadow(color: Color.forestDk.opacity(0.55), radius: 15, x: 0, y: 8)
+        .shadow(color: Color.forestDk.opacity(0.30), radius: 3, x: 0, y: 1)
         .disabled(!isEnabled)
     }
 }

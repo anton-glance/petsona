@@ -19,6 +19,11 @@ public struct TextStyleSpec {
         size: 32, lineHeight: 38, weight: .bold,
         tracking: 32 * -0.015
     )
+    // 28px bold / -0.02em — the profile review "WOW moment" title (hey Mochi 👋)
+    public static let displayWow = TextStyleSpec(
+        size: 28, lineHeight: 34, weight: .bold,
+        tracking: 28 * -0.02
+    )
     public static let displayLg = TextStyleSpec(
         size: 24, lineHeight: 30, weight: .semibold,
         tracking: 24 * -0.015
@@ -43,6 +48,7 @@ public struct TextStyleSpec {
 
 public extension Font {
     static let petsonaDisplayXl  = TextStyleSpec.displayXl.font
+    static let petsonaDisplayWow = TextStyleSpec.displayWow.font
     static let petsonaDisplayLg  = TextStyleSpec.displayLg.font
     static let petsonaDisplayMd  = TextStyleSpec.displayMd.font
     static let petsonaBodyLg     = TextStyleSpec.bodyLg.font

@@ -2,9 +2,11 @@ import SwiftUI
 
 public struct SmallCap: View {
     private let label: String
+    private let color: Color
 
-    public init(_ label: String) {
+    public init(_ label: String, color: Color = Color.colorTextMuted) {
         self.label = label
+        self.color = color
     }
 
     public var body: some View {
@@ -13,7 +15,7 @@ public struct SmallCap: View {
             .petsona(.caption)
             .fontWeight(.semibold)
             .textCase(.uppercase)
-            .foregroundStyle(Color.colorTextMuted)
+            .foregroundStyle(color)
     }
 }
 

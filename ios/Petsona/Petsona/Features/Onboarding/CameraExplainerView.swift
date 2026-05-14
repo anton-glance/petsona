@@ -10,29 +10,34 @@ struct CameraExplainerView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: Spacing.s5) {
                         VStack(alignment: .leading, spacing: Spacing.s2) {
-                            SmallCap("Step 1 of 3")
+                            SmallCap("Step 1 of 3", color: Color.honeyDk)
                             Text("Petsona needs your camera.")
-                                .petsona(.displayMd)
-                                .foregroundStyle(Color.colorTextDefault)
+                                .petsona(.displayLg)
+                                .foregroundStyle(Color.colorPrimary)
                             Text("Two ways your camera makes Petsona work:")
                                 .petsona(.body)
-                                .foregroundStyle(Color.colorTextSoft)
+                                .foregroundStyle(Color.colorTextMuted)
                         }
                         .padding(.top, Spacing.s6)
 
-                        // Photo placeholder block
+                        // Camera preview placeholder with dog-warm gradient
                         ZStack {
                             RoundedRectangle(cornerRadius: BorderRadius.lg, style: .continuous)
-                                .fill(Color.colorBorderSoft)
-                                .frame(height: 180)
-                            VStack(spacing: Spacing.s2) {
-                                Image(systemName: "camera.viewfinder")
-                                    .font(.system(size: 40))
-                                    .foregroundStyle(Color.colorTextMuted)
-                                Text("Camera preview")
-                                    .petsona(.caption)
-                                    .foregroundStyle(Color.colorTextMuted)
-                            }
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            Color(red: 107/255, green: 73/255, blue: 38/255),
+                                            Color(red: 184/255, green: 133/255, blue: 66/255),
+                                            Color(red: 240/255, green: 194/255, blue: 128/255)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .aspectRatio(1.3, contentMode: .fit)
+                            Image(systemName: "camera.viewfinder")
+                                .font(.system(size: 32))
+                                .foregroundStyle(Color.white.opacity(0.6))
                         }
 
                         // Benefit rows
@@ -72,17 +77,25 @@ private struct BenefitRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: Spacing.s4) {
-            Image(systemName: symbol)
-                .font(.system(size: 22))
-                .foregroundStyle(Color.colorPrimary)
-                .frame(width: 32)
-            VStack(alignment: .leading, spacing: Spacing.s1) {
+            // 22×22 filled circle icon container matching design
+            ZStack {
+                Circle()
+                    .fill(Color.colorPrimary)
+                    .frame(width: 22, height: 22)
+                Image(systemName: symbol)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(Color.ivory)
+            }
+            .padding(.top, 2)
+
+            VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                    .petsona(.bodyLg)
+                    .font(.custom("DM Sans", size: 13.5).weight(.semibold))
                     .foregroundStyle(Color.colorTextDefault)
                 Text(description)
-                    .petsona(.body)
-                    .foregroundStyle(Color.colorTextSoft)
+                    .font(.custom("DM Sans", size: 12))
+                    .foregroundStyle(Color.colorTextMuted)
+                    .lineSpacing(4)
             }
         }
     }

@@ -33,9 +33,16 @@ struct ProfileReviewView: View {
             }
             .ignoresSafeArea()
             .overlay {
+                // Forest-tinted multiply overlay
+                Color.forest.opacity(0.5)
+                    .blendMode(.multiply)
+                    .ignoresSafeArea()
+            }
+            .overlay {
+                // Bottom fade to ivory so card blends seamlessly
                 LinearGradient(
-                    colors: [.clear, .black.opacity(0.55)],
-                    startPoint: .top,
+                    colors: [.clear, Color.ivory],
+                    startPoint: .init(x: 0.5, y: 0.5),
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
@@ -88,34 +95,45 @@ struct ProfileReviewView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.s5) {
                     // Hero text
-                    VStack(alignment: .leading, spacing: Spacing.s2) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("Hey Mochi 👋")
-                            .petsona(.displayLg)
-                            .foregroundStyle(Color.colorTextDefault)
+                            .font(.custom("DM Sans", size: 28).weight(.bold))
+                            .tracking(-28 * 0.02)
+                            .foregroundStyle(Color.forestDk)
                         Text("Here's what we read from your photos.")
-                            .petsona(.body)
-                            .foregroundStyle(Color.colorTextSoft)
+                            .font(.custom("DM Sans", size: 13))
+                            .foregroundStyle(Color.colorTextMuted)
                     }
 
-                    Divider()
-
-                    // Form fields
-                    VStack(spacing: Spacing.s4) {
-                        // Breed
-                        FormRow(label: "Breed") {
+                    // Form fields — compact bottom-border style
+                    VStack(spacing: 0) {
+                        // Breed + AI badge
+                        CompactField(label: "Breed") {
                             HStack {
-                                TextInput(placeholder: "Breed", text: $coordinator.profile.breed)
-                                SmallCap("AI \(coordinator.profile.breedConfidence)%")
+                                TextField("Breed", text: $coordinator.profile.breed)
+                                    .font(.custom("DM Sans", size: 14).weight(.medium))
+                                    .foregroundStyle(Color.colorTextDefault)
+                                Spacer()
+                                Text("AI \(coordinator.profile.breedConfidence)%")
+                                    .font(.custom("DM Sans", size: 8.5).weight(.bold))
+                                    .tracking(0.06 * 8.5)
+                                    .textCase(.uppercase)
+                                    .foregroundStyle(Color.honeyDk)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 1)
+                                    .background(Capsule(style: .continuous).fill(Color.honeyTint))
                             }
                         }
 
                         // Name
-                        FormRow(label: "Name") {
-                            TextInput(placeholder: "Name", text: $coordinator.profile.name)
+                        CompactField(label: "Name") {
+                            TextField("Name", text: $coordinator.profile.name)
+                                .font(.custom("DM Sans", size: 14).weight(.medium))
+                                .foregroundStyle(Color.colorTextDefault)
                         }
 
                         // Gender
-                        FormRow(label: "Gender") {
+                        CompactField(label: "Gender") {
                             Segmented(
                                 options: ["Female", "Male"],
                                 selectedIndex: Binding(
@@ -126,51 +144,44 @@ struct ProfileReviewView: View {
                         }
 
                         // Age
-                        FormRow(label: "Age") {
+                        CompactField(label: "Age") {
                             Button {
                                 showAgePicker = true
                             } label: {
                                 HStack {
                                     Text(formatAge(coordinator.profile.ageMonths))
-                                        .petsona(.body)
+                                        .font(.custom("DM Sans", size: 14).weight(.medium))
                                         .foregroundStyle(Color.colorTextDefault)
                                     Spacer()
                                     Image(systemName: "chevron.down")
+                                        .font(.system(size: 12))
                                         .foregroundStyle(Color.colorTextMuted)
                                 }
-                                .padding(.horizontal, Spacing.s3)
-                                .padding(.vertical, Spacing.s3)
-                                .background(
-                                    RoundedRectangle(cornerRadius: BorderRadius.sm, style: .continuous)
-                                        .fill(Color.colorSurface)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: BorderRadius.sm, style: .continuous)
-                                                .stroke(Color.colorBorder, lineWidth: 1)
-                                        )
-                                )
                             }
                             .buttonStyle(.plain)
                         }
 
                         // Weight
-                        FormRow(label: "Weight") {
-                            NumberInput(
-                                value: Binding(
+                        CompactField(label: "Weight") {
+                            HStack {
+                                TextField("0", text: Binding(
                                     get: { weightString },
                                     set: {
                                         weightString = $0
                                         if let v = Double($0) { coordinator.setWeight(v) }
                                     }
-                                ),
-                                unit: Binding(
-                                    get: { coordinator.profile.weightUnit.label },
-                                    set: { _ in }
-                                )
-                            )
+                                ))
+                                .font(.custom("DM Sans", size: 14).weight(.medium))
+                                .foregroundStyle(Color.colorTextDefault)
+                                .keyboardType(.decimalPad)
+                                Text(coordinator.profile.weightUnit.label)
+                                    .font(.custom("DM Sans", size: 13))
+                                    .foregroundStyle(Color.colorTextMuted)
+                            }
                         }
 
                         // Color
-                        FormRow(label: "Color") {
+                        CompactField(label: "Color") {
                             Menu {
                                 ForEach(colorOptions, id: \.self) { option in
                                     Button(option) { coordinator.setColor(option) }
@@ -178,22 +189,13 @@ struct ProfileReviewView: View {
                             } label: {
                                 HStack {
                                     Text(coordinator.profile.color)
-                                        .petsona(.body)
+                                        .font(.custom("DM Sans", size: 14).weight(.medium))
                                         .foregroundStyle(Color.colorTextDefault)
                                     Spacer()
                                     Image(systemName: "chevron.down")
+                                        .font(.system(size: 12))
                                         .foregroundStyle(Color.colorTextMuted)
                                 }
-                                .padding(.horizontal, Spacing.s3)
-                                .padding(.vertical, Spacing.s3)
-                                .background(
-                                    RoundedRectangle(cornerRadius: BorderRadius.sm, style: .continuous)
-                                        .fill(Color.colorSurface)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: BorderRadius.sm, style: .continuous)
-                                                .stroke(Color.colorBorder, lineWidth: 1)
-                                        )
-                                )
                             }
                             .buttonStyle(.plain)
                         }
@@ -201,8 +203,12 @@ struct ProfileReviewView: View {
 
                     // Vet records
                     if !coordinator.profile.vetRecords.isEmpty {
-                        VStack(alignment: .leading, spacing: Spacing.s3) {
-                            SmallCap("From vet card")
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("From vet card")
+                                .font(.custom("DM Sans", size: 9.5).weight(.semibold))
+                                .tracking(0.06 * 9.5)
+                                .textCase(.uppercase)
+                                .foregroundStyle(Color.colorTextMuted)
                             ForEach(coordinator.profile.vetRecords) { record in
                                 VetRecordRow(record: record) {
                                     coordinator.removeVetRecord(id: record.id)
@@ -302,16 +308,24 @@ struct ProfileReviewView: View {
 
 // MARK: - Supporting views
 
-private struct FormRow<Control: View>: View {
+private struct CompactField<Content: View>: View {
     let label: String
-    @ViewBuilder let control: () -> Control
+    @ViewBuilder let content: () -> Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.s2) {
+        VStack(alignment: .leading, spacing: 3) {
             Text(label)
-                .petsona(.caption)
+                .font(.custom("DM Sans", size: 9.5).weight(.semibold))
+                .tracking(0.06 * 9.5)
+                .textCase(.uppercase)
                 .foregroundStyle(Color.colorTextMuted)
-            control()
+            content()
+        }
+        .padding(.vertical, 9)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(Color.rule)
+                .frame(height: 1)
         }
     }
 }
@@ -321,27 +335,23 @@ private struct VetRecordRow: View {
     let onRemove: () -> Void
 
     var body: some View {
-        HStack(spacing: Spacing.s3) {
+        HStack(spacing: 10) {
             Image(systemName: record.kind.symbolName)
-                .font(.system(size: 16))
-                .foregroundStyle(Color.colorPrimary)
-                .frame(width: 28)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(record.label)
-                    .petsona(.body)
-                    .foregroundStyle(Color.colorTextDefault)
-                Text(record.subtitle)
-                    .petsona(.caption)
+                .font(.system(size: 13))
+                .foregroundStyle(Color.honeyDk)
+                .frame(width: 16)
+            Text("\(record.label) · \(record.subtitle)")
+                .font(.custom("DM Sans", size: 12).weight(.medium))
+                .foregroundStyle(Color.honeyDk)
+                .lineLimit(1)
+            Spacer()
+            Button { onRemove() } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 11))
                     .foregroundStyle(Color.colorTextMuted)
             }
-            Spacer()
-            IconButton(systemName: "xmark") { onRemove() }
         }
-        .padding(Spacing.s3)
-        .background(
-            RoundedRectangle(cornerRadius: BorderRadius.sm, style: .continuous)
-                .fill(Color.colorSurfaceDim)
-        )
+        .padding(.vertical, 4)
     }
 }
 
