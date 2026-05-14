@@ -136,6 +136,7 @@ After Phase 3 only (or earlier per-phase if Anton wants intermediate device test
 
 - [x] Phase 0 complete — 2026-05-14. 74/74 tests green. All tokens + primitives committed.
 - [x] Phase 1 complete — 2026-05-14. 94/94 tests green (91 unit + 3 XCUITests). 8 simulator screenshots committed.
+- [x] Phase 1 post-done amend — 2026-05-14. Design polish pass: 10 files aligned to `docs/design/*.html` pixel values (BackButton, PrimaryButton, SmallCap redesigned; WelcomeView gradient + 170px logo; CameraExplainerView warm preview + circle icon badges; CameraPermissionDeniedView ivoryDim circle + glass steps; CameraCaptureView rotate→spacer; PhotoCollectionView pill-dot header + glass cards; ProfileReviewView forest overlay + CompactField form). Three refactors promoted to design system: `displayWow` typography token (28px/bold/−0.02em), `CompactField` primitive extracted to `Components/Inputs/`, `ProgressDots` updated to pill style. PrimaryButton regression fixed (background moved inside label broke XCUITest accessibility lookup). 94/94 tests green. 7 screenshots refreshed.
 - [ ] Phase 2 complete
 - [ ] Phase 3 complete
 - [ ] Full flow tested on Anton's iPhone with design fidelity matching `docs/design/*.html`
