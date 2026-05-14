@@ -1,0 +1,101 @@
+import AVFoundation
+import UIKit
+
+enum CameraError: Error {
+    case deviceUnavailable
+    case captureFailure
+}
+
+// @unchecked Sendable: all AVCaptureSession mutation is serialized on sessionQueue.
+// captureSession is a read-only reference shared with AVCaptureVideoPreviewLayer on the
+// main thread — a pattern explicitly permitted by AVFoundation's documentation.
+final class CameraSession: @unchecked Sendable {
+    /// Marked with doc comment per plan requirement:
+    /// Marked nonisolated(unsafe) because AVCaptureVideoPreviewLayer is documented
+    /// to read this session reference from the main thread while the session
+    /// itself runs on a dedicated background queue. AVFoundation's contract
+    /// permits this specific cross-thread reference pattern; no Sendable conformance
+    /// is required for AVCaptureSession's reference semantics.
+    ///
+    /// See: https://developer.apple.com/documentation/avfoundation/avcapturevideopreviewlayer
+    let captureSession = AVCaptureSession()
+
+    private let sessionQueue = DispatchQueue(
+        label: "com.antonglance.petsona.camera.session",
+        qos: .userInitiated
+    )
+    private let photoOutput = AVCapturePhotoOutput()
+    private var captureDelegate: PhotoCaptureDelegate?
+
+    func configure(position: AVCaptureDevice.Position = .back) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            sessionQueue.async { [self] in
+                captureSession.beginConfiguration()
+                defer { captureSession.commitConfiguration() }
+                do {
+                    guard let device = AVCaptureDevice.default(
+                        .builtInWideAngleCamera, for: .video, position: position
+                    ) else {
+                        throw CameraError.deviceUnavailable
+                    }
+                    let input = try AVCaptureDeviceInput(device: device)
+                    if captureSession.canAddInput(input) { captureSession.addInput(input) }
+                    if captureSession.canAddOutput(photoOutput) { captureSession.addOutput(photoOutput) }
+                    continuation.resume()
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+
+    func start() {
+        sessionQueue.async { [self] in
+            if !captureSession.isRunning { captureSession.startRunning() }
+        }
+    }
+
+    func stop() {
+        sessionQueue.async { [self] in
+            if captureSession.isRunning { captureSession.stopRunning() }
+        }
+    }
+
+    func capturePhoto() async throws -> UIImage {
+        try await withCheckedThrowingContinuation { continuation in
+            sessionQueue.async { [self] in
+                let delegate = PhotoCaptureDelegate(continuation: continuation)
+                captureDelegate = delegate
+                let settings = AVCapturePhotoSettings()
+                photoOutput.capturePhoto(with: settings, delegate: delegate)
+            }
+        }
+    }
+}
+
+// AVFoundation fires delegate callbacks on its own queue. @unchecked Sendable because
+// continuation is written once (init) then resumed once (callback) with no concurrent access.
+private final class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate, @unchecked Sendable {
+    private let continuation: CheckedContinuation<UIImage, Error>
+
+    init(continuation: CheckedContinuation<UIImage, Error>) {
+        self.continuation = continuation
+        super.init()
+    }
+
+    func photoOutput(
+        _ output: AVCapturePhotoOutput,
+        didFinishProcessingPhoto photo: AVCapturePhoto,
+        error: Error?
+    ) {
+        if let error {
+            continuation.resume(throwing: error)
+            return
+        }
+        guard let data = photo.fileDataRepresentation() else {
+            continuation.resume(throwing: CameraError.captureFailure)
+            return
+        }
+        continuation.resume(returning: UIImage(data: data) ?? UIImage())
+    }
+}
