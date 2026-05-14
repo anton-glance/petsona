@@ -73,17 +73,21 @@ final class CameraSession: @unchecked Sendable {
     }
 }
 
-// AVFoundation fires delegate callbacks on its own queue. @unchecked Sendable because
-// continuation is written once (init) then resumed once (callback) with no concurrent access.
-private final class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate, @unchecked Sendable {
-    private let continuation: CheckedContinuation<UIImage, Error>
+// AVFoundation fires delegate callbacks on its own queue.
+// @preconcurrency: suppresses "Main actor-isolated conformance cannot be used in nonisolated context"
+// — AVCapturePhotoCaptureDelegate predates Swift concurrency.
+// @unchecked Sendable: continuation written once (init), resumed once (callback), no concurrent access.
+private final class PhotoCaptureDelegate: NSObject, @preconcurrency AVCapturePhotoCaptureDelegate, @unchecked Sendable {
+    // nonisolated(unsafe): accessed from the nonisolated AVFoundation callback;
+    // safe because it is set once in init and resumed exactly once.
+    nonisolated(unsafe) private let continuation: CheckedContinuation<UIImage, Error>
 
     init(continuation: CheckedContinuation<UIImage, Error>) {
         self.continuation = continuation
         super.init()
     }
 
-    func photoOutput(
+    nonisolated func photoOutput(
         _ output: AVCapturePhotoOutput,
         didFinishProcessingPhoto photo: AVCapturePhoto,
         error: Error?

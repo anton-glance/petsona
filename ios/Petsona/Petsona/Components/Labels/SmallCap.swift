@@ -8,9 +8,11 @@ public struct SmallCap: View {
     }
 
     public var body: some View {
-        Text(label.uppercased())
+        // .textCase preserves the original string for accessibility; .uppercased() would not
+        Text(label)
             .petsona(.caption)
             .fontWeight(.semibold)
+            .textCase(.uppercase)
             .foregroundStyle(Color.colorTextMuted)
     }
 }

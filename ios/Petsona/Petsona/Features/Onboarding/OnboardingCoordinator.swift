@@ -29,15 +29,21 @@ final class OnboardingCoordinator {
     var permissionState: CameraPermissionState = .notDetermined
     var isDocumentSkipped = false
 
+    // Runtime flag: true when launched with mock camera args (XCUITest / macOS test runner).
+    // Views check this instead of #if targetEnvironment(simulator) so tests pass on macOS.
+    let useMockCamera: Bool
+
     private let permissionProvider: any CameraPermissionProviding
     private let collectionAdvanceDelay: Duration
 
     init(
         permissionProvider: any CameraPermissionProviding = CameraPermissionProvider(),
-        collectionAdvanceDelay: Duration = .seconds(2.5)
+        collectionAdvanceDelay: Duration = .seconds(2.5),
+        useMockCamera: Bool = false
     ) {
         self.permissionProvider = permissionProvider
         self.collectionAdvanceDelay = collectionAdvanceDelay
+        self.useMockCamera = useMockCamera
     }
 
     // MARK: - Computed
@@ -62,6 +68,10 @@ final class OnboardingCoordinator {
         switch state {
         case .authorized:
             path.removeAll { $0 == .cameraPermissionDenied }
+            // Push photoCollection first so camera sits on top; after capture we pop back to it.
+            if !path.contains(.photoCollection) {
+                path.append(.photoCollection)
+            }
             path.append(.cameraCapture(activeSlot ?? .front))
         case .denied, .restricted:
             if !path.contains(.cameraPermissionDenied) {
@@ -123,7 +133,8 @@ extension OnboardingCoordinator {
             let state: CameraPermissionState = args.contains("grant") ? .authorized : .denied
             return OnboardingCoordinator(
                 permissionProvider: MockCameraPermissionProvider(state: state),
-                collectionAdvanceDelay: .zero
+                collectionAdvanceDelay: .zero,
+                useMockCamera: true
             )
         }
         #endif
