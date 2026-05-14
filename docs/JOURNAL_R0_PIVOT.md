@@ -135,7 +135,7 @@ After Phase 3 only (or earlier per-phase if Anton wants intermediate device test
 ## Verdict
 
 - [x] Phase 0 complete — 2026-05-14. 74/74 tests green. All tokens + primitives committed.
-- [ ] Phase 1 complete
+- [x] Phase 1 complete — 2026-05-14. 94/94 tests green (91 unit + 3 XCUITests). 8 simulator screenshots committed.
 - [ ] Phase 2 complete
 - [ ] Phase 3 complete
 - [ ] Full flow tested on Anton's iPhone with design fidelity matching `docs/design/*.html`
@@ -145,7 +145,7 @@ After Phase 3 only (or earlier per-phase if Anton wants intermediate device test
 | Phase | Estimate | Actual | Variance + reason |
 |---|---|---|---|
 | Phase 0 — Foundation | 1.5–2h | ~3h | +1h — font embedding (variable font PostScript/family name discovery), Info.plist synchronized-group conflict, MainActor isolation in tests |
-| Phase 1 — Screens 01-05 | 3–4h | — | — |
+| Phase 1 — Screens 01-05 | 3–4h | ~5h | +1-2h — Swift 6 region-based isolation (3-stage fix), runtime `useMockCamera` flag replacing compile-time `#if targetEnvironment`, `SmallCap` a11y `.textCase` fix, navigation ordering (`photoCollection` before `cameraCapture`) |
 | Phase 2 — Screens 06-09 | 2–3h | — | — |
 | Phase 3 — Screens 10-12 | 2h | — | — |
 | **Total** | **8.5–11h** | — | — |
