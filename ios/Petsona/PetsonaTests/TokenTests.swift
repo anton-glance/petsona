@@ -126,10 +126,10 @@ struct TypographyTokenTests {
 
     @Test("All six type variants return non-nil Font")
     func allVariantsNonNil() {
-        _ = Font.displayXl
-        _ = Font.displayLg
-        _ = Font.displayMd
-        _ = Font.bodyLg
+        _ = Font.petsonaDisplayXl
+        _ = Font.petsonaDisplayLg
+        _ = Font.petsonaDisplayMd
+        _ = Font.petsonaBodyLg
         _ = Font.petsonaBody
         _ = Font.petsonaCaption
     }
