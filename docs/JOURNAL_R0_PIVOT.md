@@ -134,7 +134,7 @@ After Phase 3 only (or earlier per-phase if Anton wants intermediate device test
 
 ## Verdict
 
-- [ ] Phase 0 complete
+- [x] Phase 0 complete — 2026-05-14. 74/74 tests green. All tokens + primitives committed.
 - [ ] Phase 1 complete
 - [ ] Phase 2 complete
 - [ ] Phase 3 complete
@@ -144,7 +144,7 @@ After Phase 3 only (or earlier per-phase if Anton wants intermediate device test
 
 | Phase | Estimate | Actual | Variance + reason |
 |---|---|---|---|
-| Phase 0 — Foundation | 1.5–2h | — | — |
+| Phase 0 — Foundation | 1.5–2h | ~3h | +1h — font embedding (variable font PostScript/family name discovery), Info.plist synchronized-group conflict, MainActor isolation in tests |
 | Phase 1 — Screens 01-05 | 3–4h | — | — |
 | Phase 2 — Screens 06-09 | 2–3h | — | — |
 | Phase 3 — Screens 10-12 | 2h | — | — |
