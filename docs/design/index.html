@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Petsona — Onboarding · all screens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<link rel="stylesheet" href="screens.css" />
+<style>
+  body { background: #ECE6D8; }
+
+  header.page {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(236,230,216,0.92);
+    -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--rule);
+  }
+  header .inner {
+    max-width: 1640px; margin: 0 auto; padding: 16px 32px;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+  }
+  header .brand { display: flex; align-items: center; gap: 14px; }
+  header .brand img { height: 32px; }
+  header .brand .meta { color: var(--muted); font-size: 12px; line-height: 1.4; }
+  header .brand .meta strong { color: var(--ink); }
+
+  .species-toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .species-toggle .pill-wrap {
+    display: inline-flex; background: var(--ivory); border: 1px solid var(--rule);
+    border-radius: var(--r-pill); padding: 3px;
+  }
+  .species-toggle button {
+    border: 0; background: transparent; padding: 6px 12px;
+    border-radius: var(--r-pill); font: 600 12px var(--ui); color: var(--muted); cursor: pointer;
+  }
+  .species-toggle button.is-active { background: var(--honey); color: var(--forest-dk); }
+
+  main.board-page { max-width: 1640px; margin: 0 auto; padding: 48px 32px 120px; }
+  .intro { max-width: 760px; margin-bottom: 48px; }
+  .intro h1 { font-weight: 700; font-size: 30px; letter-spacing: -0.02em; margin: 0 0 8px; }
+  .intro p { color: var(--muted); font-size: 14.5px; line-height: 1.6; margin: 0; }
+  .intro a { color: var(--forest); }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 56px 32px;
+    align-items: start;
+  }
+  @media (min-width: 1500px) { .board { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 880px)  { .board { grid-template-columns: 1fr; } }
+
+  .frame { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .frame-label { text-align: center; display: flex; flex-direction: column; gap: 6px; max-width: 340px; }
+  .frame-label .step-no { font-family: ui-monospace, monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: var(--honey-dk); }
+  .frame-label .step-name { font-weight: 600; font-size: 18px; letter-spacing: -0.01em; color: var(--ink); }
+  .frame-label .step-link { font-size: 12px; color: var(--muted); }
+  .frame-label .step-link a { color: var(--forest); font-weight: 500; }
+  .frame.edge .frame-label .step-no { color: var(--error); }
+</style>
+</head>
+<body class="is-cat-mode">
+
+<header class="page">
+  <div class="inner">
+    <div class="brand">
+      <img src="brand/wordmark-light.png" alt="Petsona"/>
+      <div class="meta">Onboarding · <strong>review board</strong> · 12 screens + 1 edge · 3 collection states</div>
+    </div>
+    <div class="species-toggle">
+      <span>Preview as:</span>
+      <div class="pill-wrap">
+        <button id="cat-btn" class="is-active">Cat</button>
+        <button id="dog-btn">Dog</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="board-page">
+  <div class="intro">
+    <h1>Petsona onboarding · final review</h1>
+    <p>All 12 onboarding screens + the camera-permission-denied edge case + 3 photo-collection states. Toggle Cat / Dog above to see silent UI adaptation. Each frame links to its standalone file. The full handoff package — tokens, components, README — sits alongside this file.</p>
+  </div>
+
+  <div class="board">
+
+    <!-- 01 SPLASH -->
+    <div class="frame">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-canvas">
+          <section class="screen splash">
+            <div class="pet-pattern"></div>
+            <div class="statusbar"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+            <div class="logo-wrap"><img src="brand/monochrome/icon-forest.svg" alt="Petsona"/></div>
+            <div class="copy">
+              <h1>Welcome to Petsona</h1>
+              <p>Every pet has a Petsona. Let's capture yours — breed, vitals, vet records, and a care plan tuned to them.</p>
+            </div>
+            <div class="cta-stack"><button class="btn">Get started</button></div>
+            <div class="terms">By continuing, you agree to our <a>Terms of Use</a><br/>and <a>Privacy Policy</a>.</div>
+          </section>
+        </div>
+      </div>
+      <div class="frame-label">
+        <span class="step-no">Step 01</span>
+        <span class="step-name">Welcome</span>
+        <span class="step-link"><a href="01_splash.html">open standalone →</a></span>
+      </div>
+    </div>
+
+    <!-- 02 CAMERA EXPLAINER -->
+    <div class="frame">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-canvas">
+          <section class="screen cam-explainer">
+            <div class="statusbar"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+            <div class="header-block">
+              <span class="small-cap">Step 1 of 3</span>
+              <h1 class="h-display display-lg">Petsona needs your camera.</h1>
+              <p class="body muted">Two ways your camera makes Petsona work:</p>
+            </div>
+            <div class="camera-preview"><div class="cam-brackets"><span></span></div></div>
+            <div class="benefit-row">
+              <span class="icon-mark forest"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></span>
+              <div class="b-text"><div class="b-title">Quick check-up of anything off</div><div class="b-desc">Snap a photo when something looks wrong. We tell you if it's <b>calm</b>, <b>watch</b>, or <b>urgent</b>.</div></div>
+            </div>
+            <div class="benefit-row">
+              <span class="icon-mark forest"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg></span>
+              <div class="b-text"><div class="b-title">A timeline that builds itself</div><div class="b-desc">Photos, receipts, vet documents — all auto-filed to your pet's story.</div></div>
+            </div>
+            <div class="cta-stack"><button class="btn">Allow access</button></div>
+          </section>
+        </div>
+      </div>
+      <div class="frame-label">
+        <span class="step-no">Step 02</span>
+        <span class="step-name">Camera permission</span>
+        <span class="step-link"><a href="02_camera_permission.html">open standalone →</a></span>
+      </div>
+    </div>
+
+    <!-- 02b CAMERA DENIED -->
+    <div class="frame edge">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-canvas">
+          <section class="screen cam-denied">
+            <div class="statusbar"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+            <div class="header-block">
+              <span class="small-cap">Camera access needed</span>
+              <h1 class="h-display display-lg">Petsona can't continue without camera.</h1>
+              <p class="body muted">Enable camera in Settings — Petsona needs it to identify your pet and digitize records.</p>
+            </div>
+            <div class="camera-slash-icon">
+              <svg viewBox="0 0 256 256" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M48 80 L 48 200 A 8 8 0 0 0 56 208 L 184 208"/>
+                <path d="M72 80 L 88 56 L 168 56 L 184 80 L 200 80 A 8 8 0 0 1 208 88 L 208 188"/>
+                <circle cx="128" cy="132" r="32"/>
+                <line x1="40" y1="40" x2="216" y2="216" stroke-width="14"/>
+              </svg>
+            </div>
+            <div class="instructions">
+              <div class="step"><span class="num">1</span><span class="txt">Open <b>Settings</b></span></div>
+              <div class="step"><span class="num">2</span><span class="txt">Find <b>Petsona</b> in the app list</span></div>
+              <div class="step"><span class="num">3</span><span class="txt">Toggle <b>Camera</b> on</span></div>
+            </div>
+            <div class="cta-stack">
+              <button class="btn">Open Settings</button>
+              <button class="btn text">Already granted. Try again</button>
+            </div>
+          </section>
+        </div>
+      </div>
+      <div class="frame-label">
+        <span class="step-no">Edge case</span>
+        <span class="step-name">Permission denied</span>
+        <span class="step-link"><a href="02b_permission_denied.html">open standalone →</a></span>
+      </div>
+    </div>
+
+    <!-- 03 CAMERA CAPTURE -->
+    <div class="frame">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-canvas">
+          <section class="screen camera">
+            <div class="statusbar dim"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+            <div class="top-tools">
+              <button class="iconbtn-dark" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+              <span class="top-pill">Photo 1 of 3 · Front</span>
+              <span style="width:34px"></span>
+            </div>
+            <div class="viewfinder">
+              <div class="corners"><span></span></div>
+              <div class="silhouette"><img src="brand/monochrome/icon-honey.svg" alt=""/></div>
+            </div>
+            <div class="tip"><strong>Front-facing photo</strong> · face and chest visible</div>
+            <div class="controls-row">
+              <button class="iconbtn-dark" aria-label="Photo library"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5-7 7"/></svg></button>
+              <button class="shutter" aria-label="Capture"><span></span></button>
+              <button class="iconbtn-dark" aria-label="Flip camera"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-7-3.5"/><path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 7 3.5"/><path d="M21 4v5h-5"/><path d="M3 20v-5h5"/></svg></button>
+            </div>
+          </section>
+        </div>
+      </div>
+      <div class="frame-label">
+        <span class="step-no">Step 03</span>
+        <span class="step-name">Photo capture</span>
+        <span class="step-link"><a href="03_camera_capture.html">open standalone →</a></span>
+      </div>
+    </div>
+
+    <!-- 04a COLLECTION STATE 1 -->
+    <div class="frame">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-canvas">
+          <section class="screen collect">
+            <div class="statusbar"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+            <div class="header">
+              <button class="back-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+              <div class="progress-dots"><span class="done"></span><span class="is-active"></span><span></span></div>
+              <span class="caption">1 / 3</span>
+            </div>
+            <h1 class="h-display display-lg">Now, a side view.</h1>
+            <p class="body muted">Different angles help us read breed traits accurately.</p>
+            <div class="steps">
+              <div class="photo-card done"><div class="thumb done"><span class="paw-icon" style="width:22px;height:22px;"></span></div><div class="info"><div class="title">Front photo</div><div class="sub">Captured · face and chest visible</div></div><button class="btn honey-text">Retake</button></div>
+              <div class="photo-card active"><div class="thumb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><div class="info"><div class="title">Side photo</div><div class="sub">Profile shot · full body if possible</div></div><svg width="14" height="14" class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+              <div class="photo-card optional"><span class="corner-pill">Optional</span><div class="thumb" style="background:var(--ivory-dim);color:var(--muted);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="info"><div class="title">Vet passport / DNA test</div><div class="sub">Any document with breed, vitals, or vaccinations</div></div></div>
+            </div>
+            <div class="cta-stack"><button class="btn">Capture side photo</button></div>
+          </section>
+        </div>
+      </div>
+      <div class="frame-label">
+        <span class="step-no">Step 04 · state 1</span>
+        <span class="step-name">After front captured</span>
+        <span class="step-link"><a href="04_photo_collection.html">open all 3 states →</a></span>
+      </div>
+    </div>
+
+    <!-- 04b COLLECTION STATE 2 -->
+    <div class="frame">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-canvas">
+          <section class="screen collect">
+            <div class="statusbar"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+            <div class="header">
+              <button class="back-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+              <div class="progress-dots"><span class="done"></span><span class="done"></span><span class="is-active"></span></div>
+              <span class="caption">2 / 3</span>
+            </div>
+            <h1 class="h-display display-lg">Got a document for Mochi?</h1>
+            <p class="body muted">Vet passport, DNA test, or any record — speeds up your profile.</p>
+            <div class="steps">
+              <div class="photo-card done"><div class="thumb done"><span class="paw-icon" style="width:22px;height:22px;"></span></div><div class="info"><div class="title">Front photo</div><div class="sub">Captured</div></div><button class="btn honey-text">Retake</button></div>
+              <div class="photo-card done"><div class="thumb done"><span class="paw-icon" style="width:22px;height:22px;"></span></div><div class="info"><div class="title">Side photo</div><div class="sub">Captured</div></div><button class="btn honey-text">Retake</button></div>
+              <div class="photo-card active optional"><span class="corner-pill" style="background:var(--honey-tint); color:var(--honey-dk);">Optional</span><div class="thumb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="info"><div class="title">Vet passport / DNA test</div><div class="sub">Any document with breed, vitals, or vaccinations</div></div><svg width="14" height="14" class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+            </div>
+            <div class="cta-stack"><button class="btn">Capture document</button><button class="btn text">Skip vet docs</button></div>
+          </section>
+        </div>
+      </div>
+      <div class="frame-label">
+        <span class="step-no">Step 04 · state 2</span>
+        <span class="step-name">Vet doc active</span>
+        <span class="step-link"><a href="04_photo_collection.html">open all 3 states →</a></span>
+      </div>
+    </div>
+
+    <!-- 04c COLLECTION STATE 3 -->
+    <div class="frame">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-canvas">
+          <section class="screen collect">
+            <div class="statusbar"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+            <div class="header">
+              <button class="back-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+              <div class="progress-dots"><span class="done"></span><span class="done"></span><span class="done"></span></div>
+              <span class="caption">3 / 3</span>
+            </div>
+            <h1 class="h-display display-lg">Everything captured.</h1>
+            <p class="body muted">Ready to read what these photos tell us about Mochi.</p>
+            <div class="steps">
+              <div class="photo-card done"><div class="thumb done"><span class="paw-icon" style="width:22px;height:22px;"></span></div><div class="info"><div class="title">Front photo</div><div class="sub">Captured</div></div><button class="btn honey-text">Retake</button></div>
+              <div class="photo-card done"><div class="thumb done"><span class="paw-icon" style="width:22px;height:22px;"></span></div><div class="info"><div class="title">Side photo</div><div class="sub">Captured</div></div><button class="btn honey-text">Retake</button></div>
+              <div class="photo-card done"><span class="corner-pill" style="background:var(--honey-tint); color:var(--honey-dk);">Optional</span><div class="thumb done"><span class="paw-icon" style="width:22px;height:22px;"></span></div><div class="info"><div class="title">Vet document</div><div class="sub">Captured</div></div><button class="btn honey-text">Retake</button></div>
+            </div>
+            <div class="cta-stack"><button class="btn">Meet Mochi</button></div>
+          </section>
+        </div>
+      </div>
+      <div class="frame-label">
+        <span class="step-no">Step 04 · state 3</span>
+        <span class="step-name">All captured</span>
+        <span class="step-link"><a href="04_photo_collection.html">open all 3 states →</a></span>
+      </div>
+    </div>
+
+    <!-- 05 AI REVIEW -->
+    <div class="frame">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-canvas">
+          <section class="screen review">
+            <div class="photo-hero">
+              <div class="species-silhouette dog"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 11c0-4 4-6 8-6s8 2 8 6v4c0 2-2 4-4 4H8c-2 0-4-2-4-4V11z M5 7c-1 2-1 5 0 7M19 7c1 2 1 5 0 7"/><circle cx="9" cy="11" r="0.9" fill="#FBF7EE"/><circle cx="15" cy="11" r="0.9" fill="#FBF7EE"/><ellipse cx="12" cy="14" rx="1" ry="0.7" fill="#FBF7EE"/></svg></div>
+              <div class="species-silhouette cat"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4l3 5 1-1V4z M19 4l-3 5-1-1V4z M5 10c0-2 3-5 7-5s7 3 7 5v6c0 2-2 4-4 4H9c-2 0-4-2-4-4z"/><circle cx="9" cy="12" r="0.8" fill="#FBF7EE"/><circle cx="15" cy="12" r="0.8" fill="#FBF7EE"/></svg></div>
+              <div class="photo-paws"></div>
+            </div>
+            <div class="statusbar dim"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+            <div class="hero-text"><h1 class="hey">Hey Mochi 👋</h1><p class="sub">Here's what we read from your photos.</p></div>
+            <div class="form-card">
+              <div class="identity-grid">
+                <div class="compact-field full"><span class="label">Breed</span><div class="value"><span>Tabby</span><span class="right"><span class="ai-mini">AI 91%</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span></div></div>
+                <div class="compact-field full"><span class="label">Name</span><div class="value"><input value="Mochi"/></div></div>
+                <div class="compact-field"><span class="label">Gender</span><div class="seg-row"><div class="seg tight"><button class="is-active">Female</button><button>Male</button></div></div></div>
+                <div class="compact-field tap"><span class="label">Age</span><div class="value"><span>4 months</span><svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div></div>
+                <div class="compact-field"><span class="label">Weight</span><div class="value"><input value="4.2 kg"/></div></div>
+                <div class="compact-field tap"><span class="label">Color</span><div class="value"><span>Brown tabby</span><svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div></div>
+              </div>
+              <div class="vet-card-section">
+                <span class="vet-label">From vet card</span>
+                <div class="vet-row"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4l6 6"/><path d="M11 7l6 6-7 7H4v-6Z"/><path d="M9 9l6 6"/></svg>Rabies · Apr 2025 · next Apr 2026</div>
+                <div class="vet-row"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/></svg>Microchip · 985 121 047 992 384</div>
+              </div>
+            </div>
+            <div class="cta-stack"><button class="btn">Welcome Mochi</button></div>
+          </section>
+        </div>
+      </div>
+      <div class="frame-label">
+        <span class="step-no">Step 05 · WOW</span>
+        <span class="step-name">Hey Mochi</span>
+        <span class="step-link"><a href="05_ai_review.html">open standalone →</a></span>
+      </div>
+    </div>
+
+    <!-- 06 PERSONALITY -->
+    <div class="frame">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-canvas">
+          <section class="screen survey">
+            <div class="pet-pattern"></div>
+            <div class="statusbar"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+            <div class="top">
+              <button class="back-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+              <div class="progress-dots"><span class="is-active"></span><span></span><span></span></div>
+              <span class="caption">1 / 3</span>
+            </div>
+            <div class="question"><h1>Which sounds most like Mochi?</h1><p>Pick the closest match.</p></div>
+            <div class="options">
+              <button class="opt-card is-selected"><span class="icon-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><div class="opt-meta"><span class="opt-title">Zoomies all day</span><span class="opt-sub">High energy, hard to tire out</span></div><span class="checkbox-paw checked"><span class="paw-icon"></span></span></button>
+              <button class="opt-card"><span class="icon-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4" y1="12" x2="20" y2="12"/></svg></span><div class="opt-meta"><span class="opt-title">Balanced</span><span class="opt-sub">Bursts of energy, content to rest</span></div><span class="checkbox-paw"></span></button>
+              <button class="opt-card"><span class="icon-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span><div class="opt-meta"><span class="opt-title">Pretty chill</span><span class="opt-sub">Mostly relaxed, naps a lot</span></div><span class="checkbox-paw"></span></button>
+              <button class="opt-card"><span class="icon-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></span><div class="opt-meta"><span class="opt-title">Short walks</span><span class="opt-sub">Senior · gentle activity preferred</span></div><span class="checkbox-paw"></span></button>
+              <button class="opt-card"><span class="icon-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><div class="opt-meta"><span class="opt-title">Still figuring out</span><span class="opt-sub">New to us, varies day-to-day</span></div><span class="checkbox-paw"></span></button>
+            </div>
+            <div class="cta-stack"><button class="btn">Continue</button></div>
+          </section>
+        </div>
+      </div>
+      <div class="frame-label">
+        <span class="step-no">Step 06</span>
+        <span class="step-name">Personality · single-select</span>
+        <span class="step-link"><a href="06_personality.html">open standalone →</a></span>
+      </div>
+    </div>
+
+    <!-- 07 GOALS -->
+    <div class="frame">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-canvas">
+          <section class="screen survey">
+            <div class="pet-pattern"></div>
+            <div class="statusbar"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+            <div class="top">
+              <button class="back-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+              <div class="progress-dots"><span class="done"></span><span class="is-active"></span><span></span></div>
+              <span class="caption">2 / 3</span>
+            </div>
+            <div class="question"><h1>What do you want for Mochi?</h1><p>Pick all that apply.</p></div>
+            <div class="options">
+              <button class="opt-card is-selected"><span class="icon-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><div class="opt-meta"><span class="opt-title">Catching issues early</span><span class="opt-sub">Photo check-ups, symptom flagging</span></div><span class="checkbox-paw-square checked"><span class="paw-icon"></span></span></button>
+              <button class="opt-card is-selected"><span class="icon-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></span><div class="opt-meta"><span class="opt-title">Weight &amp; nutrition</span><span class="opt-sub">Healthy range, feeding guidance</span></div><span class="checkbox-paw-square checked"><span class="paw-icon"></span></span></button>
+              <button class="opt-card"><span class="icon-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L14 7l5 .75L15 11.5l1 5L12 14l-4 2.5 1-5L5 7.75 10 7Z"/></svg></span><div class="opt-meta"><span class="opt-title">Training &amp; behavior</span><span class="opt-sub">Habits, manners, enrichment</span></div><span class="checkbox-paw-square"></span></button>
+              <button class="opt-card"><span class="icon-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span><div class="opt-meta"><span class="opt-title">Comprehensive care</span><span class="opt-sub">All-around tracking</span></div><span class="checkbox-paw-square"></span></button>
+              <button class="opt-card"><span class="icon-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><div class="opt-meta"><span class="opt-title">Managing a condition</span><span class="opt-sub">Medications, symptoms, vet visits</span></div><span class="checkbox-paw-square"></span></button>
+            </div>
+            <div class="cta-stack"><button class="btn">Continue · 2 selected</button></div>
+          </section>
+        </div>
+      </div>
+      <div class="frame-label">
+        <span class="step-no">Step 07</span>
+        <span class="step-name">Goals · multi-select</span>
+        <span class="step-link"><a href="07_goals.html">open standalone →</a></span>
+      </div>
+    </div>
+
+    <!-- 08 LOCATION -->
+    <div class="frame">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-canvas">
+          <section class="screen location">
+            <div class="statusbar"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+            <div class="top">
+              <button class="back-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+              <div class="progress-dots"><span class="done"></span><span class="done"></span><span class="is-active"></span></div>
+              <span class="caption">3 / 3</span>
+            </div>
+            <div class="question"><h1>Where do you live?</h1><p>Different climates influence pets' health — heat, humidity, allergens, walk timing.</p></div>
+            <div class="options-block">
+              <button class="use-loc"><span class="icon-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span><div class="info"><span class="title">Use my location</span><span class="sub">We'll detect your area and tune the app to local climate. Only the rough region is stored.</span></div><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+              <div class="or-divider">or enter manually</div>
+              <div class="manual field-row"><label class="input-label">City or ZIP code</label><input class="input" placeholder="e.g. Seattle or 98101"/></div>
+            </div>
+            <div class="cta-stack"><button class="btn">Continue</button></div>
+          </section>
+        </div>
+      </div>
+      <div class="frame-label">
+        <span class="step-no">Step 08</span>
+        <span class="step-name">Location</span>
+        <span class="step-link"><a href="08_location.html">open standalone →</a></span>
+      </div>
+    </div>
+
+    <!-- 09 GENERATING -->
+    <div class="frame">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-canvas">
+          <section class="screen generating">
+            <div class="pet-pattern"></div>
+            <div class="statusbar"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+            <div class="pet-portrait">
+              <div class="photo-round">
+                <div class="silhouette silhouette-dog"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 11c0-4 4-6 8-6s8 2 8 6v4c0 2-2 4-4 4H8c-2 0-4-2-4-4V11z M5 7c-1 2-1 5 0 7M19 7c1 2 1 5 0 7"/></svg></div>
+                <div class="silhouette silhouette-cat"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4l3 5 1-1V4z M19 4l-3 5-1-1V4z M5 10c0-2 3-5 7-5s7 3 7 5v6c0 2-2 4-4 4H9c-2 0-4-2-4-4z"/></svg></div>
+              </div>
+              <div class="head-block"><h1>Building Mochi's Petsona.</h1><p class="lede">Tailored to a 1-year-old tabby in mild &amp; rainy weather.</p></div>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress"><span style="width:60%"><span class="paw-end"><span class="paw-icon"></span></span></span></div>
+              <p class="body muted" style="margin-top:14px;text-align:center;">This usually takes 6–10 seconds.</p>
+            </div>
+            <div class="gen-list">
+              <div class="gen-item"><div class="paw-stamp"><span class="paw-icon"></span></div><span class="gen-text">Identifying breed traits</span></div>
+              <div class="gen-item"><div class="paw-stamp"><span class="paw-icon"></span></div><span class="gen-text">Cross-referencing local climate</span></div>
+              <div class="gen-item pending"><div class="paw-stamp pending"></div><span class="gen-text">Generating week 1 care plan…</span></div>
+              <div class="gen-item pending" style="opacity:0.5"><div class="paw-stamp pending" style="border-style:dashed;"></div><span class="gen-text">Setting up vet reminders</span></div>
+            </div>
+          </section>
+        </div>
+      </div>
+      <div class="frame-label">
+        <span class="step-no">Step 09</span>
+        <span class="step-name">Generating</span>
+        <span class="step-link"><a href="09_generating.html">open standalone →</a></span>
+      </div>
+    </div>
+
+    <!-- 10 PETSONA READY -->
+    <div class="frame">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-canvas">
+          <section class="screen ready">
+            <div class="statusbar"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+            <div class="scroll">
+              <div class="insight-hero">
+                <div class="label">Climate-aware insight</div>
+                <h2 class="cat-only">Coastal humidity can mean ear infections.</h2>
+                <h2 class="dog-only" style="display:none;">Coastal humidity can hide skin issues.</h2>
+                <p class="body cat-only">Cats Mochi's age living in <strong>coastal areas like San Francisco</strong> can be more prone to ear infections from humid air.</p>
+                <p class="body dog-only" style="display:none;">Dogs Mochi's age living in <strong>coastal areas like San Francisco</strong> can have skin folds trap moisture in humid air.</p>
+                <p class="reassure">Don't worry — we've already added <strong>monthly ear-check reminders</strong> to her First-Year Plan.</p>
+                <div class="tag-row"><span class="tag">Vet-reviewed</span><span class="tag">Personalized</span></div>
+              </div>
+              <div class="watch-section">
+                <span class="watch-label">More areas we'll watch</span>
+                <div class="watch-chips">
+                  <span class="watch-chip"><span class="icon-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5c-3 0-5 3-5 6 0 4 2 8 5 8s5-4 5-8c0-3-2-6-5-6z"/><path d="M9 11h6"/></svg></span>Dental tartar</span>
+                  <span class="watch-chip"><span class="icon-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="9" width="14" height="6" rx="1"/><line x1="3" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="21" y2="12"/></svg></span>Weight stability</span>
+                  <span class="watch-chip"><span class="icon-mark"><span class="paw-icon" style="font-size:14px;"></span></span>Coat condition</span>
+                  <span class="watch-chip cat-only"><span class="icon-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12c0 4 4 8 8 8s8-4 8-8"/><circle cx="12" cy="8" r="2"/></svg></span>Hairball patterns</span>
+                  <span class="watch-chip dog-only" style="display:none;"><span class="icon-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2"/><circle cx="16" cy="8" r="2"/><circle cx="8" cy="16" r="2"/><circle cx="16" cy="16" r="2"/></svg></span>Joint health</span>
+                  <span class="watch-chip"><span class="icon-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>Vaccination calendar</span>
+                </div>
+              </div>
+            </div>
+            <div class="cta-stack"><button class="btn">Let's go &nbsp;›</button></div>
+          </section>
+        </div>
+      </div>
+      <div class="frame-label">
+        <span class="step-no">Step 10</span>
+        <span class="step-name">Petsona ready</span>
+        <span class="step-link"><a href="10_petsona_ready.html">open standalone →</a></span>
+      </div>
+    </div>
+
+    <!-- 11 PAYWALL -->
+    <div class="frame">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-canvas">
+          <section class="screen paywall">
+            <div class="statusbar"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+            <div class="top">
+              <span class="small-cap">Unlock Mochi's full Petsona</span>
+              <h1>The plan, every week.</h1>
+              <p>Refreshed every Monday. Cancel anytime.</p>
+            </div>
+            <div class="benefits">
+              <div class="benefit-line"><span class="icon-mark"><span class="paw-icon" style="font-size:16px;"></span></span>Daily plan tuned weekly to Mochi's signals</div>
+              <div class="benefit-line"><span class="icon-mark"><span class="paw-icon" style="font-size:16px;"></span></span>Vet reminders before they're due</div>
+              <div class="benefit-line"><span class="icon-mark"><span class="paw-icon" style="font-size:16px;"></span></span>Photo check-ups: calm · watch · urgent</div>
+              <div class="benefit-line"><span class="icon-mark"><span class="paw-icon" style="font-size:16px;"></span></span>Auto-building timeline of records</div>
+            </div>
+            <div class="plan-cards">
+              <div class="plan-card is-selected"><span class="check"><span class="paw-icon"></span></span><div class="info"><div class="label">Monthly</div><div class="sub">Cancel anytime · billed monthly</div></div><div class="price">$5.99 / mo</div></div>
+              <div class="plan-card"><span class="check"></span><div class="info"><div class="label">Yearly <span class="savings">Save more</span></div><div class="sub">Best value · price TBD</div></div><div class="price">$XX.XX / yr</div></div>
+            </div>
+            <div class="cta-stack"><button class="btn">Start now</button><button class="btn text">Continue limited but free</button></div>
+          </section>
+        </div>
+      </div>
+      <div class="frame-label">
+        <span class="step-no">Step 11</span>
+        <span class="step-name">Paywall</span>
+        <span class="step-link"><a href="11_paywall.html">open standalone →</a></span>
+      </div>
+    </div>
+
+    <!-- 12 SIGN-IN -->
+    <div class="frame">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-canvas">
+          <section class="screen signin">
+            <div class="pet-pattern"></div>
+            <div class="statusbar"><span>9:41</span><span class="icons"><span class="battery"></span></span></div>
+            <div class="pet-portrait">
+              <div class="photo-round">
+                <div class="silhouette silhouette-dog"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 11c0-4 4-6 8-6s8 2 8 6v4c0 2-2 4-4 4H8c-2 0-4-2-4-4V11z M5 7c-1 2-1 5 0 7M19 7c1 2 1 5 0 7"/></svg></div>
+                <div class="silhouette silhouette-cat"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4l3 5 1-1V4z M19 4l-3 5-1-1V4z M5 10c0-2 3-5 7-5s7 3 7 5v6c0 2-2 4-4 4H9c-2 0-4-2-4-4z"/></svg></div>
+              </div>
+            </div>
+            <h1 class="h-display display-lg">Save Mochi's profile.</h1>
+            <p class="body muted">Sign in to keep your Petsona safe across devices, after a reinstall, and when you switch phones.</p>
+            <div class="cta-stack">
+              <button class="btn dark"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.86-3.08.43-1.09-.45-2.09-.46-3.24 0-1.44.62-2.2.44-3.06-.43C2.79 15.58 3.51 8.13 9.05 7.86c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 3.53zM12.03 7.8c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>Continue with Apple</button>
+              <button class="btn outline"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.6 12.227c0-.738-.066-1.448-.189-2.13H12v4.026h5.385a4.6 4.6 0 0 1-1.996 3.018v2.51h3.232c1.892-1.742 2.98-4.31 2.98-7.424z"/><path fill="#34A853" d="M12 22c2.7 0 4.964-.895 6.62-2.42l-3.232-2.51c-.895.6-2.04.957-3.388.957-2.605 0-4.81-1.76-5.598-4.123H3.064v2.59A9.999 9.999 0 0 0 12 22z"/><path fill="#FBBC05" d="M6.402 13.904A6.014 6.014 0 0 1 6.082 12c0-.66.114-1.302.32-1.904V7.506H3.064A9.997 9.997 0 0 0 2 12c0 1.614.386 3.14 1.064 4.494l3.338-2.59z"/><path fill="#EA4335" d="M12 5.973c1.47 0 2.787.504 3.823 1.495l2.867-2.867C16.96 2.99 14.696 2 12 2A9.999 9.999 0 0 0 3.064 7.506l3.338 2.59C7.19 7.733 9.395 5.973 12 5.973z"/></svg>Continue with Google</button>
+              <button class="btn secondary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/></svg>Continue with email</button>
+            </div>
+            <div class="account-link">Already have an account? <a href="#">Log in</a></div>
+            <div class="footnote">By signing in you agree to our <a href="#terms">Terms</a> and <a href="#privacy">Privacy</a>.</div>
+          </section>
+        </div>
+      </div>
+      <div class="frame-label">
+        <span class="step-no">Step 12</span>
+        <span class="step-name">Sign-in</span>
+        <span class="step-link"><a href="12_signin.html">open standalone →</a></span>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  const catBtn = document.getElementById('cat-btn');
+  const dogBtn = document.getElementById('dog-btn');
+  catBtn.addEventListener('click', () => {
+    document.body.classList.add('is-cat-mode');
+    document.body.classList.remove('is-dog-mode');
+    catBtn.classList.add('is-active');
+    dogBtn.classList.remove('is-active');
+    document.querySelectorAll('.dog-only').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.cat-only').forEach(el => el.style.display = '');
+  });
+  dogBtn.addEventListener('click', () => {
+    document.body.classList.add('is-dog-mode');
+    document.body.classList.remove('is-cat-mode');
+    dogBtn.classList.add('is-active');
+    catBtn.classList.remove('is-active');
+    document.querySelectorAll('.cat-only').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.dog-only').forEach(el => el.style.display = '');
+  });
+</script>
+</body>
+</html>
