@@ -20,13 +20,9 @@ struct PhotoCollectionView: View {
                 HStack {
                     BackButton { coordinator.path.removeLast() }
                     Spacer()
-                    progressDots
+                    ProgressDots(total: 3, current: collectionState)
                     Spacer()
-                    Text("\(collectionState) / 3")
-                        .font(.custom("DM Sans", size: 11).weight(.semibold))
-                        .foregroundStyle(Color.colorTextMuted)
-                        .textCase(.uppercase)
-                        .kerning(0.08 * 11)
+                    SmallCap("\(collectionState) / 3")
                 }
                 .padding(.horizontal, Spacing.s4)
                 .padding(.top, 4)
@@ -109,40 +105,6 @@ struct PhotoCollectionView: View {
                 hasTriggeredAdvance = true
                 Task { await coordinator.advanceFromCollection() }
             }
-        }
-    }
-
-    // MARK: - Progress dots
-
-    private var progressDots: some View {
-        HStack(spacing: 6) {
-            ForEach(0..<3, id: \.self) { index in
-                let state = dotState(index: index)
-                Capsule(style: .continuous)
-                    .fill(dotColor(state: state))
-                    .frame(width: state == .active ? 34 : 22, height: 4)
-                    .shadow(
-                        color: state == .active ? Color.colorPrimary.opacity(0.35) : .clear,
-                        radius: 4
-                    )
-                    .animation(.easeInOut(duration: 0.2), value: collectionState)
-            }
-        }
-    }
-
-    private enum DotState { case inactive, done, active }
-
-    private func dotState(index: Int) -> DotState {
-        if index < collectionState - 1 { return .done }
-        if index == collectionState - 1 { return .active }
-        return .inactive
-    }
-
-    private func dotColor(state: DotState) -> Color {
-        switch state {
-        case .inactive: return Color.ink.opacity(0.10)
-        case .done:     return Color.forestSoft
-        case .active:   return Color.colorPrimary
         }
     }
 

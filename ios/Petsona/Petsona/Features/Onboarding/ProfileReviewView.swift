@@ -97,8 +97,7 @@ struct ProfileReviewView: View {
                     // Hero text
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Hey Mochi 👋")
-                            .font(.custom("DM Sans", size: 28).weight(.bold))
-                            .tracking(-28 * 0.02)
+                            .petsona(.displayWow)
                             .foregroundStyle(Color.forestDk)
                         Text("Here's what we read from your photos.")
                             .font(.custom("DM Sans", size: 13))
@@ -108,7 +107,7 @@ struct ProfileReviewView: View {
                     // Form fields — compact bottom-border style
                     VStack(spacing: 0) {
                         // Breed + AI badge
-                        CompactField(label: "Breed") {
+                        CompactField("Breed") {
                             HStack {
                                 TextField("Breed", text: $coordinator.profile.breed)
                                     .font(.custom("DM Sans", size: 14).weight(.medium))
@@ -126,14 +125,14 @@ struct ProfileReviewView: View {
                         }
 
                         // Name
-                        CompactField(label: "Name") {
+                        CompactField("Name") {
                             TextField("Name", text: $coordinator.profile.name)
                                 .font(.custom("DM Sans", size: 14).weight(.medium))
                                 .foregroundStyle(Color.colorTextDefault)
                         }
 
                         // Gender
-                        CompactField(label: "Gender") {
+                        CompactField("Gender") {
                             Segmented(
                                 options: ["Female", "Male"],
                                 selectedIndex: Binding(
@@ -144,7 +143,7 @@ struct ProfileReviewView: View {
                         }
 
                         // Age
-                        CompactField(label: "Age") {
+                        CompactField("Age") {
                             Button {
                                 showAgePicker = true
                             } label: {
@@ -162,7 +161,7 @@ struct ProfileReviewView: View {
                         }
 
                         // Weight
-                        CompactField(label: "Weight") {
+                        CompactField("Weight") {
                             HStack {
                                 TextField("0", text: Binding(
                                     get: { weightString },
@@ -181,7 +180,7 @@ struct ProfileReviewView: View {
                         }
 
                         // Color
-                        CompactField(label: "Color") {
+                        CompactField("Color") {
                             Menu {
                                 ForEach(colorOptions, id: \.self) { option in
                                     Button(option) { coordinator.setColor(option) }
@@ -307,28 +306,6 @@ struct ProfileReviewView: View {
 }
 
 // MARK: - Supporting views
-
-private struct CompactField<Content: View>: View {
-    let label: String
-    @ViewBuilder let content: () -> Content
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(label)
-                .font(.custom("DM Sans", size: 9.5).weight(.semibold))
-                .tracking(0.06 * 9.5)
-                .textCase(.uppercase)
-                .foregroundStyle(Color.colorTextMuted)
-            content()
-        }
-        .padding(.vertical, 9)
-        .overlay(alignment: .bottom) {
-            Rectangle()
-                .fill(Color.rule)
-                .frame(height: 1)
-        }
-    }
-}
 
 private struct VetRecordRow: View {
     let record: VetRecord
