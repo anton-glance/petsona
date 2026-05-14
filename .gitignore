@@ -9,7 +9,7 @@ web-build/
 expo-env.d.ts
 
 # Native build outputs (we don't run prebuild; EAS owns native dirs)
-ios/
+# ios/ removed — pivoted to native SwiftUI (D-024); ios/Petsona/ is the canonical client
 android/
 
 # EAS
