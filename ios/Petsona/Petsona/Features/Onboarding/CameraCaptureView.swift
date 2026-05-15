@@ -1,10 +1,16 @@
 import SwiftUI
 import AVFoundation
+import PhotosUI
 
 struct CameraCaptureView: View {
     let slot: PhotoSlot
     @Environment(OnboardingCoordinator.self) private var coordinator
     @State private var cameraSession = CameraSession()
+
+    // B2: flash toggle state (view-local — per-session intent)
+    @State private var flashEnabled = false
+    // B3: photo library picker
+    @State private var selectedLibraryItem: PhotosPickerItem?
 
     private var pillText: String {
         switch slot {
@@ -22,12 +28,16 @@ struct CameraCaptureView: View {
         }
     }
 
+    // V8: show silhouette only for pet shots, not document
+    private var showSilhouette: Bool {
+        slot == .front || slot == .side
+    }
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            // Real AVFoundation preview is only wired when not using mock.
-            // Runtime check (not #if targetEnvironment) so tests pass on macOS test runners.
+            // Real AVFoundation preview (runtime flag, not #if, so macOS test runners pass)
             if !coordinator.useMockCamera {
                 CameraPreviewView(cameraSession: cameraSession)
                     .ignoresSafeArea()
@@ -39,17 +49,30 @@ struct CameraCaptureView: View {
                     }
             }
 
+            // V8: honey silhouette overlay centered in viewfinder
+            if showSilhouette && !coordinator.useMockCamera {
+                Image("logo-icon-honey")
+                    .resizable()
+                    .renderingMode(.template)
+                    .foregroundStyle(Color.honey)
+                    .scaledToFit()
+                    .frame(height: 280)
+                    .opacity(0.55)
+            }
+
             VStack {
-                // Top chrome — always shown
+                // Top chrome — V6: glass pill; V7: DarkIconButton close
                 HStack {
-                    IconButton(systemName: "xmark") {
+                    DarkIconButton(systemName: "xmark") {
                         coordinator.path.removeLast()
                     }
                     .accessibilityLabel("Close camera")
                     Spacer()
+                    // V6: Pill now uses thick glass with ink text (updated in Pill.swift)
                     Pill(pillText)
                     Spacer()
-                    Color.clear.frame(width: 36, height: 36)
+                    // Balance the close button
+                    Color.clear.frame(width: 44, height: 44)
                 }
                 .padding(.horizontal, Spacing.s4)
                 .padding(.top, Spacing.s3)
@@ -57,8 +80,6 @@ struct CameraCaptureView: View {
                 Spacer()
 
                 if coordinator.useMockCamera {
-                    // Mock content is part of the VStack (not behind a Spacer layer)
-                    // so XCUITest can find the "Use mock photo" button in the accessibility tree.
                     mockContent
                     Spacer()
                 } else {
@@ -69,14 +90,40 @@ struct CameraCaptureView: View {
                         .padding(.horizontal, Spacing.s5)
                         .padding(.bottom, Spacing.s3)
 
+                    // B2/B3/B4: flash + library + 4-spacer layout
                     HStack {
-                        IconButton(systemName: "photo.on.rectangle") {}
+                        Spacer()
+                        // B3: photo library picker
+                        PhotosPicker(
+                            selection: $selectedLibraryItem,
+                            matching: .images,
+                            photoLibrary: .shared()
+                        ) {
+                            Image(systemName: "photo.on.rectangle")
+                                .font(.system(size: 17, weight: .medium))
+                                .foregroundStyle(Color.ivory)
+                                .frame(width: 44, height: 44)
+                                .glassBackground(tier: .dark, shape: Circle())
+                        }
                         Spacer()
                         ShutterButton {
                             Task { await captureAndAdvance() }
                         }
                         Spacer()
-                        IconButton(systemName: "camera.rotate") {}
+                        // B2: flash toggle (replaces flip-camera)
+                        let hasFlash = AVCaptureDevice.default(for: .video)?.hasFlash ?? false
+                        Button {
+                            flashEnabled.toggle()
+                        } label: {
+                            Image(systemName: flashEnabled ? "bolt.fill" : "bolt.slash.fill")
+                                .font(.system(size: 17, weight: .medium))
+                                .foregroundStyle(Color.ivory)
+                                .frame(width: 44, height: 44)
+                                .glassBackground(tier: .dark, shape: Circle())
+                        }
+                        .disabled(!hasFlash)
+                        .opacity(hasFlash ? 1 : 0.4)
+                        Spacer()
                     }
                     .padding(.horizontal, Spacing.s5)
                     .padding(.bottom, Spacing.s5)
@@ -85,9 +132,20 @@ struct CameraCaptureView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .preferredColorScheme(.dark)
+        // B3: handle library selection
+        .onChange(of: selectedLibraryItem) { _, item in
+            guard let item else { return }
+            Task {
+                if let data = try? await item.loadTransferable(type: Data.self),
+                   let image = UIImage(data: data) {
+                    coordinator.capturePhoto(slot: slot, image: image)
+                }
+                selectedLibraryItem = nil
+            }
+        }
     }
 
-    // MARK: - Mock content (shown when coordinator.useMockCamera == true)
+    // MARK: - Mock content (XCUITest / macOS runner path)
 
     private var mockContent: some View {
         VStack(spacing: Spacing.s5) {
@@ -124,7 +182,7 @@ struct CameraCaptureView: View {
     // MARK: - Capture (real device path)
 
     private func captureAndAdvance() async {
-        if let image = try? await cameraSession.capturePhoto() {
+        if let image = try? await cameraSession.capturePhoto(flashMode: flashEnabled ? .on : .off) {
             coordinator.capturePhoto(slot: slot, image: image)
         }
     }

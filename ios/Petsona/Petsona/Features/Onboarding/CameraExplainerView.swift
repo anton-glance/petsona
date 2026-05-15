@@ -11,8 +11,9 @@ struct CameraExplainerView: View {
                     VStack(alignment: .leading, spacing: Spacing.s5) {
                         VStack(alignment: .leading, spacing: Spacing.s2) {
                             SmallCap("Step 1 of 3", color: Color.honeyDk)
+                            // V3: displayMd prevents wrapping on iPhone SE
                             Text("Petsona needs your camera.")
-                                .petsona(.displayLg)
+                                .petsona(.displayMd)
                                 .foregroundStyle(Color.colorPrimary)
                             Text("Two ways your camera makes Petsona work:")
                                 .petsona(.body)
@@ -20,34 +21,35 @@ struct CameraExplainerView: View {
                         }
                         .padding(.top, Spacing.s6)
 
-                        // Camera preview placeholder with dog-warm gradient
+                        // V2: neutral ivoryDim block with viewfinder brackets + radial highlight
                         ZStack {
                             RoundedRectangle(cornerRadius: BorderRadius.lg, style: .continuous)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [
-                                            Color(red: 107/255, green: 73/255, blue: 38/255),
-                                            Color(red: 184/255, green: 133/255, blue: 66/255),
-                                            Color(red: 240/255, green: 194/255, blue: 128/255)
-                                        ],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
+                                .fill(Color.ivoryDim)
                                 .aspectRatio(1.3, contentMode: .fit)
-                            Image(systemName: "camera.viewfinder")
-                                .font(.system(size: 32))
-                                .foregroundStyle(Color.white.opacity(0.6))
+                            // Soft radial highlight at centre
+                            RadialGradient(
+                                colors: [Color.white.opacity(0.18), .clear],
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: 90
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: BorderRadius.lg, style: .continuous))
+                            // Viewfinder corner brackets in honeyDk
+                            ViewfinderBrackets()
+                                .stroke(Color.honeyDk, lineWidth: 2.5)
+                                .padding(24)
                         }
+                        .aspectRatio(1.3, contentMode: .fit)
 
-                        // Benefit rows
+                        // V1: checkmark icon in dark-forest rounded square
                         BenefitRow(
-                            symbol: "camera",
+                            symbol: "checkmark",
                             title: "Quick check-up of anything off",
                             description: "Snap a photo when something looks wrong. We tell you if it's calm, watch, or urgent."
                         )
+                        // V1: list icon matching the design's three-lines SVG
                         BenefitRow(
-                            symbol: "text.page.badge.magnifyingglass",
+                            symbol: "list.bullet",
                             title: "A timeline that builds itself",
                             description: "Photos, receipts, vet documents — all auto-filed to your pet's story."
                         )
@@ -70,6 +72,8 @@ struct CameraExplainerView: View {
     }
 }
 
+// MARK: - Benefit row (V1: dark-forest rounded square container, ivory icon)
+
 private struct BenefitRow: View {
     let symbol: String
     let title: String
@@ -77,27 +81,53 @@ private struct BenefitRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: Spacing.s4) {
-            // 22×22 filled circle icon container matching design
+            // Dark-forest rounded square container matching .icon-mark.forest
             ZStack {
-                Circle()
-                    .fill(Color.colorPrimary)
-                    .frame(width: 22, height: 22)
+                RoundedRectangle(cornerRadius: BorderRadius.sm, style: .continuous)
+                    .fill(Color.forestDk)
+                    .frame(width: 36, height: 36)
                 Image(systemName: symbol)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(Color.ivory)
             }
-            .padding(.top, 2)
+            .padding(.top, 1)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                    .font(.custom("DM Sans", size: 13.5).weight(.semibold))
+                    .font(.petsonaBodyLg)
+                    .fontWeight(.semibold)
                     .foregroundStyle(Color.colorTextDefault)
                 Text(description)
-                    .font(.custom("DM Sans", size: 12))
+                    .petsona(.body)
                     .foregroundStyle(Color.colorTextMuted)
-                    .lineSpacing(4)
             }
         }
+    }
+}
+
+// MARK: - Viewfinder corner brackets shape (V2)
+
+private struct ViewfinderBrackets: Shape {
+    func path(in rect: CGRect) -> Path {
+        let len: CGFloat = 20
+        var p = Path()
+        // Top-left
+        p.move(to: CGPoint(x: rect.minX, y: rect.minY + len))
+        p.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
+        p.addLine(to: CGPoint(x: rect.minX + len, y: rect.minY))
+        // Top-right
+        p.move(to: CGPoint(x: rect.maxX - len, y: rect.minY))
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.minY + len))
+        // Bottom-right
+        p.move(to: CGPoint(x: rect.maxX, y: rect.maxY - len))
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        p.addLine(to: CGPoint(x: rect.maxX - len, y: rect.maxY))
+        // Bottom-left
+        p.move(to: CGPoint(x: rect.minX + len, y: rect.maxY))
+        p.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        p.addLine(to: CGPoint(x: rect.minX, y: rect.maxY - len))
+        return p
     }
 }
 

@@ -35,13 +35,13 @@ struct PhotoCollectionView: View {
                                 .petsona(.displayLg)
                                 .foregroundStyle(Color.colorPrimary)
                             Text(subline)
-                                .font(.custom("DM Sans", size: 13))
+                                .petsona(.body)
                                 .foregroundStyle(Color.colorTextMuted)
                         }
                         .padding(.top, Spacing.s1)
 
                         // Photo cards
-                        VStack(spacing: Spacing.s2) {
+                        VStack(spacing: Spacing.s3) {
                             photoRow(
                                 slot: .front,
                                 title: "Front photo",
@@ -146,95 +146,87 @@ struct PhotoCollectionView: View {
             HStack(spacing: Spacing.s3) {
                 thumbnail(slot: slot, isCaptured: isCaptured, isActive: isActive)
 
-                VStack(alignment: .leading, spacing: 1) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.custom("DM Sans", size: 14).weight(.semibold))
+                        .font(.petsonaBodyLg)
+                        .fontWeight(.semibold)
                         .foregroundStyle(Color.colorTextDefault)
                     Text(subtitle)
-                        .font(.custom("DM Sans", size: 11.5))
+                        .font(.petsonaBody)
                         .foregroundStyle(Color.colorTextMuted)
-                        .lineLimit(1)
+                        .lineLimit(2)
                 }
                 Spacer()
                 if isCaptured {
                     Button("Retake") {
                         coordinator.retake(slot: slot)
                     }
-                    .font(.custom("DM Sans", size: 12.5).weight(.medium))
+                    .font(.petsonaCaption)
+                    .fontWeight(.medium)
                     .foregroundStyle(Color.honeyDk)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
                 } else if isActive {
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Color.colorTextMuted)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color.honeyDk)
                 }
             }
-            .padding(.vertical, 10)
-            .padding(.horizontal, 12)
-            .background(cardBackground(isCaptured: isCaptured, isActive: isActive, isOptional: isOptional))
+            .padding(.vertical, Spacing.s4)
+            .padding(.horizontal, Spacing.s3)
             .overlay(alignment: .topTrailing) {
                 if isOptional {
                     cornerPill(isActive: isActive, isCaptured: isCaptured)
-                        .padding(.top, 6)
-                        .padding(.trailing, 8)
+                        .padding(.top, 8)
+                        .padding(.trailing, 10)
                 }
             }
+            .background { rowBackground(isCaptured: isCaptured, isActive: isActive, isOptional: isOptional) }
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(accessibilityID)
         .disabled(!isActive && !isCaptured)
     }
 
+    // MARK: - Thumbnail (B5: 80×80, show captured photo)
+
     @ViewBuilder
     private func thumbnail(slot: PhotoSlot, isCaptured: Bool, isActive: Bool) -> some View {
         ZStack {
             if let image = coordinator.capturedPhotos[slot], isCaptured {
+                // B5: show actual captured photo
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
-                    .background(Color.colorPrimary)
             } else if isActive {
                 Color.honeyTint
                 Image(systemName: "camera")
-                    .font(.system(size: 18, weight: .medium))
+                    .font(.system(size: 24, weight: .medium))
                     .foregroundStyle(Color.honeyDk)
             } else {
                 Color.ivoryDim
                 Image(systemName: "doc")
-                    .font(.system(size: 16, weight: .regular))
+                    .font(.system(size: 20, weight: .regular))
                     .foregroundStyle(Color.mutedSoft)
             }
         }
-        .frame(width: 48, height: 48)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay {
-            if isCaptured {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Color.colorPrimary)
-                    .overlay {
-                        Image(systemName: "pawprint.fill")
-                            .font(.system(size: 18))
-                            .foregroundStyle(Color.honey)
-                    }
-            }
-        }
+        .frame(width: 80, height: 80)
+        .clipShape(RoundedRectangle(cornerRadius: BorderRadius.md, style: .continuous))
     }
 
+    // MARK: - Row background (V9: honey-tint glass for active)
+
     @ViewBuilder
-    private func cardBackground(isCaptured: Bool, isActive: Bool, isOptional: Bool) -> some View {
+    private func rowBackground(isCaptured: Bool, isActive: Bool, isOptional: Bool) -> some View {
         if isActive {
+            // V9: glass with honey tint — replaces the prior muddy material
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(.regularMaterial)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(Color.honey.opacity(0.22))
-                }
+                .glassBackground(tier: .regular, tint: .honey, cornerRadius: 18)
         } else if isCaptured {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(.ultraThinMaterial)
+                .glassBackground(tier: .thin, cornerRadius: 18)
         } else {
-            // inactive optional
+            // Inactive optional: dashed border
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(.regularMaterial)
                 .overlay {
@@ -249,9 +241,8 @@ struct PhotoCollectionView: View {
 
     private func cornerPill(isActive: Bool, isCaptured: Bool) -> some View {
         Text("Optional")
-            .font(.custom("DM Sans", size: 9).weight(.semibold))
+            .petsona(.caption)
             .textCase(.uppercase)
-            .kerning(0.04 * 9)
             .foregroundStyle(isActive || isCaptured ? Color.honeyDk : Color.colorTextMuted)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)

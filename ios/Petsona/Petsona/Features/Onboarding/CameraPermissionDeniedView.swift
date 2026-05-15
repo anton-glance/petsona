@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct CameraPermissionDeniedView: View {
     @Environment(OnboardingCoordinator.self) private var coordinator
@@ -14,19 +15,18 @@ struct CameraPermissionDeniedView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: Spacing.s5) {
-                        // Icon: 130×130 circle, ivoryDim bg, mutedSoft icon
+                        // V4: camera.slash.fill at visible size + muted color
                         ZStack {
                             Circle()
                                 .fill(Color.ivoryDim)
                                 .frame(width: 130, height: 130)
-                            Image(systemName: "camera.slash")
-                                .font(.system(size: 130 * 0.42, weight: .regular))
-                                .foregroundStyle(Color.mutedSoft)
+                            Image(systemName: "camera.slash.fill")
+                                .font(.system(size: 54, weight: .regular))
+                                .foregroundStyle(Color.muted)
                         }
                         .padding(.top, Spacing.s7)
 
                         VStack(spacing: Spacing.s3) {
-                            // Error-colored small cap
                             SmallCap("Camera access needed", color: Color.colorStatusDanger)
                             Text("Petsona can't continue without camera.")
                                 .petsona(.displayMd)
@@ -38,28 +38,32 @@ struct CameraPermissionDeniedView: View {
                                 .multilineTextAlignment(.center)
                         }
 
-                        // Instruction steps with glass card styling
-                        VStack(spacing: Spacing.s4) {
+                        // V5: solid white pills with dark ink text — readable on any background
+                        VStack(spacing: Spacing.s2) {
                             ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
-                                HStack(alignment: .top, spacing: Spacing.s3) {
-                                    // Forest-filled number badge
+                                HStack(alignment: .center, spacing: Spacing.s3) {
+                                    // Forest-filled number badge with ivory number
                                     ZStack {
                                         Circle()
                                             .fill(Color.colorPrimary)
-                                            .frame(width: 22, height: 22)
+                                            .frame(width: 24, height: 24)
                                         Text("\(index + 1)")
-                                            .font(.custom("DM Sans", size: 11).weight(.bold))
+                                            .font(.petsonaCaption)
+                                            .fontWeight(.bold)
                                             .foregroundStyle(Color.ivory)
                                     }
                                     Text(step)
-                                        .font(.custom("DM Sans", size: 12.5))
-                                        .foregroundStyle(Color.inkSoft)
-                                        .lineSpacing(3)
-                                        .padding(.top, 2)
+                                        .petsona(.body)
+                                        .foregroundStyle(Color.colorTextDefault)
                                     Spacer()
                                 }
-                                .padding(Spacing.s3)
-                                .glassBackground(tier: .regular, cornerRadius: 16)
+                                .padding(.vertical, Spacing.s3)
+                                .padding(.horizontal, Spacing.s4)
+                                .background(
+                                    RoundedRectangle(cornerRadius: BorderRadius.md, style: .continuous)
+                                        .fill(Color.colorSurfaceElev)
+                                        .shadow(color: Color.ink.opacity(0.06), radius: 2, x: 0, y: 1)
+                                )
                             }
                         }
                     }
@@ -79,6 +83,11 @@ struct CameraPermissionDeniedView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
+        .onReceive(
+            NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+        ) { _ in
+            Task { await coordinator.foregroundResumed() }
+        }
     }
 }
 
