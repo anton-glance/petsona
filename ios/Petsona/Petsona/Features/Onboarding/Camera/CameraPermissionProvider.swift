@@ -2,9 +2,7 @@ import AVFoundation
 
 final class CameraPermissionProvider: CameraPermissionProviding {
     var status: CameraPermissionState {
-        get async {
-            AVCaptureDevice.authorizationStatus(for: .video).asCameraPermissionState
-        }
+        AVCaptureDevice.authorizationStatus(for: .video).asCameraPermissionState
     }
 
     func requestAccess() async -> CameraPermissionState {

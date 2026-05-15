@@ -99,11 +99,9 @@ struct CameraCaptureView: View {
                             matching: .images,
                             photoLibrary: .shared()
                         ) {
-                            Image(systemName: "photo.on.rectangle")
-                                .font(.system(size: 17, weight: .medium))
-                                .foregroundStyle(Color.ivory)
-                                .frame(width: 44, height: 44)
-                                .glassBackground(tier: .dark, shape: Circle())
+                            // Appearance extracted to a View struct so glassBackground
+                            // is called from a @MainActor body (Swift 6 Sendable requirement)
+                            CameraControlIcon(systemName: "photo.on.rectangle")
                         }
                         Spacer()
                         ShutterButton {
@@ -112,17 +110,13 @@ struct CameraCaptureView: View {
                         Spacer()
                         // B2: flash toggle (replaces flip-camera)
                         let hasFlash = AVCaptureDevice.default(for: .video)?.hasFlash ?? false
-                        Button {
+                        DarkIconButton(
+                            systemName: flashEnabled ? "bolt.fill" : "bolt.slash.fill"
+                        ) {
                             flashEnabled.toggle()
-                        } label: {
-                            Image(systemName: flashEnabled ? "bolt.fill" : "bolt.slash.fill")
-                                .font(.system(size: 17, weight: .medium))
-                                .foregroundStyle(Color.ivory)
-                                .frame(width: 44, height: 44)
-                                .glassBackground(tier: .dark, shape: Circle())
                         }
                         .disabled(!hasFlash)
-                        .opacity(hasFlash ? 1 : 0.4)
+                        .opacity(hasFlash ? 1.0 : 0.4)
                         Spacer()
                     }
                     .padding(.horizontal, Spacing.s5)
@@ -185,6 +179,19 @@ struct CameraCaptureView: View {
         if let image = try? await cameraSession.capturePhoto(flashMode: flashEnabled ? .on : .off) {
             coordinator.capturePhoto(slot: slot, image: image)
         }
+    }
+}
+
+// MARK: - Camera control icon appearance (separate View so glassBackground is @MainActor)
+
+private struct CameraControlIcon: View {
+    let systemName: String
+    var body: some View {
+        Image(systemName: systemName)
+            .font(.system(size: 17, weight: .medium))
+            .foregroundStyle(Color.ivory)
+            .frame(width: 44, height: 44)
+            .glassBackground(tier: .dark, shape: Circle())
     }
 }
 

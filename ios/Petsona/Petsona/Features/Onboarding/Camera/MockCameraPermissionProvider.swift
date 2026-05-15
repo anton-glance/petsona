@@ -6,9 +6,7 @@ final class MockCameraPermissionProvider: CameraPermissionProviding {
         self.stubbedState = state
     }
 
-    var status: CameraPermissionState {
-        get async { stubbedState }
-    }
+    var status: CameraPermissionState { stubbedState }
 
     func requestAccess() async -> CameraPermissionState {
         stubbedState

@@ -108,6 +108,18 @@ final class OnboardingCoordinator {
         Task { await advanceFromCollection() }
     }
 
+    /// Called when the app returns to the foreground from Settings.
+    /// If the user granted camera access while away, pops the denied screen and pushes camera.
+    func foregroundResumed() {
+        guard path.contains(.cameraPermissionDenied) else { return }
+        let currentState = permissionProvider.status
+        if currentState == .authorized {
+            permissionState = .authorized
+            path.removeAll { $0 == .cameraPermissionDenied }
+            path.append(.cameraCapture(activeSlot ?? .front))
+        }
+    }
+
     // MARK: - Profile setters (typed; avoids generic KeyPath complexity for 7 fields)
 
     func setBreed(_ value: String)           { profile.breed = value }

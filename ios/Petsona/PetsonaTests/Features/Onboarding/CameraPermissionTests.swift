@@ -43,4 +43,5 @@ struct CameraPermissionTests {
         let count = c.path.filter { $0 == .cameraPermissionDenied }.count
         #expect(count == 1)
     }
+
 }

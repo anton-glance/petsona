@@ -123,4 +123,38 @@ struct OnboardingCoordinatorTests {
         c.skipDocument()
         #expect(c.isDocumentSkipped)
     }
+
+    @Test("foregroundResumed() pops denied and pushes camera when granted")
+    func testForegroundGrantedAdvancesToCamera() {
+        let c = OnboardingCoordinator(
+            permissionProvider: MockCameraPermissionProvider(state: .authorized),
+            collectionAdvanceDelay: .zero
+        )
+        c.path = [.cameraExplainer, .photoCollection, .cameraPermissionDenied]
+        c.foregroundResumed()
+        #expect(!c.path.contains(.cameraPermissionDenied))
+        #expect(c.path.last == .cameraCapture(.front))
+    }
+
+    @Test("foregroundResumed() stays on denied when still denied")
+    func testForegroundDeniedStaysOnDenied() {
+        let c = OnboardingCoordinator(
+            permissionProvider: MockCameraPermissionProvider(state: .denied),
+            collectionAdvanceDelay: .zero
+        )
+        c.path = [.cameraExplainer, .photoCollection, .cameraPermissionDenied]
+        c.foregroundResumed()
+        #expect(c.path.contains(.cameraPermissionDenied))
+    }
+
+    @Test("foregroundResumed() no-op when not on denied screen")
+    func testForegroundNoOpWhenNotDenied() {
+        let c = OnboardingCoordinator(
+            permissionProvider: MockCameraPermissionProvider(state: .authorized),
+            collectionAdvanceDelay: .zero
+        )
+        c.path = [.cameraExplainer, .photoCollection]
+        c.foregroundResumed()
+        #expect(c.path == [.cameraExplainer, .photoCollection])
+    }
 }

@@ -86,7 +86,7 @@ struct CameraPermissionDeniedView: View {
         .onReceive(
             NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
         ) { _ in
-            Task { await coordinator.foregroundResumed() }
+            coordinator.foregroundResumed()
         }
     }
 }

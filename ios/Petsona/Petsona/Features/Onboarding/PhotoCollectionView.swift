@@ -219,12 +219,10 @@ struct PhotoCollectionView: View {
     @ViewBuilder
     private func rowBackground(isCaptured: Bool, isActive: Bool, isOptional: Bool) -> some View {
         if isActive {
-            // V9: glass with honey tint — replaces the prior muddy material
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .glassBackground(tier: .regular, tint: .honey, cornerRadius: 18)
+            // V9: honey-tint glass via design system modifier
+            Color.clear.glassBackground(tier: .regular, tint: .honey, cornerRadius: 18)
         } else if isCaptured {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .glassBackground(tier: .thin, cornerRadius: 18)
+            Color.clear.glassBackground(tier: .thin, cornerRadius: 18)
         } else {
             // Inactive optional: dashed border
             RoundedRectangle(cornerRadius: 18, style: .continuous)

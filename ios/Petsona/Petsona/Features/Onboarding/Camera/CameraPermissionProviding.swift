@@ -8,6 +8,6 @@ enum CameraPermissionState: Sendable {
 }
 
 protocol CameraPermissionProviding: Sendable {
-    var status: CameraPermissionState { get async }
+    var status: CameraPermissionState { get }
     func requestAccess() async -> CameraPermissionState
 }

@@ -61,12 +61,15 @@ final class CameraSession: @unchecked Sendable {
         }
     }
 
-    func capturePhoto() async throws -> UIImage {
+    func capturePhoto(flashMode: AVCaptureDevice.FlashMode = .off) async throws -> UIImage {
         try await withCheckedThrowingContinuation { continuation in
             sessionQueue.async { [self] in
                 let delegate = PhotoCaptureDelegate(continuation: continuation)
                 captureDelegate = delegate
                 let settings = AVCapturePhotoSettings()
+                if photoOutput.supportedFlashModes.contains(flashMode) {
+                    settings.flashMode = flashMode
+                }
                 photoOutput.capturePhoto(with: settings, delegate: delegate)
             }
         }
