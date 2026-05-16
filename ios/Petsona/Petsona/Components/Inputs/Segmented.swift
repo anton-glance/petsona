@@ -1,26 +1,20 @@
 import SwiftUI
 
 public enum SegmentedStyle {
-    case primary  // forest active fill — default CTA-style
-    case subtle   // honeySoft/honeyTint fills, md radius — for form fields
+    case primary  // forest-tinted glass active indicator
+    case subtle   // untinted glass active indicator — for form fields
 }
 
 public struct Segmented: View {
     let options: [String]
     @Binding var selectedIndex: Int
     var style: SegmentedStyle = .primary
+    @Namespace private var glassNamespace
 
     public init(options: [String], selectedIndex: Binding<Int>, style: SegmentedStyle = .primary) {
         self.options = options
         self._selectedIndex = selectedIndex
         self.style = style
-    }
-
-    private var activeBackground: Color {
-        switch style {
-        case .primary: Color.colorPrimary
-        case .subtle:  Color.honeySoft
-        }
     }
 
     private var trackBackground: Color {
@@ -51,7 +45,73 @@ public struct Segmented: View {
         }
     }
 
+    // Legacy active background used as fallback on pre-iOS 26
+    private var legacyActiveBackground: Color {
+        switch style {
+        case .primary: Color.colorPrimary
+        case .subtle:  Color.honeySoft
+        }
+    }
+
     public var body: some View {
+        if #available(iOS 26.0, *) {
+            liquidGlassBody
+        } else {
+            legacyBody
+        }
+    }
+
+    @available(iOS 26.0, *)
+    private var liquidGlassBody: some View {
+        GlassEffectContainer(spacing: 4) {
+            HStack(spacing: 4) {
+                ForEach(Array(options.enumerated()), id: \.offset) { index, option in
+                    if selectedIndex == index {
+                        Button {
+                            withAnimation(.easeInOut(duration: Motion.fast)) { selectedIndex = index }
+                        } label: {
+                            Text(option)
+                                .petsona(.body)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(activeTextColor)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, style == .subtle ? 10 : Spacing.s3)
+                                .padding(.horizontal, Spacing.s2)
+                        }
+                        .buttonStyle(.plain)
+                        .glassEffect(
+                            style == .primary
+                                ? .regular.tint(Color.forest).interactive()
+                                : .regular.interactive(),
+                            in: .rect(cornerRadius: tabCornerRadius)
+                        )
+                        .glassEffectID("active", in: glassNamespace)
+                        .glassEffectTransition(.matchedGeometry)
+                    } else {
+                        Button {
+                            withAnimation(.easeInOut(duration: Motion.fast)) { selectedIndex = index }
+                        } label: {
+                            Text(option)
+                                .petsona(.body)
+                                .fontWeight(.regular)
+                                .foregroundStyle(inactiveTextColor)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, style == .subtle ? 10 : Spacing.s3)
+                                .padding(.horizontal, Spacing.s2)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .padding(4)
+        }
+        .background(
+            RoundedRectangle(cornerRadius: BorderRadius.md + 4, style: .continuous)
+                .fill(trackBackground)
+        )
+    }
+
+    private var legacyBody: some View {
         HStack(spacing: 0) {
             ForEach(Array(options.enumerated()), id: \.offset) { index, option in
                 Button {
@@ -66,7 +126,7 @@ public struct Segmented: View {
                         .background {
                             if selectedIndex == index {
                                 RoundedRectangle(cornerRadius: tabCornerRadius, style: .continuous)
-                                    .fill(activeBackground)
+                                    .fill(legacyActiveBackground)
                             }
                         }
                 }

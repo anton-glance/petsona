@@ -15,6 +15,7 @@ struct PetsonaApp: App {
         WindowGroup {
             ContentView()
                 .environment(coordinator)
+                .preferredColorScheme(.light)
         }
     }
 }

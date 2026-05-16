@@ -4,11 +4,9 @@ import OSLog
 struct ProfileReviewView: View {
     let onContinue: () -> Void
     @Environment(OnboardingCoordinator.self) private var coordinator
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var showAgePicker = false
     @State private var weightString = ""
-    @State private var colorAnimatingIn = false
 
     private let colorOptions = [
         "Black", "White", "Brown tabby", "Orange tabby",
@@ -57,6 +55,13 @@ struct ProfileReviewView: View {
                         .padding(.horizontal, Spacing.s5)
                         .padding(.bottom, Spacing.s5)
                     }
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button("Done") { UIApplication.shared.endEditing() }
+                                .fontWeight(.semibold)
+                        }
+                    }
 
                     CtaStack {
                         // XC1 ✅ — live-bound to coordinator.profile.name
@@ -68,6 +73,7 @@ struct ProfileReviewView: View {
                 }
             }
         }
+        .ignoresSafeArea(.keyboard)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showAgePicker) {
             agePickerSheet(coordinator: coordinator)
@@ -199,49 +205,26 @@ struct ProfileReviewView: View {
                 }
             }
 
-            // S05.4: Menu-based color picker (light theme, anchored to row)
-            // S05.5: selection triggers centering → slide-to-left animation
+            // S05.4: Menu anchored to chevron on right — opens from the chevron side
             CompactField("Color") {
-                Menu {
-                    ForEach(colorOptions, id: \.self) { option in
-                        Button(option) {
-                            coordinator.setColor(option)
-                            animateColorIn()
+                HStack {
+                    Text(coordinator.profile.color)
+                        .font(.petsonaBody)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.colorTextDefault)
+                    Spacer()
+                    Menu {
+                        ForEach(colorOptions, id: \.self) { option in
+                            Button(option) { coordinator.setColor(option) }
                         }
+                    } label: {
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 12))
+                            .foregroundStyle(Color.colorTextMuted)
                     }
-                } label: {
-                    HStack {
-                        Text(coordinator.profile.color)
-                            .font(.petsonaBody)
-                            .fontWeight(.medium)
-                            .foregroundStyle(Color.colorTextDefault)
-                            .frame(maxWidth: .infinity, alignment: colorAnimatingIn ? .center : .leading)
-                            .animation(
-                                reduceMotion ? nil :
-                                    (colorAnimatingIn
-                                        ? .easeOut(duration: 0.2)
-                                        : .timingCurve(0.32, 0.72, 0.0, 1, duration: 0.3)),
-                                value: colorAnimatingIn
-                            )
-                        if !colorAnimatingIn {
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 12))
-                                .foregroundStyle(Color.colorTextMuted)
-                        }
-                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
-        }
-    }
-
-    // S05.5: color appears centered (200ms), then slides to leading (300ms)
-    private func animateColorIn() {
-        guard !reduceMotion else { return }
-        colorAnimatingIn = true
-        Task {
-            try? await Task.sleep(for: .milliseconds(200))
-            colorAnimatingIn = false
         }
     }
 

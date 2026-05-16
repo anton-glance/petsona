@@ -10,12 +10,12 @@ public struct SteppingPawsLoader: View {
     @State private var visiblePaws: Set<Int> = []
     @State private var fadedOut = false
 
-    // Diagonal footstep positions: left-back, right-back, left-front, right-front
+    // Vertical walking pattern: right-back, left-back, right-front, left-front
     private let offsets: [(CGFloat, CGFloat)] = [
-        (-36,  8),
-        (-12, -8),
-        ( 12,  8),
-        ( 36, -8)
+        ( 8, 36),
+        (-8, 12),
+        ( 8,-12),
+        (-8,-36)
     ]
 
     public init() {}
@@ -38,7 +38,7 @@ public struct SteppingPawsLoader: View {
                     .animation(.easeOut(duration: Motion.medium), value: fadedOut)
             }
         }
-        .frame(height: 44)
+        .frame(width: 48, height: 96)
         .task {
             do { try await runAnimation() } catch {}
         }

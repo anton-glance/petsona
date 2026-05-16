@@ -41,12 +41,6 @@ struct CameraCaptureView: View {
                     }
             }
 
-            // S03.3: viewfinder corner brackets framing the composition area
-            CaptureViewfinderBrackets()
-                .stroke(Color.honeyDk, lineWidth: 3)
-                .padding(80)
-                .ignoresSafeArea()
-
             VStack {
                 // S03.1: text label directly on dark preview, no pill capsule
                 HStack {
@@ -65,12 +59,20 @@ struct CameraCaptureView: View {
                 .padding(.horizontal, Spacing.s4)
                 .padding(.top, Spacing.s3)
 
-                Spacer()
-
                 if coordinator.useMockCamera {
+                    Spacer()
                     mockContent
                     Spacer()
                 } else {
+                    // S03.3: viewfinder brackets fill the space between top bar and tip text,
+                    // same horizontal padding as the tip text below
+                    Spacer()
+                        .overlay {
+                            CaptureViewfinderBrackets()
+                                .stroke(Color.honeyDk, lineWidth: 3)
+                                .padding(.horizontal, Spacing.s5)
+                        }
+
                     // S03.4: bodyLg (now 18pt per G1) for tip text
                     Text(tipText)
                         .petsona(.bodyLg)
@@ -111,6 +113,7 @@ struct CameraCaptureView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .preferredColorScheme(.dark)
+        .ignoresSafeArea(.keyboard)
         .onChange(of: selectedLibraryItem) { _, item in
             guard let item else { return }
             Task {

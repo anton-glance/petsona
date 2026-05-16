@@ -1,4 +1,5 @@
 import SwiftUI
+import OSLog
 
 struct WelcomeView: View {
     @Environment(OnboardingCoordinator.self) private var coordinator

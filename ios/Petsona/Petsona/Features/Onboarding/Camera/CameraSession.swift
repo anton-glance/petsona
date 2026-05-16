@@ -67,9 +67,7 @@ final class CameraSession: @unchecked Sendable {
                 let delegate = PhotoCaptureDelegate(continuation: continuation)
                 captureDelegate = delegate
                 let settings = AVCapturePhotoSettings()
-                if photoOutput.supportedFlashModes.contains(flashMode) {
-                    settings.flashMode = flashMode
-                }
+                settings.flashMode = flashMode
                 photoOutput.capturePhoto(with: settings, delegate: delegate)
             }
         }

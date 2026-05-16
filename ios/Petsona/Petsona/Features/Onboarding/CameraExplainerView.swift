@@ -65,27 +65,16 @@ private struct SlideshowPreview: View {
     @State private var flashWhiteOpacity: Double = 0
     @State private var flashDarkOpacity: Double = 0
 
-    // When Anton has real pet photos, add them to assets/brand/slideshow/
-    // and swap this array to read from that folder.
-    private let slides: [(imageName: String, background: Color)] = [
-        ("logo-icon-honey",  Color.forest),
-        ("logo-icon-forest", Color.honeyTint),
-        ("logo-icon-ink",    Color.ivory),
-        ("logo-icon-ivory",  Color.night)
-    ]
+    private let slides = ["slideshow-01", "slideshow-02", "slideshow-03", "slideshow-04"]
 
     var body: some View {
         ZStack {
-            // Slide background
-            slides[displayIndex].background
-                .animation(.easeInOut(duration: 0.11), value: displayIndex)
-
-            // Slide logo
-            Image(slides[displayIndex].imageName)
+            // Full-bleed photo
+            Image(slides[displayIndex])
                 .resizable()
-                .scaledToFit()
-                .padding(40)
+                .scaledToFill()
                 .scaleEffect(scale)
+                .clipped()
 
             // Flash overlays for shutter effect
             Color.white.opacity(flashWhiteOpacity)
@@ -105,7 +94,7 @@ private struct SlideshowPreview: View {
 
     private func runSlideshow() async throws {
         while true {
-            try await Task.sleep(for: .milliseconds(750))
+            try await Task.sleep(for: .milliseconds(1500))
 
             if reduceMotion {
                 withAnimation(.easeInOut(duration: Motion.medium)) {

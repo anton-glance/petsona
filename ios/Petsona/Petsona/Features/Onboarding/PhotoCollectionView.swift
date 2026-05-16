@@ -237,7 +237,8 @@ struct PhotoCollectionView: View {
 
     private func optionalPill(isActive: Bool) -> some View {
         Text("Optional")
-            .petsona(.caption)
+            .font(.custom("DM Sans", size: 11))
+            .fontWeight(.medium)
             .textCase(.uppercase)
             .foregroundStyle(isActive ? Color.honeyDk : Color.colorTextMuted)
             .padding(.horizontal, 6)

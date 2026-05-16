@@ -26,15 +26,6 @@ public struct CompactField<Content: View>: View {
                 .fill(Color.rule)
                 .frame(height: 1)
         }
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("Done") {
-                    UIApplication.shared.endEditing()
-                }
-                .fontWeight(.semibold)
-            }
-        }
     }
 }
 
