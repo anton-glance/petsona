@@ -24,5 +24,17 @@ struct ContentView: View {
                     }
                 }
         }
+        // G3: Single Done toolbar defined once at the root.
+        // NavigationStack aggregates toolbar items from all descendants,
+        // so putting it here avoids N copies when N CompactFields are on screen.
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    UIApplication.shared.endEditing()
+                }
+                .fontWeight(.semibold)
+            }
+        }
     }
 }

@@ -134,39 +134,39 @@ struct TypographyTokenTests {
         _ = Font.petsonaCaption
     }
 
-    @Test("displayXl size is 32")
+    @Test("displayXl size is 34")
     func displayXlSize() {
-        #expect(TextStyleSpec.displayXl.size == 32)
+        #expect(TextStyleSpec.displayXl.size == 34)
     }
 
-    @Test("displayLg size is 24")
+    @Test("displayLg size is 26")
     func displayLgSize() {
-        #expect(TextStyleSpec.displayLg.size == 24)
+        #expect(TextStyleSpec.displayLg.size == 26)
     }
 
-    @Test("displayMd size is 19")
+    @Test("displayMd size is 21")
     func displayMdSize() {
-        #expect(TextStyleSpec.displayMd.size == 19)
+        #expect(TextStyleSpec.displayMd.size == 21)
     }
 
-    @Test("bodyLg size is 16")
+    @Test("bodyLg size is 18")
     func bodyLgSize() {
-        #expect(TextStyleSpec.bodyLg.size == 16)
+        #expect(TextStyleSpec.bodyLg.size == 18)
     }
 
-    @Test("body size is 14")
+    @Test("body size is 16")
     func bodySize() {
-        #expect(TextStyleSpec.body.size == 14)
+        #expect(TextStyleSpec.body.size == 16)
     }
 
-    @Test("caption size is 12")
+    @Test("caption size is 13")
     func captionSize() {
-        #expect(TextStyleSpec.caption.size == 12)
+        #expect(TextStyleSpec.caption.size == 13)
     }
 
-    @Test("caption tracking is +0.96")
+    @Test("caption tracking is +1.04")
     func captionTracking() {
-        #expect(abs(TextStyleSpec.caption.tracking - 0.96) < 0.001)
+        #expect(abs(TextStyleSpec.caption.tracking - 1.04) < 0.001)
     }
 
     @Test("displayXl tracking is negative (display tightening)")

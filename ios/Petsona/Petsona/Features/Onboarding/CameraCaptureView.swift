@@ -6,13 +6,11 @@ struct CameraCaptureView: View {
     let slot: PhotoSlot
     @Environment(OnboardingCoordinator.self) private var coordinator
     @State private var cameraSession = CameraSession()
-
-    // B2: flash toggle state (view-local — per-session intent)
     @State private var flashEnabled = false
-    // B3: photo library picker
     @State private var selectedLibraryItem: PhotosPickerItem?
 
-    private var pillText: String {
+    // S03.1: plain text replaces the pill capsule
+    private var slotText: String {
         switch slot {
         case .front:    "Photo 1 of 3 · Front"
         case .side:     "Photo 2 of 3 · Side"
@@ -28,16 +26,10 @@ struct CameraCaptureView: View {
         }
     }
 
-    // V8: show silhouette only for pet shots, not document
-    private var showSilhouette: Bool {
-        slot == .front || slot == .side
-    }
-
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            // Real AVFoundation preview (runtime flag, not #if, so macOS test runners pass)
             if !coordinator.useMockCamera {
                 CameraPreviewView(cameraSession: cameraSession)
                     .ignoresSafeArea()
@@ -49,29 +41,25 @@ struct CameraCaptureView: View {
                     }
             }
 
-            // V8: honey silhouette overlay centered in viewfinder
-            if showSilhouette && !coordinator.useMockCamera {
-                Image("logo-icon-honey")
-                    .resizable()
-                    .renderingMode(.template)
-                    .foregroundStyle(Color.honey)
-                    .scaledToFit()
-                    .frame(height: 280)
-                    .opacity(0.55)
-            }
+            // S03.3: viewfinder corner brackets framing the composition area
+            CaptureViewfinderBrackets()
+                .stroke(Color.honeyDk, lineWidth: 3)
+                .padding(80)
+                .ignoresSafeArea()
 
             VStack {
-                // Top chrome — V6: glass pill; V7: DarkIconButton close
+                // S03.1: text label directly on dark preview, no pill capsule
                 HStack {
                     DarkIconButton(systemName: "xmark") {
                         coordinator.path.removeLast()
                     }
                     .accessibilityLabel("Close camera")
                     Spacer()
-                    // V6: Pill now uses thick glass with ink text (updated in Pill.swift)
-                    Pill(pillText)
+                    Text(slotText)
+                        .petsona(.bodyLg)
+                        .foregroundStyle(Color.ivory)
+                        .shadow(color: Color.black.opacity(0.5), radius: 2, x: 0, y: 1)
                     Spacer()
-                    // Balance the close button
                     Color.clear.frame(width: 44, height: 44)
                 }
                 .padding(.horizontal, Spacing.s4)
@@ -83,32 +71,29 @@ struct CameraCaptureView: View {
                     mockContent
                     Spacer()
                 } else {
+                    // S03.4: bodyLg (now 18pt per G1) for tip text
                     Text(tipText)
-                        .petsona(.caption)
-                        .foregroundStyle(.white.opacity(0.8))
+                        .petsona(.bodyLg)
+                        .foregroundStyle(.white.opacity(0.85))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, Spacing.s5)
                         .padding(.bottom, Spacing.s3)
 
-                    // B2/B3/B4: flash + library + 4-spacer layout
-                    HStack {
+                    // S03.6: fixed 36pt gap between shutter and side buttons
+                    HStack(spacing: 0) {
                         Spacer()
-                        // B3: photo library picker
                         PhotosPicker(
                             selection: $selectedLibraryItem,
                             matching: .images,
                             photoLibrary: .shared()
                         ) {
-                            // Appearance extracted to a View struct so glassBackground
-                            // is called from a @MainActor body (Swift 6 Sendable requirement)
                             CameraControlIcon(systemName: "photo.on.rectangle")
                         }
-                        Spacer()
+                        Spacer().frame(width: 36)
                         ShutterButton {
                             Task { await captureAndAdvance() }
                         }
-                        Spacer()
-                        // B2: flash toggle (replaces flip-camera)
+                        Spacer().frame(width: 36)
                         let hasFlash = AVCaptureDevice.default(for: .video)?.hasFlash ?? false
                         DarkIconButton(
                             systemName: flashEnabled ? "bolt.fill" : "bolt.slash.fill"
@@ -126,7 +111,6 @@ struct CameraCaptureView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .preferredColorScheme(.dark)
-        // B3: handle library selection
         .onChange(of: selectedLibraryItem) { _, item in
             guard let item else { return }
             Task {
@@ -139,7 +123,7 @@ struct CameraCaptureView: View {
         }
     }
 
-    // MARK: - Mock content (XCUITest / macOS runner path)
+    // MARK: - Mock content
 
     private var mockContent: some View {
         VStack(spacing: Spacing.s5) {
@@ -173,7 +157,7 @@ struct CameraCaptureView: View {
         }
     }
 
-    // MARK: - Capture (real device path)
+    // MARK: - Capture
 
     private func captureAndAdvance() async {
         if let image = try? await cameraSession.capturePhoto(flashMode: flashEnabled ? .on : .off) {
@@ -182,7 +166,7 @@ struct CameraCaptureView: View {
     }
 }
 
-// MARK: - Camera control icon appearance (separate View so glassBackground is @MainActor)
+// MARK: - Camera control icon
 
 private struct CameraControlIcon: View {
     let systemName: String
@@ -192,6 +176,32 @@ private struct CameraControlIcon: View {
             .foregroundStyle(Color.ivory)
             .frame(width: 44, height: 44)
             .glassBackground(tier: .dark, shape: Circle())
+    }
+}
+
+// MARK: - S03.3: L-shaped viewfinder corner brackets
+
+private struct CaptureViewfinderBrackets: Shape {
+    func path(in rect: CGRect) -> Path {
+        let arm: CGFloat = 24
+        var p = Path()
+        // Top-left
+        p.move(to: CGPoint(x: rect.minX, y: rect.minY + arm))
+        p.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
+        p.addLine(to: CGPoint(x: rect.minX + arm, y: rect.minY))
+        // Top-right
+        p.move(to: CGPoint(x: rect.maxX - arm, y: rect.minY))
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.minY + arm))
+        // Bottom-right
+        p.move(to: CGPoint(x: rect.maxX, y: rect.maxY - arm))
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        p.addLine(to: CGPoint(x: rect.maxX - arm, y: rect.maxY))
+        // Bottom-left
+        p.move(to: CGPoint(x: rect.minX + arm, y: rect.maxY))
+        p.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        p.addLine(to: CGPoint(x: rect.minX, y: rect.maxY - arm))
+        return p
     }
 }
 

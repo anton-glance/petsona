@@ -15,13 +15,14 @@ struct CameraPermissionDeniedView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: Spacing.s5) {
-                        // V4: camera.slash.fill at visible size + muted color
+                        // S02b.1: video.slash.fill — universally available (iOS 13+)
+                        // and clearly communicates "video/camera disabled"
                         ZStack {
                             Circle()
                                 .fill(Color.ivoryDim)
                                 .frame(width: 130, height: 130)
-                            Image(systemName: "camera.slash.fill")
-                                .font(.system(size: 54, weight: .regular))
+                            Image(systemName: "video.slash.fill")
+                                .font(.system(size: 56, weight: .regular))
                                 .foregroundStyle(Color.muted)
                         }
                         .padding(.top, Spacing.s7)
@@ -38,17 +39,16 @@ struct CameraPermissionDeniedView: View {
                                 .multilineTextAlignment(.center)
                         }
 
-                        // V5: solid white pills with dark ink text — readable on any background
+                        // S02b.2: white background pills with hairline border + 22pt badge
                         VStack(spacing: Spacing.s2) {
                             ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
                                 HStack(alignment: .center, spacing: Spacing.s3) {
-                                    // Forest-filled number badge with ivory number
                                     ZStack {
                                         Circle()
                                             .fill(Color.colorPrimary)
-                                            .frame(width: 24, height: 24)
+                                            .frame(width: 22, height: 22)
                                         Text("\(index + 1)")
-                                            .font(.petsonaCaption)
+                                            .petsona(.caption)
                                             .fontWeight(.bold)
                                             .foregroundStyle(Color.ivory)
                                     }
@@ -57,12 +57,15 @@ struct CameraPermissionDeniedView: View {
                                         .foregroundStyle(Color.colorTextDefault)
                                     Spacer()
                                 }
-                                .padding(.vertical, Spacing.s3)
-                                .padding(.horizontal, Spacing.s4)
+                                .padding(.vertical, 14)
+                                .padding(.horizontal, 16)
                                 .background(
                                     RoundedRectangle(cornerRadius: BorderRadius.md, style: .continuous)
                                         .fill(Color.colorSurfaceElev)
-                                        .shadow(color: Color.ink.opacity(0.06), radius: 2, x: 0, y: 1)
+                                        .overlay {
+                                            RoundedRectangle(cornerRadius: BorderRadius.md, style: .continuous)
+                                                .strokeBorder(Color.rule, lineWidth: 0.5)
+                                        }
                                 )
                             }
                         }

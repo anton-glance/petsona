@@ -16,13 +16,14 @@ struct PhotoCollectionView: View {
     var body: some View {
         ScreenContainer {
             VStack(spacing: 0) {
-                // Header: back | progress dots | "N / 3"
-                HStack {
-                    BackButton { coordinator.path.removeLast() }
-                    Spacer()
+                // S04.8: ZStack centers dots absolutely regardless of button widths
+                ZStack(alignment: .center) {
+                    HStack {
+                        BackButton { coordinator.path.removeLast() }
+                        Spacer()
+                        SmallCap("\(collectionState) / 3")
+                    }
                     ProgressDots(total: 3, current: collectionState)
-                    Spacer()
-                    SmallCap("\(collectionState) / 3")
                 }
                 .padding(.horizontal, Spacing.s4)
                 .padding(.top, 4)
@@ -40,7 +41,6 @@ struct PhotoCollectionView: View {
                         }
                         .padding(.top, Spacing.s1)
 
-                        // Photo cards
                         VStack(spacing: Spacing.s3) {
                             photoRow(
                                 slot: .front,
@@ -82,12 +82,15 @@ struct PhotoCollectionView: View {
 
                 CtaStack {
                     if collectionState == 3 {
-                        Spinner()
+                        // S04.6: stepping paws replaces the spinner
+                        SteppingPawsLoader()
                             .padding(.vertical, Spacing.s4)
                     } else if collectionState == 2 {
                         PrimaryButton("Capture document") {
                             coordinator.navigateToCamera(slot: .document)
                         }
+                        // S04.7: explicit 18pt gap between CTA and skip link
+                        Spacer().frame(height: 18)
                         TextButton("Skip vet docs") {
                             coordinator.skipDocument()
                         }
@@ -108,11 +111,11 @@ struct PhotoCollectionView: View {
         }
     }
 
-    // MARK: - Headline/subline per state
+    // MARK: - Headline / subline
 
     private var headline: String {
         switch collectionState {
-        case 2: "Got a document for Mochi?"
+        case 2: "Got a document for \(coordinator.profile.name.isEmpty ? "your pet" : coordinator.profile.name)?"
         case 3: "Everything captured."
         default: "Now, a side view."
         }
@@ -121,7 +124,7 @@ struct PhotoCollectionView: View {
     private var subline: String {
         switch collectionState {
         case 2: "Vet passport, DNA test, or any record — speeds up your profile."
-        case 3: "Ready to read what these photos tell us about Mochi."
+        case 3: "Ready to read what these photos tell us."
         default: "Different angles help us read breed traits accurately."
         }
     }
@@ -157,7 +160,9 @@ struct PhotoCollectionView: View {
                         .lineLimit(2)
                 }
                 Spacer()
-                if isCaptured {
+
+                // S04.5: Retake only on states 1 and 2, not when all captured (state 3)
+                if isCaptured && collectionState < 3 {
                     Button("Retake") {
                         coordinator.retake(slot: slot)
                     }
@@ -175,78 +180,71 @@ struct PhotoCollectionView: View {
             .padding(.vertical, Spacing.s4)
             .padding(.horizontal, Spacing.s3)
             .overlay(alignment: .topTrailing) {
-                if isOptional {
-                    cornerPill(isActive: isActive, isCaptured: isCaptured)
+                // S04.4: OPTIONAL pill only when not yet captured
+                if isOptional && !isCaptured {
+                    optionalPill(isActive: isActive)
                         .padding(.top, 8)
                         .padding(.trailing, 10)
                 }
             }
-            .background { rowBackground(isCaptured: isCaptured, isActive: isActive, isOptional: isOptional) }
+            .background { rowBackground(isCaptured: isCaptured, isActive: isActive) }
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(accessibilityID)
         .disabled(!isActive && !isCaptured)
     }
 
-    // MARK: - Thumbnail (B5: 80×80, show captured photo)
+    // MARK: - Thumbnail
 
     @ViewBuilder
     private func thumbnail(slot: PhotoSlot, isCaptured: Bool, isActive: Bool) -> some View {
         ZStack {
             if let image = coordinator.capturedPhotos[slot], isCaptured {
-                // B5: show actual captured photo
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
             } else if isActive {
-                Color.honeyTint
+                // S04.1 active: honeySoft background
+                Color.honeySoft
                 Image(systemName: "camera")
                     .font(.system(size: 24, weight: .medium))
                     .foregroundStyle(Color.honeyDk)
             } else {
-                Color.ivoryDim
-                Image(systemName: "doc")
+                // S04.2: camera icon on all rows (not doc icon)
+                Color.rule
+                Image(systemName: "camera")
                     .font(.system(size: 20, weight: .regular))
-                    .foregroundStyle(Color.mutedSoft)
+                    .foregroundStyle(Color.muted)
             }
         }
         .frame(width: 80, height: 80)
         .clipShape(RoundedRectangle(cornerRadius: BorderRadius.md, style: .continuous))
     }
 
-    // MARK: - Row background (V9: honey-tint glass for active)
+    // MARK: - Row background (S04.1: solid fills, S04.3: no dotted border)
 
     @ViewBuilder
-    private func rowBackground(isCaptured: Bool, isActive: Bool, isOptional: Bool) -> some View {
-        if isActive {
-            // V9: honey-tint glass via design system modifier
-            Color.clear.glassBackground(tier: .regular, tint: .honey, cornerRadius: 18)
-        } else if isCaptured {
-            Color.clear.glassBackground(tier: .thin, cornerRadius: 18)
-        } else {
-            // Inactive optional: dashed border
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(.regularMaterial)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .strokeBorder(
-                            style: StrokeStyle(lineWidth: 1, dash: [4, 3])
-                        )
-                        .foregroundStyle(Color.colorBorder.opacity(0.7))
-                }
-        }
+    private func rowBackground(isCaptured: Bool, isActive: Bool) -> some View {
+        RoundedRectangle(cornerRadius: 18, style: .continuous)
+            .fill(
+                isCaptured ? Color.honeyTint :
+                isActive   ? Color.honeySoft :
+                             Color.rule
+            )
     }
 
-    private func cornerPill(isActive: Bool, isCaptured: Bool) -> some View {
+    // MARK: - Optional pill
+
+    private func optionalPill(isActive: Bool) -> some View {
         Text("Optional")
             .petsona(.caption)
             .textCase(.uppercase)
-            .foregroundStyle(isActive || isCaptured ? Color.honeyDk : Color.colorTextMuted)
+            .foregroundStyle(isActive ? Color.honeyDk : Color.colorTextMuted)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background {
                 Capsule(style: .continuous)
-                    .fill(isActive || isCaptured ? Color.honeyTint : Color.colorSurfaceDim.opacity(0.8))
+                    .fill(isActive ? Color.honeyTint : Color.colorSurfaceDim.opacity(0.8))
             }
     }
 }

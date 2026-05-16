@@ -13,12 +13,12 @@ public struct BackButton: View {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 12, weight: .medium))
                 Text("Back")
-                    .font(.custom("DM Sans", size: 14).weight(.medium))
+                    .font(.petsonaBody)
+                    .fontWeight(.medium)
             }
-            .foregroundStyle(Color.inkSoft)
-            .padding(.leading, 8)
-            .padding(.trailing, 12)
-            .padding(.vertical, 6)
+            .foregroundStyle(Color.colorTextSoft)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
             .glassBackground(tier: .thin, shape: Capsule(style: .continuous))
         }
         .buttonStyle(.plain)

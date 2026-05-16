@@ -4,16 +4,17 @@ import OSLog
 struct ProfileReviewView: View {
     let onContinue: () -> Void
     @Environment(OnboardingCoordinator.self) private var coordinator
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var showAgePicker = false
     @State private var weightString = ""
+    @State private var colorAnimatingIn = false
 
     private let colorOptions = [
         "Black", "White", "Brown tabby", "Orange tabby",
         "Tortoiseshell", "Calico", "Gray", "Cream", "Other"
     ]
 
-    // B7: fall back to "there" when name is empty
     private var displayName: String {
         coordinator.profile.name.isEmpty ? "there" : coordinator.profile.name
     }
@@ -24,20 +25,19 @@ struct ProfileReviewView: View {
             let photoH = geo.size.height / 3
 
             ZStack(alignment: .top) {
-                // Base: ivory fills entire screen
+                // S05.1 ✅ — ivory fills entire screen
                 Color.ivory.ignoresSafeArea()
 
-                // Photo hero: top 1/3, fades to ivory at the bottom
+                // S05.1 ✅ — photo hero top 1/3, fades to ivory at the bottom
                 heroImage(height: photoH, width: geo.size.width)
                     .ignoresSafeArea(edges: .top)
 
-                // Content column
                 VStack(spacing: 0) {
-                    // Offset so greeting text overlaps the gradient fade zone
+                    // S05.1 ✅ — greeting text overlaps the gradient fade zone
                     Color.clear.frame(height: photoH - 56)
 
-                    // Fixed header
                     VStack(alignment: .leading, spacing: Spacing.s1) {
+                        // XC1 ✅ — live-bound to coordinator.profile.name
                         Text("Hey \(displayName) 👋")
                             .petsona(.displayWow)
                             .foregroundStyle(Color.forestDk)
@@ -49,7 +49,6 @@ struct ProfileReviewView: View {
                     .padding(.horizontal, Spacing.s5)
                     .padding(.bottom, Spacing.s3)
 
-                    // Scrollable form — ONLY this region scrolls
                     ScrollView {
                         VStack(spacing: 0) {
                             formSection(coordinator: coordinator)
@@ -59,8 +58,8 @@ struct ProfileReviewView: View {
                         .padding(.bottom, Spacing.s5)
                     }
 
-                    // Fixed CTA
                     CtaStack {
+                        // XC1 ✅ — live-bound to coordinator.profile.name
                         PrimaryButton("Welcome \(displayName)") {
                             Logger.petsona.debug("ProfileReview: continue tapped")
                             onContinue()
@@ -78,7 +77,7 @@ struct ProfileReviewView: View {
         }
     }
 
-    // MARK: - Photo hero
+    // MARK: - S05.1: Photo hero (top 1/3)
 
     @ViewBuilder
     private func heroImage(height: CGFloat, width: CGFloat) -> some View {
@@ -96,12 +95,10 @@ struct ProfileReviewView: View {
         .frame(width: width, height: height)
         .clipped()
         .overlay {
-            // Forest tint multiply
             Color.forest.opacity(0.4)
                 .blendMode(.multiply)
         }
         .overlay(alignment: .bottom) {
-            // Fade to ivory over bottom half of the photo
             LinearGradient(
                 colors: [.clear, Color.ivory],
                 startPoint: .center,
@@ -110,13 +107,13 @@ struct ProfileReviewView: View {
         }
     }
 
-    // MARK: - Form (single-column, V12)
+    // MARK: - Form
 
     @ViewBuilder
     private func formSection(coordinator: OnboardingCoordinator) -> some View {
         @Bindable var coordinator = coordinator
         VStack(spacing: 0) {
-            // Breed + AI badge
+            // Breed + AI confidence badge
             CompactField("Breed") {
                 HStack {
                     TextField("Breed", text: $coordinator.profile.breed)
@@ -135,7 +132,7 @@ struct ProfileReviewView: View {
                 }
             }
 
-            // Name
+            // Name — XC1: live binding drives headline and CTA
             CompactField("Name") {
                 TextField("Name", text: $coordinator.profile.name)
                     .font(.petsonaBody)
@@ -143,24 +140,26 @@ struct ProfileReviewView: View {
                     .foregroundStyle(Color.colorTextDefault)
             }
 
-            // Gender
+            // S05.2: subtle style — honeySoft/honeyTint fills, md radius
             CompactField("Gender") {
                 Segmented(
                     options: ["Female", "Male"],
                     selectedIndex: Binding(
                         get: { coordinator.profile.gender == .female ? 0 : 1 },
                         set: { coordinator.setGender($0 == 0 ? .female : .male) }
-                    )
+                    ),
+                    style: .subtle
                 )
             }
 
-            // Age
+            // Age — opens three-stage picker sheet
             CompactField("Age") {
                 Button {
                     showAgePicker = true
                 } label: {
                     HStack {
-                        Text(formatAge(coordinator.profile.ageMonths))
+                        Text(formatAge(ageMonths: coordinator.profile.ageMonths,
+                                       ageDays: coordinator.profile.ageDays))
                             .font(.petsonaBody)
                             .fontWeight(.medium)
                             .foregroundStyle(Color.colorTextDefault)
@@ -173,9 +172,9 @@ struct ProfileReviewView: View {
                 .buttonStyle(.plain)
             }
 
-            // Weight
+            // S05.3: weight unit as subtle Segmented toggle instead of static label
             CompactField("Weight") {
-                HStack {
+                HStack(spacing: Spacing.s3) {
                     TextField("0", text: Binding(
                         get: { weightString },
                         set: {
@@ -187,17 +186,28 @@ struct ProfileReviewView: View {
                     .fontWeight(.medium)
                     .foregroundStyle(Color.colorTextDefault)
                     .keyboardType(.decimalPad)
-                    Text(coordinator.profile.weightUnit.label)
-                        .font(.petsonaBody)
-                        .foregroundStyle(Color.colorTextMuted)
+
+                    Segmented(
+                        options: ["kg", "lb"],
+                        selectedIndex: Binding(
+                            get: { coordinator.profile.weightUnit == .kg ? 0 : 1 },
+                            set: { coordinator.setWeightUnit($0 == 0 ? .kg : .lb) }
+                        ),
+                        style: .subtle
+                    )
+                    .frame(width: 84)
                 }
             }
 
-            // Color
+            // S05.4: Menu-based color picker (light theme, anchored to row)
+            // S05.5: selection triggers centering → slide-to-left animation
             CompactField("Color") {
                 Menu {
                     ForEach(colorOptions, id: \.self) { option in
-                        Button(option) { coordinator.setColor(option) }
+                        Button(option) {
+                            coordinator.setColor(option)
+                            animateColorIn()
+                        }
                     }
                 } label: {
                     HStack {
@@ -205,10 +215,19 @@ struct ProfileReviewView: View {
                             .font(.petsonaBody)
                             .fontWeight(.medium)
                             .foregroundStyle(Color.colorTextDefault)
-                        Spacer()
-                        Image(systemName: "chevron.down")
-                            .font(.system(size: 12))
-                            .foregroundStyle(Color.colorTextMuted)
+                            .frame(maxWidth: .infinity, alignment: colorAnimatingIn ? .center : .leading)
+                            .animation(
+                                reduceMotion ? nil :
+                                    (colorAnimatingIn
+                                        ? .easeOut(duration: 0.2)
+                                        : .timingCurve(0.32, 0.72, 0.0, 1, duration: 0.3)),
+                                value: colorAnimatingIn
+                            )
+                        if !colorAnimatingIn {
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 12))
+                                .foregroundStyle(Color.colorTextMuted)
+                        }
                     }
                 }
                 .buttonStyle(.plain)
@@ -216,7 +235,17 @@ struct ProfileReviewView: View {
         }
     }
 
-    // MARK: - Vet records
+    // S05.5: color appears centered (200ms), then slides to leading (300ms)
+    private func animateColorIn() {
+        guard !reduceMotion else { return }
+        colorAnimatingIn = true
+        Task {
+            try? await Task.sleep(for: .milliseconds(200))
+            colorAnimatingIn = false
+        }
+    }
+
+    // MARK: - Vet records (S05.6: 5 mock rows)
 
     @ViewBuilder
     private func vetRecordsSection(coordinator: OnboardingCoordinator) -> some View {
@@ -236,46 +265,185 @@ struct ProfileReviewView: View {
         }
     }
 
-    // MARK: - Age picker sheet
+    // MARK: - S05.7/S05.8: Age picker sheet — light ivory background, three-stage custom picker
 
     private func agePickerSheet(coordinator: OnboardingCoordinator) -> some View {
-        @Bindable var coordinator = coordinator
-        return NavigationStack {
-            Picker("Age", selection: $coordinator.profile.ageMonths) {
-                ForEach(0..<241, id: \.self) { months in
-                    Text(formatAge(months)).tag(months)
-                }
-            }
-            .pickerStyle(.wheel)
-            .navigationTitle("Age")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { showAgePicker = false }
-                }
-            }
-        }
-        .presentationDetents([.medium])
+        ThreeStageAgePicker(
+            ageMonths: Binding(
+                get: { coordinator.profile.ageMonths },
+                set: { coordinator.setAgeMonths($0) }
+            ),
+            ageDays: Binding(
+                get: { coordinator.profile.ageDays },
+                set: { coordinator.profile.ageDays = $0 }
+            ),
+            onDone: { showAgePicker = false }
+        )
+        .presentationDetents([.height(360)])
+        .presentationBackground(Color.ivory)
     }
 
-    // MARK: - Age format
+    // MARK: - Age display string
 
-    private func formatAge(_ months: Int) -> String {
-        switch months {
-        case 0:
-            return "Less than 1 month"
-        case 1..<24:
-            return "\(months) month\(months == 1 ? "" : "s")"
+    private func formatAge(ageMonths: Int, ageDays: Int?) -> String {
+        if let days = ageDays {
+            let weeks = days / 7
+            if weeks == 0 { return "Less than 1 week" }
+            return weeks == 1 ? "1 week" : "\(weeks) weeks"
+        }
+        switch ageMonths {
+        case 0:      return "Less than 1 month"
+        case 1..<12: return "\(ageMonths) month\(ageMonths == 1 ? "" : "s")"
         default:
-            let y = months / 12
-            let m = months % 12
+            let y = ageMonths / 12, m = ageMonths % 12
             if m == 0 { return "\(y) year\(y == 1 ? "" : "s")" }
             return "\(y) year\(y == 1 ? "" : "s") \(m) month\(m == 1 ? "" : "s")"
         }
     }
 }
 
-// MARK: - Supporting views
+// MARK: - S05.8: Three-stage age picker
+
+private struct ThreeStageAgePicker: View {
+    @Binding var ageMonths: Int
+    @Binding var ageDays: Int?
+    let onDone: () -> Void
+
+    enum AgeStage { case weeks, months, years }
+    @State private var stage: AgeStage = .months
+    @State private var selectedWeeks = 4
+    @State private var selectedMonths = 4
+    @State private var selectedYears = 1
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Header
+            HStack {
+                Text("Age")
+                    .petsona(.displayMd)
+                    .foregroundStyle(Color.colorTextDefault)
+                Spacer()
+                Button("Done") { onDone() }
+                    .font(.petsonaBody)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color.colorPrimary)
+            }
+            .padding(.horizontal, Spacing.s5)
+            .padding(.top, Spacing.s5)
+            .padding(.bottom, Spacing.s4)
+
+            Divider().padding(.horizontal, Spacing.s5)
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    stageSection(title: "Weeks") {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(0..<9) { w in
+                                    agePill(
+                                        label: w == 1 ? "1 week" : "\(w) weeks",
+                                        isSelected: stage == .weeks && selectedWeeks == w
+                                    ) {
+                                        stage = .weeks
+                                        selectedWeeks = w
+                                        ageDays = w * 7
+                                        ageMonths = 0
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, Spacing.s5)
+                        }
+                    }
+
+                    stageSection(title: "Months") {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(2..<12) { m in
+                                    agePill(
+                                        label: "\(m) months",
+                                        isSelected: stage == .months && selectedMonths == m
+                                    ) {
+                                        stage = .months
+                                        selectedMonths = m
+                                        ageDays = nil
+                                        ageMonths = m
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, Spacing.s5)
+                        }
+                    }
+
+                    stageSection(title: "Years") {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(1...30, id: \.self) { y in
+                                    agePill(
+                                        label: y == 1 ? "1 year" : "\(y) years",
+                                        isSelected: stage == .years && selectedYears == y
+                                    ) {
+                                        stage = .years
+                                        selectedYears = y
+                                        ageDays = nil
+                                        ageMonths = y * 12
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, Spacing.s5)
+                        }
+                    }
+                }
+                .padding(.bottom, Spacing.s5)
+            }
+        }
+        .background(Color.ivory)
+        .onAppear { syncSelectionFromProfile() }
+    }
+
+    private func stageSection<C: View>(title: String, @ViewBuilder content: () -> C) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.s2) {
+            Text(title)
+                .petsona(.caption)
+                .textCase(.uppercase)
+                .foregroundStyle(Color.colorTextMuted)
+                .padding(.horizontal, Spacing.s5)
+                .padding(.top, Spacing.s4)
+            content()
+        }
+    }
+
+    private func agePill(label: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(label)
+                .petsona(.body)
+                .foregroundStyle(isSelected ? Color.ivory : Color.ink)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
+                .background(
+                    RoundedRectangle(cornerRadius: BorderRadius.md, style: .continuous)
+                        .fill(isSelected ? Color.forest : Color.honeyTint)
+                )
+                .scaleEffect(isSelected ? 1.05 : 1.0)
+                .animation(.easeOut(duration: Motion.medium), value: isSelected)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func syncSelectionFromProfile() {
+        if let days = ageDays, days > 0 {
+            stage = .weeks
+            selectedWeeks = min(days / 7, 8)
+        } else if ageMonths > 0 && ageMonths < 12 {
+            stage = .months
+            selectedMonths = max(2, min(ageMonths, 11))
+        } else if ageMonths >= 12 {
+            stage = .years
+            selectedYears = min(ageMonths / 12, 30)
+        }
+    }
+}
+
+// MARK: - Vet record row
 
 private struct VetRecordRow: View {
     let record: VetRecord
