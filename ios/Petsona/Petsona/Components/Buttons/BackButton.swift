@@ -16,7 +16,7 @@ public struct BackButton: View {
                     .font(.petsonaBody)
                     .fontWeight(.medium)
             }
-            .foregroundStyle(Color.colorTextSoft)
+            .foregroundStyle(Color.colorTextMuted)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .glassBackground(tier: .thin, shape: Capsule(style: .continuous))

@@ -55,13 +55,7 @@ struct ProfileReviewView: View {
                         .padding(.horizontal, Spacing.s5)
                         .padding(.bottom, Spacing.s5)
                     }
-                    .toolbar {
-                        ToolbarItemGroup(placement: .keyboard) {
-                            Spacer()
-                            Button("Done") { UIApplication.shared.endEditing() }
-                                .fontWeight(.semibold)
-                        }
-                    }
+                    .scrollDismissesKeyboard(.interactively)
 
                     CtaStack {
                         // XC1 ✅ — live-bound to coordinator.profile.name
@@ -73,7 +67,6 @@ struct ProfileReviewView: View {
                 }
             }
         }
-        .ignoresSafeArea(.keyboard)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showAgePicker) {
             agePickerSheet(coordinator: coordinator)

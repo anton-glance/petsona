@@ -40,6 +40,7 @@ final class CameraSession: @unchecked Sendable {
                     }
                     let input = try AVCaptureDeviceInput(device: device)
                     if captureSession.canAddInput(input) { captureSession.addInput(input) }
+                    captureSession.sessionPreset = .photo
                     if captureSession.canAddOutput(photoOutput) { captureSession.addOutput(photoOutput) }
                     continuation.resume()
                 } catch {
@@ -67,7 +68,9 @@ final class CameraSession: @unchecked Sendable {
                 let delegate = PhotoCaptureDelegate(continuation: continuation)
                 captureDelegate = delegate
                 let settings = AVCapturePhotoSettings()
-                settings.flashMode = flashMode
+                if photoOutput.supportedFlashModes.contains(flashMode) {
+                    settings.flashMode = flashMode
+                }
                 photoOutput.capturePhoto(with: settings, delegate: delegate)
             }
         }

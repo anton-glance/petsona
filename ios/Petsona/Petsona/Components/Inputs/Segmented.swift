@@ -68,7 +68,7 @@ public struct Segmented: View {
                 ForEach(Array(options.enumerated()), id: \.offset) { index, option in
                     if selectedIndex == index {
                         Button {
-                            withAnimation(.easeInOut(duration: Motion.fast)) { selectedIndex = index }
+                            withAnimation(.spring(duration: 0.3, bounce: 0.1)) { selectedIndex = index }
                         } label: {
                             Text(option)
                                 .petsona(.body)
@@ -89,7 +89,7 @@ public struct Segmented: View {
                         .glassEffectTransition(.matchedGeometry)
                     } else {
                         Button {
-                            withAnimation(.easeInOut(duration: Motion.fast)) { selectedIndex = index }
+                            withAnimation(.spring(duration: 0.3, bounce: 0.1)) { selectedIndex = index }
                         } label: {
                             Text(option)
                                 .petsona(.body)

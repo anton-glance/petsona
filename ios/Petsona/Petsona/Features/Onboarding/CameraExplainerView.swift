@@ -74,6 +74,7 @@ private struct SlideshowPreview: View {
                 .resizable()
                 .scaledToFill()
                 .scaleEffect(scale)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .clipped()
 
             // Flash overlays for shutter effect

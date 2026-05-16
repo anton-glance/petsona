@@ -34,6 +34,7 @@ struct ContentView: View {
                     UIApplication.shared.endEditing()
                 }
                 .fontWeight(.semibold)
+                .padding(.bottom, 14)
             }
         }
     }
