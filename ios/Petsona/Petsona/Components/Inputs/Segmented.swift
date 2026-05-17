@@ -115,7 +115,9 @@ public struct Segmented: View {
         HStack(spacing: 0) {
             ForEach(Array(options.enumerated()), id: \.offset) { index, option in
                 Button {
-                    selectedIndex = index
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                        selectedIndex = index
+                    }
                 } label: {
                     Text(option)
                         .petsona(.body)
@@ -127,10 +129,11 @@ public struct Segmented: View {
                             if selectedIndex == index {
                                 RoundedRectangle(cornerRadius: tabCornerRadius, style: .continuous)
                                     .fill(legacyActiveBackground)
+                                    .matchedGeometryEffect(id: "thumb", in: glassNamespace)
                             }
                         }
                 }
-                .animation(.easeInOut(duration: Motion.fast), value: selectedIndex)
+                .buttonStyle(.plain)
             }
         }
         .padding(3)
