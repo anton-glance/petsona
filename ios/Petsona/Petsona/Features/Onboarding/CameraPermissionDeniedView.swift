@@ -19,7 +19,7 @@ struct CameraPermissionDeniedView: View {
                             Circle()
                                 .fill(Color.ivoryDim)
                                 .frame(width: 130, height: 130)
-                            Image(systemName: "camera.slash.fill")
+                            Image(systemName: "camera.slash")
                                 .font(.system(size: 56, weight: .regular))
                                 .foregroundStyle(Color.muted)
                         }

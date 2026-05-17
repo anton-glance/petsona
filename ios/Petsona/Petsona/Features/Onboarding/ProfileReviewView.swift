@@ -94,6 +94,7 @@ struct ProfileReviewView: View {
                         .padding(.vertical, 8)
                         .background(Capsule().fill(Color.colorSurfaceElev))
                 }
+                .buttonStyle(.plain)
                 .padding(.bottom, 14)
                 .padding(.trailing, Spacing.s3)
             }

@@ -109,15 +109,12 @@ final class OnboardingCoordinator {
     }
 
     /// Called when the app returns to the foreground from Settings.
-    /// If the user granted camera access while away, pops the denied screen and pushes camera.
+    /// Delegates to requestCameraPermission() which has the correct path logic
+    /// (photoCollection → cameraCapture). requestAccess() returns immediately
+    /// when permission is already determined, so no system dialog appears.
     func foregroundResumed() {
         guard path.contains(.cameraPermissionDenied) else { return }
-        let currentState = permissionProvider.status
-        if currentState == .authorized {
-            permissionState = .authorized
-            path.removeAll { $0 == .cameraPermissionDenied }
-            path.append(.cameraCapture(activeSlot ?? .front))
-        }
+        Task { await requestCameraPermission() }
     }
 
     // MARK: - Profile setters (typed; avoids generic KeyPath complexity for 7 fields)
