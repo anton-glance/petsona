@@ -1,5 +1,4 @@
 import AVFoundation
-import OSLog
 import UIKit
 
 enum CameraError: Error {
@@ -71,13 +70,10 @@ final class CameraSession: @unchecked Sendable {
                 let delegate = PhotoCaptureDelegate(continuation: continuation)
                 captureDelegate = delegate
                 let settings = AVCapturePhotoSettings()
-                if flashMode != .off, let device = captureDevice {
-                    let logger = Logger.petsona
-                    logger.debug("Flash: hasFlash=\(device.hasFlash) isAvailable=\(device.isFlashAvailable) supportedModes=\(self.photoOutput.supportedFlashModes.map(\.rawValue))")
-                    if device.hasFlash {
-                        settings.flashMode = flashMode
-                        logger.debug("Flash: mode set to \(flashMode.rawValue)")
-                    }
+                if flashMode != .off,
+                   let device = captureDevice,
+                   device.hasFlash {
+                    settings.flashMode = flashMode
                 }
                 photoOutput.capturePhoto(with: settings, delegate: delegate)
             }
