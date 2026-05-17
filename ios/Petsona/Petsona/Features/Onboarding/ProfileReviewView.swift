@@ -8,6 +8,9 @@ struct ProfileReviewView: View {
     @State private var showAgePicker = false
     @State private var weightString = ""
 
+    enum FormField: Hashable { case breed, name, weight }
+    @FocusState private var focusedField: FormField?
+
     private let colorOptions = [
         "Black", "White", "Brown tabby", "Orange tabby",
         "Tortoiseshell", "Calico", "Gray", "Cream", "Other"
@@ -47,15 +50,23 @@ struct ProfileReviewView: View {
                     .padding(.horizontal, Spacing.s5)
                     .padding(.bottom, Spacing.s3)
 
-                    ScrollView {
-                        VStack(spacing: 0) {
-                            formSection(coordinator: coordinator)
-                            vetRecordsSection(coordinator: coordinator)
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            VStack(spacing: 0) {
+                                formSection(coordinator: coordinator)
+                                vetRecordsSection(coordinator: coordinator)
+                            }
+                            .padding(.horizontal, Spacing.s5)
+                            .padding(.bottom, Spacing.s5)
                         }
-                        .padding(.horizontal, Spacing.s5)
-                        .padding(.bottom, Spacing.s5)
+                        .scrollDismissesKeyboard(.interactively)
+                        .onChange(of: focusedField) { _, newField in
+                            guard let newField else { return }
+                            withAnimation(.easeOut(duration: 0.25)) {
+                                proxy.scrollTo(newField, anchor: .center)
+                            }
+                        }
                     }
-                    .scrollDismissesKeyboard(.interactively)
 
                     CtaStack {
                         // XC1 ✅ — live-bound to coordinator.profile.name
@@ -64,6 +75,7 @@ struct ProfileReviewView: View {
                             onContinue()
                         }
                     }
+                    .ignoresSafeArea(.keyboard, edges: .bottom)
                 }
             }
         }
@@ -119,6 +131,7 @@ struct ProfileReviewView: View {
                         .font(.petsonaBody)
                         .fontWeight(.medium)
                         .foregroundStyle(Color.colorTextDefault)
+                        .focused($focusedField, equals: .breed)
                     Spacer()
                     Text("AI \(coordinator.profile.breedConfidence)%")
                         .petsona(.caption)
@@ -130,6 +143,7 @@ struct ProfileReviewView: View {
                         .background(Capsule(style: .continuous).fill(Color.honeyTint))
                 }
             }
+            .id(FormField.breed)
 
             // Name — XC1: live binding drives headline and CTA
             CompactField("Name") {
@@ -137,7 +151,9 @@ struct ProfileReviewView: View {
                     .font(.petsonaBody)
                     .fontWeight(.medium)
                     .foregroundStyle(Color.colorTextDefault)
+                    .focused($focusedField, equals: .name)
             }
+            .id(FormField.name)
 
             // S05.2: subtle style — honeySoft/honeyTint fills, md radius
             CompactField("Gender") {
@@ -185,6 +201,7 @@ struct ProfileReviewView: View {
                     .fontWeight(.medium)
                     .foregroundStyle(Color.colorTextDefault)
                     .keyboardType(.decimalPad)
+                    .focused($focusedField, equals: .weight)
 
                     Segmented(
                         options: ["kg", "lb"],
@@ -197,6 +214,7 @@ struct ProfileReviewView: View {
                     .frame(width: 84)
                 }
             }
+            .id(FormField.weight)
 
             // S05.4: Menu anchored to chevron on right — opens from the chevron side
             CompactField("Color") {
