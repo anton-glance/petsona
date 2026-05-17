@@ -1,6 +1,7 @@
 import SwiftUI
 import AVFoundation
 import PhotosUI
+import OSLog
 
 struct CameraCaptureView: View {
     let slot: PhotoSlot
@@ -163,8 +164,12 @@ struct CameraCaptureView: View {
     // MARK: - Capture
 
     private func captureAndAdvance() async {
-        if let image = try? await cameraSession.capturePhoto(flashMode: flashEnabled ? .on : .off) {
+        do {
+            let mode: AVCaptureDevice.FlashMode = flashEnabled ? .on : .off
+            let image = try await cameraSession.capturePhoto(flashMode: mode)
             coordinator.capturePhoto(slot: slot, image: image)
+        } catch {
+            Logger.petsona.error("Photo capture failed: \(error)")
         }
     }
 }
