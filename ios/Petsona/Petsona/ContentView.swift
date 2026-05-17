@@ -30,11 +30,18 @@ struct ContentView: View {
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
-                Button("Done") {
+                Button {
                     UIApplication.shared.endEditing()
+                } label: {
+                    Text("Done")
+                        .font(.petsonaBody)
+                        .fontWeight(.semibold)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Capsule().fill(Color.colorSurfaceElev))
                 }
-                .fontWeight(.semibold)
                 .padding(.bottom, 14)
+                .padding(.trailing, Spacing.s3)
             }
         }
     }
