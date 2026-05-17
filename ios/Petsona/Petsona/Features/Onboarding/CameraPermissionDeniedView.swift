@@ -15,13 +15,11 @@ struct CameraPermissionDeniedView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: Spacing.s5) {
-                        // S02b.1: video.slash.fill — universally available (iOS 13+)
-                        // and clearly communicates "video/camera disabled"
                         ZStack {
                             Circle()
                                 .fill(Color.ivoryDim)
                                 .frame(width: 130, height: 130)
-                            Image(systemName: "video.slash.fill")
+                            Image(systemName: "camera.slash.fill")
                                 .font(.system(size: 56, weight: .regular))
                                 .foregroundStyle(Color.muted)
                         }
@@ -79,6 +77,7 @@ struct CameraPermissionDeniedView: View {
                             UIApplication.shared.open(url)
                         }
                     }
+                    Spacer().frame(height: 6)
                     TextButton("Already granted. Try again") {
                         Task { await coordinator.requestCameraPermission() }
                     }

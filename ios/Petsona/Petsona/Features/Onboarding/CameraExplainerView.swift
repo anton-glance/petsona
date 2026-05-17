@@ -88,7 +88,7 @@ private struct SlideshowPreview: View {
                 .stroke(Color.honeyDk, lineWidth: 2.5)
                 .padding(24)
         }
-        .aspectRatio(1.3, contentMode: .fit)
+        .aspectRatio(1.0, contentMode: .fit)
         .clipShape(RoundedRectangle(cornerRadius: BorderRadius.lg, style: .continuous))
         .task {
             do { try await runSlideshow() } catch {}

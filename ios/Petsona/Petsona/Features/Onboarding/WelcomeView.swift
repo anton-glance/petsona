@@ -41,18 +41,11 @@ struct WelcomeView: View {
 
                 Spacer()
 
-                // S01.1: 18pt gap between CTA button and terms footnote
-                VStack(spacing: 0) {
+                CtaStack {
                     PrimaryButton("Get started") {
                         coordinator.start()
                     }
-                    .padding(.horizontal, Spacing.s5)
-
-                    Spacer().frame(height: 18)
-
                     termsText
-                        .padding(.horizontal, Spacing.s5)
-                        .padding(.bottom, Spacing.s5)
                 }
             }
         }

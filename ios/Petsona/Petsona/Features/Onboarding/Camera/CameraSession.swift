@@ -26,6 +26,7 @@ final class CameraSession: @unchecked Sendable {
     )
     private let photoOutput = AVCapturePhotoOutput()
     private var captureDelegate: PhotoCaptureDelegate?
+    private var captureDevice: AVCaptureDevice?
 
     func configure(position: AVCaptureDevice.Position = .back) async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
@@ -38,6 +39,7 @@ final class CameraSession: @unchecked Sendable {
                     ) else {
                         throw CameraError.deviceUnavailable
                     }
+                    captureDevice = device
                     let input = try AVCaptureDeviceInput(device: device)
                     if captureSession.canAddInput(input) { captureSession.addInput(input) }
                     captureSession.sessionPreset = .photo
@@ -68,7 +70,10 @@ final class CameraSession: @unchecked Sendable {
                 let delegate = PhotoCaptureDelegate(continuation: continuation)
                 captureDelegate = delegate
                 let settings = AVCapturePhotoSettings()
-                if photoOutput.supportedFlashModes.contains(flashMode) {
+                if flashMode != .off,
+                   let device = captureDevice,
+                   device.hasFlash,
+                   device.isFlashAvailable {
                     settings.flashMode = flashMode
                 }
                 photoOutput.capturePhoto(with: settings, delegate: delegate)

@@ -115,7 +115,7 @@ public struct Segmented: View {
         HStack(spacing: 0) {
             ForEach(Array(options.enumerated()), id: \.offset) { index, option in
                 Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
                         selectedIndex = index
                     }
                 } label: {
@@ -123,6 +123,7 @@ public struct Segmented: View {
                         .petsona(.body)
                         .fontWeight(selectedIndex == index ? .semibold : .regular)
                         .foregroundStyle(selectedIndex == index ? activeTextColor : inactiveTextColor)
+                        .contentTransition(.opacity)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, style == .subtle ? 10 : Spacing.s3)
                         .background {
