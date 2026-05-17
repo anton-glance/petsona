@@ -69,13 +69,15 @@ private struct SlideshowPreview: View {
 
     var body: some View {
         ZStack {
-            // Full-bleed photo
+            // Letterbox fill — visible on portrait source images
+            Color.ivoryDim
+
+            // Photo scaled to fit, preserving aspect ratio
             Image(slides[displayIndex])
                 .resizable()
-                .scaledToFill()
+                .scaledToFit()
                 .scaleEffect(scale)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
 
             // Flash overlays for shutter effect
             Color.white.opacity(flashWhiteOpacity)
